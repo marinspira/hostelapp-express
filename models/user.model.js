@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    fullName: {
+    name: {
         type: String,
         required: true
     },
@@ -9,17 +9,31 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    password: {
+    picture: {
         type: String,
-        required: true,
-        minlength: 6
+        default: null,
     },
-    userType: { 
+    googleId: {
+        type: String,
+        default: null,
+    },
+    appleId: {
+        type: String,
+        default: null,
+    },
+    role: { 
         type: String, 
-        enum: ['Owner', 'Guest'], 
+        enum: ['host', 'guest'], 
         required: true 
     },
 }, {timestamps: true})
+
+userSchema.pre('validate', function (next) {
+    if (!this.googleId && !this.appleId) {
+        return next(new Error('Either googleId or appleId is required.'));
+    }
+    next();
+});
 
 const User = mongoose.model("User", userSchema)
 

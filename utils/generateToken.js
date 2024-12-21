@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken"
+import * as dotenv from 'dotenv';
 
 // Function to generate a JWT token and set it in a cookie in the HTTP response
 function generateTokenAndSetCookie(userId, res) {
