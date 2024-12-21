@@ -41,7 +41,7 @@ export const login = async (req, res) => {
             await newUser.save();
 
             res.status(201).json({
-                isNewUser: false,
+                isNewUser: true,
                 role: newUser.role
             });
         } else {
