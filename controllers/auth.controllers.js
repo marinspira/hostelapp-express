@@ -2,7 +2,7 @@ import User from "../models/user.model.js"
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { jwtDecode } from 'jwt-decode'
 
-export const login = async (req, res) => {
+export const googleLogin = async (req, res) => {
     try {
         const {
             name,
@@ -73,15 +73,39 @@ export const appleLogin = async (req, res) => {
 
         // Login if user already exists
         if (user) {
+
+            // If the email exists but the appleId does not match
+            if (user.appleId && user.appleId !== appleId) {
+                return res.status(400).json({
+                    error: 'Invalid token',
+                });
+            }
+
+            // If the email exists but is associated with Google
+            if (user.googleId && !user.appleId) {
+                return res.status(400).json({
+                    error: 'This email is already linked to a Google account. Please log in using Google.',
+                });
+            }
+
             generateTokenAndSetCookie(user._id, res);
+
+            if (user.dateOfBirth !== null) {
+                return res.status(200).json({
+                    id: user._id,
+                    isNewUser: false,
+                    role: user.role
+                });
+            }
 
             return res.status(200).json({
                 id: user._id,
-                isNewUser: false,
+                isNewUser: true,
                 role: user.role
             });
         }
 
+        // Create a new user
         const firstName = fullName.split(' ')[0]
         const lastName = fullName.split(' ')[1]
 
@@ -104,8 +128,6 @@ export const appleLogin = async (req, res) => {
             // Save the new user to the database
             await newUser.save();
 
-            console.log('Salvando usuário')
-
             res.status(201).json({
                 id: newUser._id,
                 isNewUser: true,
@@ -122,12 +144,19 @@ export const appleLogin = async (req, res) => {
     }
 }
 
-export const logout = (req, res) => {
-    // try {
-    //     res.cookie("jwt", "", { maxAge: 0 })
-    //     res.status(200).json({ message: "Logged out successfully" })
-    // } catch (error) {
-    //     console.log("Error:", error.message)
-    //     res.status(500).json({ error: "Error Server" })
-    // }
-}
+export const logout = async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 0 })
+
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
+
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Error during logout:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

@@ -1,9 +1,9 @@
 import express from "express"
-import { login, appleLogin, logout } from "../controllers/auth.controllers.js"
+import { googleLogin, appleLogin, logout } from "../controllers/auth.controllers.js"
 
 const router = express.Router()
 
-router.post("/login", login)
+router.post("/googleLogin", googleLogin)
 
 router.post("/appleLogin", appleLogin)
 

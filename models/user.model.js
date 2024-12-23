@@ -21,12 +21,22 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    role: { 
-        type: String, 
-        enum: ['host', 'guest'], 
-        required: true 
+    role: {
+        type: String,
+        enum: ['host', 'guest'],
+        required: true
     },
-}, {timestamps: true})
+    dateOfBirth: {
+        type: Date,
+        default: null,
+        validate: {
+            validator: function (value) {
+                return value === null || value < new Date();
+            },
+            message: 'Date of birth must be in the past.'
+        }
+    }
+}, { timestamps: true })
 
 userSchema.pre('validate', function (next) {
     if (!this.googleId && !this.appleId) {
