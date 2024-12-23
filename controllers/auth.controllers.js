@@ -68,6 +68,7 @@ export const appleLogin = async (req, res) => {
 
         const decodedToken = jwtDecode(identityToken)
         const email = decodedToken.email
+        const appleId = decodedToken.sub
 
         const user = await User.findOne({ email });
 
