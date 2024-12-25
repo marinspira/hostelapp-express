@@ -1,6 +1,7 @@
 import User from "../models/user.model.js"
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { jwtDecode } from 'jwt-decode'
+import Guest from "../models/guest.model.js"
 
 export const googleLogin = async (req, res) => {
     try {
@@ -21,6 +22,7 @@ export const googleLogin = async (req, res) => {
 
             return res.status(200).json({
                 isNewUser: false,
+                name: user.name,
                 role: user.role
             });
         }
@@ -31,7 +33,6 @@ export const googleLogin = async (req, res) => {
             email,
             googleId,
             appleId,
-            picture,
             role,
         });
 
@@ -41,8 +42,24 @@ export const googleLogin = async (req, res) => {
             // Save the new user to the database
             await newUser.save();
 
+            if (picture) {
+                // Check if guest exists
+                const guest = await Guest.findOne({ user: newUser._id });
+
+                if (!guest) {
+                    // Create a new guest associate to user
+                    const newGuest = new Guest({
+                        user: newUser._id,
+                        guestPhotos: [picture]
+                    });
+
+                    await newGuest.save();
+                }
+            }
+
             res.status(201).json({
                 isNewUser: true,
+                name: newUser.name,
                 role: newUser.role
             });
         } else {
@@ -74,7 +91,6 @@ export const appleLogin = async (req, res) => {
 
         // Login if user already exists
         if (user) {
-
             // If the email exists but the appleId does not match
             if (user.appleId && user.appleId !== appleId) {
                 return res.status(400).json({
@@ -91,9 +107,13 @@ export const appleLogin = async (req, res) => {
 
             generateTokenAndSetCookie(user._id, res);
 
-            if (user.dateOfBirth !== null) {
+            // Verify if is a new user (have the birth date)
+            const guest = await Guest.findOne({ user: user._id });
+
+            if (guest.birthday !== null) {
                 return res.status(200).json({
                     id: user._id,
+                    name: user.name,
                     isNewUser: false,
                     role: user.role
                 });
@@ -101,6 +121,7 @@ export const appleLogin = async (req, res) => {
 
             return res.status(200).json({
                 id: user._id,
+                name: user.name,
                 isNewUser: true,
                 role: user.role
             });
@@ -119,7 +140,6 @@ export const appleLogin = async (req, res) => {
             appleId: decodedToken.sub,
             email: decodedToken.email,
             googleId: null,
-            picture: null,
             role,
         });
 
