@@ -3,6 +3,33 @@ import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { jwtDecode } from 'jwt-decode'
 import Guest from "../models/guest.model.js"
 
+export const isAuthenticated = async (req, res) => {
+    try {
+        const user = req.user
+
+        // Verify if is a new user (have the birth date)
+        const guest = await Guest.findOne({ user: user._id });
+
+        if (guest.birthday !== null) {
+            return res.status(200).json({
+                name: user.name,
+                isNewUser: false,
+                role: user.role
+            });
+        }
+
+        res.status(200).json({
+           name: user.name,
+           isNewUser: true,
+           role: user.role
+        })
+
+    } catch (error) {
+        console.log("Error in isAuthenticated controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 export const googleLogin = async (req, res) => {
     try {
         const {
@@ -112,7 +139,6 @@ export const appleLogin = async (req, res) => {
 
             if (guest.birthday !== null) {
                 return res.status(200).json({
-                    id: user._id,
                     name: user.name,
                     isNewUser: false,
                     role: user.role
@@ -120,7 +146,6 @@ export const appleLogin = async (req, res) => {
             }
 
             return res.status(200).json({
-                id: user._id,
                 name: user.name,
                 isNewUser: true,
                 role: user.role
@@ -150,7 +175,7 @@ export const appleLogin = async (req, res) => {
             await newUser.save();
 
             res.status(201).json({
-                id: newUser._id,
+                name: newUser.fullName,
                 isNewUser: true,
                 role: newUser.role
             });

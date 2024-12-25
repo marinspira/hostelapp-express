@@ -1,7 +1,10 @@
 import express from "express"
-import { googleLogin, appleLogin, logout } from "../controllers/auth.controllers.js"
+import { googleLogin, appleLogin, logout, isAuthenticated } from "../controllers/auth.controllers.js"
+import protectRoute from "../middleware/protectRoute.js"
 
 const router = express.Router()
+
+router.post("/isAuthenticated", protectRoute, isAuthenticated)
 
 router.post("/googleLogin", googleLogin)
 
