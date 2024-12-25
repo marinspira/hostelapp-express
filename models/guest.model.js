@@ -52,7 +52,7 @@ const guestSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     }
-}, { timeStamps: true })
+}, { timestamps: true })
 
 const Guest = mongoose.model("Guest", guestSchema)
 
