@@ -3,9 +3,13 @@ import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { jwtDecode } from 'jwt-decode'
 import Guest from "../models/guest.model.js"
 
+
+// not being used
 export const isAuthenticated = async (req, res) => {
     try {
         const user = req.user
+
+        console.log('check user on cookies:', user)
 
         // Verify if is a new user (have the birth date)
         const guest = await Guest.findOne({ user: user._id });

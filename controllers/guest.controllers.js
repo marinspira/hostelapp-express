@@ -1,4 +1,3 @@
-import User from "../models/user.model.js"
 import Guest from "../models/guest.model.js"
 
 export const saveGuest = async (req, res) => {
@@ -8,6 +7,14 @@ export const saveGuest = async (req, res) => {
         } = req.body
 
         const user = req.user
+
+        const guest = await Guest.findOne({ user: user._id });
+
+        if (guest.birthday !== null) {
+            return res.status(400).json({
+                message: 'Guest already exists!'
+            })
+        }
 
         const newGuest = new Guest({
             guestPhotos: Array.isArray(guestData.guestPhotos)
@@ -35,7 +42,7 @@ export const saveGuest = async (req, res) => {
         }
 
     } catch (error) {
-        console.log("Error in saveGuest controller", error.message);
+        console.error("Error in saveGuest controller", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 }

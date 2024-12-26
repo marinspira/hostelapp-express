@@ -20,12 +20,8 @@ const protectRoute = async (req, res, next) => {
             return res.status(401).json({ error: "Unauthorized - Invalid Token" });
         }
 
-        console.log(decoded)
-
         // Find the user by the ID decoded from the token, excluding the password field
         const user = await User.findById(decoded.userId);
-
-        console.log(user)
 
         // If the user is not found, respond with a 404 status
         if (!user) {
@@ -39,7 +35,7 @@ const protectRoute = async (req, res, next) => {
         next();
 
     } catch (error) {
-        console.log("Error in protectRoute middleware", error.message);
+        console.error("Error in protectRoute middleware", error.message);
         res.status(500).json({ error: "Internal server error" });
     }
 }
