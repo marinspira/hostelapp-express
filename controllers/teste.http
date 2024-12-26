@@ -1,6 +1,0 @@
-POST https://7ad3-94-119-32-13.ngrok-free.app/api/guest/saveGuest
-Content-Type: application/json
-
-{
-    
-}
