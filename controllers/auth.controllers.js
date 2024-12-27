@@ -2,6 +2,7 @@ import User from "../models/user.model.js"
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { jwtDecode } from 'jwt-decode'
 import Guest from "../models/guest.model.js"
+import { getGoogleUserInfo } from "../utils/getGoogleUserInfo.js";
 
 
 // not being used
@@ -23,9 +24,9 @@ export const isAuthenticated = async (req, res) => {
         }
 
         res.status(200).json({
-           name: user.name,
-           isNewUser: true,
-           role: user.role
+            name: user.name,
+            isNewUser: true,
+            role: user.role
         })
 
     } catch (error) {
@@ -36,70 +37,75 @@ export const isAuthenticated = async (req, res) => {
 
 export const googleLogin = async (req, res) => {
     try {
-        const {
-            name,
-            email,
-            googleId,
-            appleId,
-            picture,
-            role,
-        } = req.body;
+        const { token, role } = req.body;
 
+        const userInfo = await getGoogleUserInfo(token);
+        if (!userInfo) {
+            return res.status(400).json({ error: 'Invalid token' });
+        }
+
+        const email = userInfo.email
         const user = await User.findOne({ email });
 
-        // Login if user already exists
+        // Existing user logic
         if (user) {
+            // Validate Google and Apple IDs
+            if (user.googleId && user.googleId !== userInfo.id) {
+                return res.status(400).json({ error: 'Invalid token' });
+            }
+
+            if (user.appleId && !user.googleId) {
+                return res.status(400).json({
+                    error: 'This email is already linked to a Apple account. Please log in using Apple.',
+                });
+            }
+
             generateTokenAndSetCookie(user._id, res);
 
+            const guest = await Guest.findOne({ user: user._id });
+
+            // Verify if is a new user (have the birth date)
+            const isNewUser = !guest?.birthday;
             return res.status(200).json({
-                isNewUser: false,
                 name: user.name,
-                role: user.role
+                isNewUser,
+                role: user.role,
             });
         }
 
-        // Create a new user with the provided data
+        // New user creation logic
         const newUser = new User({
-            name,
-            email,
-            googleId,
-            appleId,
-            role,
+            name: userInfo.name,
+            email: userInfo.email,
+            googleId: userInfo.id,
+            role
         });
 
         if (newUser) {
-            generateTokenAndSetCookie(newUser._id, res)
-
-            // Save the new user to the database
             await newUser.save();
-
-            if (picture) {
-                // Check if guest exists
-                const guest = await Guest.findOne({ user: newUser._id });
-
-                if (!guest) {
-                    // Create a new guest associate to user
-                    const newGuest = new Guest({
-                        user: newUser._id,
-                        guestPhotos: [picture]
-                    });
-
-                    await newGuest.save();
-                }
-            }
-
-            res.status(201).json({
-                isNewUser: true,
-                name: newUser.name,
-                role: newUser.role
-            });
+            generateTokenAndSetCookie(newUser._id, res)
         } else {
-            res.status(400).json({ error: "Invalid user data" })
+            return res.status(400).json({ error: "Error creating new user" })
         }
+
+        // Create Guest if user has a profile picture
+        if (userInfo.picture) {
+            const newGuest = new Guest({
+                guestPhotos: [userInfo.picture],
+                user: newUser._id
+            })
+            await newGuest.save()
+        }
+
+        return res.status(201).json({
+            isNewUser: true,
+            name: newUser.name,
+            role: newUser.role
+        });
 
     } catch (error) {
         console.log("Error in signup controller", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 }
 
@@ -178,13 +184,13 @@ export const appleLogin = async (req, res) => {
             // Save the new user to the database
             await newUser.save();
 
-            res.status(201).json({
+            return res.status(201).json({
                 name: newUser.fullName,
                 isNewUser: true,
                 role: newUser.role
             });
         } else {
-            res.status(400).json({ error: "Invalid user data" })
+            return res.status(400).json({ error: "Invalid user data" })
         }
 
 

@@ -2,14 +2,13 @@ import mongoose from "mongoose";
 
 const guestSchema = new mongoose.Schema({
     guestPhotos: {
-        type: [Buffer | String]
+        type: [String]
     },
     phoneNumber: {
         type: String
     },
     birthday: {
         type: String,
-        required: true
     },
     country: {
         type: String

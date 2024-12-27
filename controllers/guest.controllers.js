@@ -42,12 +42,12 @@ export const saveGuest = async (req, res) => {
             });
 
             await newGuest.save();
-            res.status(201).json({ message: 'Guest created!' });
+            return res.status(201).json({ message: 'Guest created!' });
         }
 
     } catch (error) {
         console.error("Error in saveGuest controller", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 }
 
@@ -75,14 +75,14 @@ export const saveGuestProfileImages = async (req, res) => {
         if (newGuest) {
             await newGuest.save()
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: 'New guest created, and photos added.'
             })
         } else {
-            res.status(400).json({ error: 'Error saving guest' })
+            return res.status(400).json({ error: 'Error saving guest' })
         }
     } catch (error) {
         console.error('Error in saveGuestProfileImages: ', error.message)
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 }
