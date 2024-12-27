@@ -7,6 +7,6 @@ const router = express.Router()
 
 router.post("/saveGuest", protectRoute, saveGuest)
 
-router.post("/saveGuestProfileImages", upload.single('file'), saveGuestProfileImages)
+router.post("/saveGuestProfileImages", protectRoute, upload.single('file'), saveGuestProfileImages)
 
 export default router

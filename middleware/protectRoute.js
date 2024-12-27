@@ -31,6 +31,8 @@ const protectRoute = async (req, res, next) => {
         // Attach the user object to the request for use in the next middleware/route handler
         req.user = user;
 
+        console.log(user)
+
         // Call the next middleware or route handler
         next();
 
