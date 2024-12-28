@@ -1,3 +1,4 @@
+import { getRelativeFilePath } from "../middleware/saveUploads.js";
 import Guest from "../models/guest.model.js"
 
 export const saveGuest = async (req, res) => {
@@ -53,7 +54,7 @@ export const saveGuest = async (req, res) => {
 
 export const saveGuestProfileImages = async (req, res) => {
     try {
-        const imagePath = req.file.path
+        const imagePath = getRelativeFilePath(req, req.file)
 
         const user = req.user
         const guest = await Guest.findOne({ user: user._id })

@@ -17,12 +17,17 @@ const PORT = process.env.PORT || 5000;
 // Define __dirname manually
 const __filename = fileURLToPath(import.meta.url);
 const backendFiles = path.dirname(__filename);
-export const __dirname = path.dirname(backendFiles); 
+export const __dirname = path.dirname(`${backendFiles}/backend`); 
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(express.urlencoded({
+ extended: true,
+ })
+);
 
 // Routes
 app.use("/api/auth", authRoutes);
