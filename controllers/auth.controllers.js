@@ -5,28 +5,34 @@ import Guest from "../models/guest.model.js"
 import { getGoogleUserInfo } from "../utils/getGoogleUserInfo.js";
 
 
-// not being used
 export const isAuthenticated = async (req, res) => {
     try {
         const user = req.user
 
         console.log('check user on cookies:', user)
 
-        // Verify if is a new user (have the birth date)
         const guest = await Guest.findOne({ user: user._id });
 
         if (guest.birthday !== null) {
             return res.status(200).json({
-                name: user.name,
-                isNewUser: false,
-                role: user.role
+                data: {
+                    name: user.name,
+                    isNewUser: false,
+                    role: user.role
+                },
+                success: true,
+                message: 'User authenticated successfully'
             });
         }
 
         res.status(200).json({
-            name: user.name,
-            isNewUser: true,
-            role: user.role
+            data: {
+                name: user.name,
+                isNewUser: true,
+                role: user.role
+            },
+            success: true,
+            message: 'New user authenticated successfully'
         })
 
     } catch (error) {
@@ -67,9 +73,13 @@ export const googleLogin = async (req, res) => {
             // Verify if is a new user (have the birth date)
             const isNewUser = !guest?.birthday;
             return res.status(200).json({
-                name: user.name,
-                isNewUser,
-                role: user.role,
+                data: {
+                    name: user.name,
+                    isNewUser,
+                    role: user.role,
+                },
+                success: true,
+                message: 'User logged with Google successfully'
             });
         }
 
@@ -98,9 +108,13 @@ export const googleLogin = async (req, res) => {
         }
 
         return res.status(201).json({
-            isNewUser: true,
-            name: newUser.name,
-            role: newUser.role
+            data: {
+                isNewUser: true,
+                name: newUser.name,
+                role: newUser.role
+            },
+            success: true,
+            message: 'New user created with Google successfully'
         });
 
     } catch (error) {
@@ -130,9 +144,7 @@ export const appleLogin = async (req, res) => {
         if (user) {
             // If the email exists but the appleId does not match
             if (user.appleId && user.appleId !== appleId) {
-                return res.status(400).json({
-                    error: 'Invalid token',
-                });
+                return res.status(400).json({ error: 'Invalid token' });
             }
 
             // If the email exists but is associated with Google
@@ -147,18 +159,26 @@ export const appleLogin = async (req, res) => {
             // Verify if is a new user (have the birth date)
             const guest = await Guest.findOne({ user: user._id });
 
-            if (guest.birthday !== null) {
+            if (guest && guest.birthday !== null) {
                 return res.status(200).json({
-                    name: user.name,
-                    isNewUser: false,
-                    role: user.role
+                    data: {
+                        name: user.name,
+                        isNewUser: false,
+                        role: user.role,
+                    },
+                    success: true,
+                    message: 'User logged successfully',
                 });
             }
 
             return res.status(200).json({
-                name: user.name,
-                isNewUser: true,
-                role: user.role
+                data: {
+                    name: user.name,
+                    isNewUser: true,
+                    role: user.role
+                },
+                success: true,
+                message: 'New user logged successfully',
             });
         }
 
@@ -181,13 +201,16 @@ export const appleLogin = async (req, res) => {
         if (newUser) {
             generateTokenAndSetCookie(newUser._id, res)
 
-            // Save the new user to the database
             await newUser.save();
 
             return res.status(201).json({
-                name: newUser.fullName,
-                isNewUser: true,
-                role: newUser.role
+                data: {
+                    name: user.name,
+                    isNewUser: true,
+                    role: user.role
+                },
+                success: true,
+                message: 'New user created successfully',
             });
         } else {
             return res.status(400).json({ error: "Invalid user data" })
@@ -206,11 +229,13 @@ export const logout = async (req, res) => {
 
         res.clearCookie("jwt", {
             httpOnly: true,
-            // secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
         });
 
-        res.status(200).json({ message: "Logged out successfully" });
+        res.status(200).json({
+            message: "Logged out successfully",
+            success: true
+        });
     } catch (error) {
         console.error("Error during logout:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
