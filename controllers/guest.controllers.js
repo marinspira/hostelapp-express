@@ -54,18 +54,24 @@ export const saveGuest = async (req, res) => {
 
 export const saveGuestProfileImages = async (req, res) => {
     try {
+        const { id } = req.body;
         const imagePath = getRelativeFilePath(req, req.file)
 
         const user = req.user
         const guest = await Guest.findOne({ user: user._id })
 
         if (guest) {
-            guest.guestPhotos.push(imagePath);
-            await guest.save()
+            while (guest.guestPhotos.length <= id) {
+                guest.guestPhotos.push(null);
+            }
+
+            guest.guestPhotos[id] = imagePath;
+            
+            await guest.save();
 
             return res.status(200).json({
-                message: 'Guest images updated.'
-            })
+                message: 'Guest images updated.',
+            });
         }
 
         const newGuest = new Guest({
@@ -86,4 +92,4 @@ export const saveGuestProfileImages = async (req, res) => {
         console.error('Error in saveGuestProfileImages: ', error.message)
         return res.status(500).json({ error: "Internal Server Error" });
     }
-}
+} 
