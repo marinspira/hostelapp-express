@@ -23,13 +23,15 @@ export const saveGuest = async (req, res) => {
                 guest.pets = guestData.pets || guest.pets;
                 guest.showProfileAuthorization = guestData.showProfileAuthorization || guest.showProfileAuthorization;
                 await guest.save();
-                return res.status(200).json({ message: 'Guest updated!' });
+                return res.status(200).json({
+                    message: 'Guest updated!',
+                    success: true,
+                    data: guest
+                });
             } else {
-                // Birthday is not empty, handle error
-                return res.status(400).json({ message: 'Birthday cannot be updated for existing guest!' });
+                return res.status(400).json({ error: 'Birthday cannot be updated for existing guest!' });
             }
         } else {
-            // Guest doesn't exist, create a new one
             const newGuest = new Guest({
                 phoneNumber: guestData.phoneNumber,
                 birthday: guestData.birthday,
@@ -43,7 +45,11 @@ export const saveGuest = async (req, res) => {
             });
 
             await newGuest.save();
-            return res.status(201).json({ message: 'Guest created!' });
+            return res.status(201).json({
+                message: 'Guest created!',
+                success: true,
+                data: newGuest
+            });
         }
 
     } catch (error) {
@@ -66,11 +72,12 @@ export const saveGuestProfileImages = async (req, res) => {
             }
 
             guest.guestPhotos[id] = imagePath;
-            
+
             await guest.save();
 
             return res.status(200).json({
                 message: 'Guest images updated.',
+                success: true
             });
         }
 
@@ -83,7 +90,8 @@ export const saveGuestProfileImages = async (req, res) => {
             await newGuest.save()
 
             return res.status(201).json({
-                message: 'New guest created, and photos added.'
+                message: 'New guest created, and photos added.',
+                success: true
             })
         } else {
             return res.status(400).json({ error: 'Error saving guest' })
