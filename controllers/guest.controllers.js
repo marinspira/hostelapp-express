@@ -58,6 +58,46 @@ export const saveGuest = async (req, res) => {
     }
 }
 
+export const getGuest = async (req, res) => {
+    try {
+        const user = req.user
+
+        const guest = await Guest.findOne({ user: user._id })
+
+        if (!guest) {
+            return res.status(404).json({
+                message: 'Guest not found!',
+                success: false
+            })
+        }
+
+        return res.status(200).json({
+            message: 'Guest retrieved successfully',
+            success: true,
+            data: {
+                guestPhotos: guest.guestPhotos,
+                phoneNumber: guest.phoneNumber,
+                birthday: guest.birthday,
+                country: guest.country,
+                passaportPhoto: guest.passaportPhoto,
+                interests: guest.interests,
+                description: guest.description,
+                languages: guest.languages,
+                digitalNomad: guest.digitalNomad,
+                smoker: guest.smoker,
+                pets: guest.pets,
+                instagram: guest.instagram,
+                linkedin: guest.linkedin,
+                twitter: guest.twitter,
+                showProfileAuthorization: guest.showProfileAuthorization,
+            }
+        })
+    } catch (error) {
+        console.error('Error in getGuest controller:', error.message)
+        return res.status(500).json({ error: 'Internal Server Error' })
+    }
+}
+
 export const saveGuestProfileImages = async (req, res) => {
     try {
         const { id } = req.body;

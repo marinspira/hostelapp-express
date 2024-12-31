@@ -34,7 +34,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/guest", guestRoutes);
 
 // Static files
-app.use('/temp/images', express.static(path.join(__dirname, 'temp/images')));
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Start server
 app.listen(PORT, () => {
