@@ -1,5 +1,7 @@
 import { getRelativeFilePath } from "../middleware/saveUploads.js";
 import Guest from "../models/guest.model.js"
+import fs from 'fs';
+import path from 'path';
 
 export const saveGuest = async (req, res) => {
     try {
@@ -61,7 +63,6 @@ export const saveGuest = async (req, res) => {
 export const getGuest = async (req, res) => {
     try {
         const user = req.user
-
         const guest = await Guest.findOne({ user: user._id })
 
         if (!guest) {
@@ -100,24 +101,27 @@ export const getGuest = async (req, res) => {
 
 export const saveGuestProfileImages = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { imageId } = req.body;
         const imagePath = getRelativeFilePath(req, req.file)
 
         const user = req.user
         const guest = await Guest.findOne({ user: user._id })
 
         if (guest) {
-            while (guest.guestPhotos.length <= id) {
-                guest.guestPhotos.push(null);
+            if (imageId < guest.guestPhotos.length) {
+                guest.guestPhotos[imageId] = imagePath;
+            } else {
+                guest.guestPhotos.push(imagePath);
             }
-
-            guest.guestPhotos[id] = imagePath;
 
             await guest.save();
 
             return res.status(200).json({
                 message: 'Guest images updated.',
-                success: true
+                success: true,
+                data: {
+                    imagePath
+                }
             });
         }
 
@@ -140,4 +144,57 @@ export const saveGuestProfileImages = async (req, res) => {
         console.error('Error in saveGuestProfileImages: ', error.message)
         return res.status(500).json({ error: "Internal Server Error" });
     }
-} 
+}
+
+export const deleteGuestProfileImage = async (req, res) => {
+    try {
+        const { imageId } = req.body;
+        const user = req.user
+        const guest = await Guest.findOne({ user: user._id })
+
+        if (!guest) {
+            return res.status(404).json({
+                message: 'Guest not found!',
+                success: false
+            })
+        }
+
+        if (guest && imageId < guest.guestPhotos.length) {
+
+            const imagePath = guest.guestPhotos[imageId];
+
+            // Delete from files
+            const fullImagePath = path.resolve(imagePath);
+
+            fs.unlink(fullImagePath, async (err) => {
+                if (err) {
+                    console.error('Error deleting file: ', err);
+                    return res.status(500).json({
+                        message: 'Failed to delete the image file.',
+                        success: false,
+                    });
+                }
+                return
+            })
+
+            // Delete from the DB
+            guest.guestPhotos.splice(imageId, 1);
+
+            await guest.save();
+
+            return res.status(200).json({
+                message: 'Imagem removida com sucesso.',
+                success: true,
+                data: {
+                    imageId
+                }
+            });
+        }
+
+        return res.status(404).json({ error: 'Imagem não encontrada.' });
+
+    } catch (error) {
+        console.error('Error in deleteGuestProfileImage: ', error.message)
+        return res.status(500).json({ error: 'Internal Server Error' })
+    }
+}
