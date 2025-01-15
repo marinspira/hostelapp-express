@@ -99,6 +99,41 @@ export const getGuest = async (req, res) => {
     }
 }
 
+export const updateGuest = async (req, res) => {
+    try {
+        const user = req.user;
+        const { guestData } = req.body;
+
+        const guest = await Guest.findOne({ user: user._id });
+
+        if (!guest) {
+            return res.status(404).json({
+                success: false,
+                message: "Guest not found",
+            });
+        }
+
+        Object.keys(guestData).forEach((key) => {
+            guest[key] = guestData[key];
+        });
+
+        await guest.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Guest updated successfully",
+            data: guest,
+        });
+    } catch (error) {
+        console.error("Error in updateGuest:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+ 
 export const saveGuestProfileImages = async (req, res) => {
     try {
         const { imageId } = req.body;

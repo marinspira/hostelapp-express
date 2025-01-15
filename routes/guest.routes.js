@@ -1,5 +1,5 @@
 import express from "express"
-import { deleteGuestProfileImage, getGuest, saveGuest, saveGuestProfileImages } from "../controllers/guest.controllers.js"
+import { deleteGuestProfileImage, getGuest, saveGuest, saveGuestProfileImages, updateGuest } from "../controllers/guest.controllers.js"
 import protectRoute from "../middleware/protectRoute.js"
 import { upload } from "../middleware/saveUploads.js"
 
@@ -8,6 +8,7 @@ const router = express.Router()
 // Guest details
 router.post("/saveGuest", protectRoute, saveGuest)
 router.get("/getGuest", protectRoute, getGuest)
+router.put("/updateGuest", protectRoute, updateGuest)
 
 // Guest images
 router.post("/saveGuestProfileImages", protectRoute, upload.single('photo'), saveGuestProfileImages)
