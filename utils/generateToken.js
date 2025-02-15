@@ -15,6 +15,8 @@ function generateTokenAndSetCookie(userId, res) {
         httpOnly: true, // The cookie can only be accessed by the server (not available to client-side JavaScript)
         sameSite: "strict" // The cookie will only be sent for requests from the same site, enhancing security
     });
+
+    return token
 }
 
 // Export the function so it can be used in other parts of the application

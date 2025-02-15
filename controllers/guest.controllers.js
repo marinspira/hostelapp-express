@@ -5,9 +5,7 @@ import path from 'path';
 
 export const saveGuest = async (req, res) => {
     try {
-        const {
-            guestData
-        } = req.body
+        const { guestData } = req.body
 
         const user = req.user
 
@@ -133,7 +131,7 @@ export const updateGuest = async (req, res) => {
     }
 };
 
- 
+
 export const saveGuestProfileImages = async (req, res) => {
     try {
         const { imageId } = req.body;

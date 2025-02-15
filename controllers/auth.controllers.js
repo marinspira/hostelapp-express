@@ -4,7 +4,6 @@ import { jwtDecode } from 'jwt-decode'
 import Guest from "../models/guest.model.js"
 import { getGoogleUserInfo } from "../utils/getGoogleUserInfo.js";
 
-
 export const isAuthenticated = async (req, res) => {
     try {
         const user = req.user
@@ -154,7 +153,10 @@ export const appleLogin = async (req, res) => {
                 });
             }
 
-            generateTokenAndSetCookie(user._id, res);
+            const token = generateTokenAndSetCookie(user._id, res);
+
+            user.sessionToken = token;
+            await user.save();
 
             // Verify if is a new user (have the birth date)
             const guest = await Guest.findOne({ user: user._id });
@@ -199,7 +201,8 @@ export const appleLogin = async (req, res) => {
         });
 
         if (newUser) {
-            generateTokenAndSetCookie(newUser._id, res)
+            const token = generateToken(newUser._id);
+            newUser.sessionToken = token;
 
             await newUser.save();
 
@@ -215,7 +218,6 @@ export const appleLogin = async (req, res) => {
         } else {
             return res.status(400).json({ error: "Invalid user data" })
         }
-
 
     } catch (error) {
         console.log("Error in appleAuth controller", error.message);

@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['host', 'guest'],
         required: true
+    },
+    sessionToken: {
+        type: String,
+        default: null
     }
 }, { timestamps: true })
 
