@@ -102,6 +102,8 @@ export const updateGuest = async (req, res) => {
         const user = req.user;
         const { guestData } = req.body;
 
+        console.log(req.body)
+
         const guest = await Guest.findOne({ user: user._id });
 
         if (!guest) {
