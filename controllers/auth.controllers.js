@@ -40,6 +40,77 @@ export const isAuthenticated = async (req, res) => {
     }
 }
 
+export const localhostLogin = async (req, res) => {
+    try {
+        const { credentials, role } = req.body
+
+        const email = credentials.email
+
+        const user = await User.findOne({ email })
+
+        if (user) {
+            const token = generateTokenAndSetCookie(user._id, res);
+
+            user.sessionToken = token;
+            await user.save();
+
+            // Verify if is a new user (have the birth date)
+            const guest = await Guest.findOne({ user: user._id });
+
+            if (guest && guest.birthday !== null) {
+                return res.status(200).json({
+                    data: {
+                        name: user.name,
+                        isNewUser: false,
+                        role: user.role,
+                    },
+                    success: true,
+                    message: 'User logged successfully',
+                });
+            } else {
+                return res.status(200).json({
+                    data: {
+                        name: user.name,
+                        isNewUser: true,
+                        role: user.role
+                    },
+                    success: true,
+                    message: 'New user logged successfully',
+                });
+            }
+
+        }
+
+        const newUser = new User({
+            name: credentials.name,
+            email: credentials.email,
+            appleId: credentials.appleId,
+            role
+        });
+
+        if (newUser) {
+            await newUser.save();
+            generateTokenAndSetCookie(newUser._id, res)
+        } else {
+            return res.status(400).json({ error: "Error creating new user" })
+        }
+
+        return res.status(201).json({
+            data: {
+                isNewUser: true,
+                name: newUser.name,
+                role: newUser.role
+            },
+            success: true,
+            message: 'New user created with Google successfully'
+        });
+
+    } catch (error) {
+        console.log("Error in signup controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 export const googleLogin = async (req, res) => {
     try {
         const { token, role } = req.body;
