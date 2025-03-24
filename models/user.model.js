@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -28,13 +28,13 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-userSchema.pre('validate', function (next) {
+UserSchema.pre('validate', function (next) {
     if (!this.googleId && !this.appleId) {
         return next(new Error('Either googleId or appleId is required.'));
     }
     next();
 });
 
-const User = mongoose.model("User", userSchema)
+const User = mongoose.model("User", UserSchema)
 
 export default User;

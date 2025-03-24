@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const guestSchema = new mongoose.Schema({
+const GuestSchema = new mongoose.Schema({
     guestPhotos: {
         type: [String]
     },
@@ -53,6 +53,6 @@ const guestSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-const Guest = mongoose.model("Guest", guestSchema)
+const Guest = mongoose.model("Guest", GuestSchema)
 
 export default Guest
