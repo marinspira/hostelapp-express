@@ -11,7 +11,6 @@ import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.routes.js";
 import guestRoutes from "./routes/guest.routes.js";
-import messageRoutes from "./routes/message.routes.js";
 
 dotenv.config();
 
@@ -63,7 +62,6 @@ io.on("connection", (socket) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/guest", guestRoutes);
-app.use("/api/message", messageRoutes);
 
 // Static files
 const uploadsPath = path.join(__dirname, "uploads");
