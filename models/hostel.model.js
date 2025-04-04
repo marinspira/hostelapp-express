@@ -33,13 +33,7 @@ const HostelSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    rooms: [{
-        number: { type: String },
-        beds: [{
-            bed_number: { type: String, required: true },
-            assigned_by: { type: mongoose.Schema.Types.ObjectId, ref: "Reservation", default: null }
-        }]
-    }],
+    rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
     owners: [{
         type: mongoose.Schema.Types.ObjectId, ref: "User"
     }],
