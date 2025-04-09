@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const HostelSchema = new mongoose.Schema({
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected', 'suspended'],
+        default: 'pending'
+    },
     username: {
         type: String, required: true
     },
@@ -48,7 +53,7 @@ const HostelSchema = new mongoose.Schema({
     }],
     volunteer_opportunities: [{ type: mongoose.Schema.Types.ObjectId, ref: "VolunteerPosition" }],
     created_at: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const Hostel = mongoose.model("Hostel", HostelSchema)
 
