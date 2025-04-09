@@ -1,6 +1,7 @@
 import User from "../models/user.model.js"
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { jwtDecode } from 'jwt-decode'
+import Hostel from "../models/hostel.model.js"
 import Guest from "../models/guest.model.js"
 import { getGoogleUserInfo } from "../utils/getGoogleUserInfo.js";
 
@@ -10,29 +11,31 @@ export const isAuthenticated = async (req, res) => {
 
         console.log('check user on cookies:', user)
 
+        // Verify if is a new user (have the birth date) or has a hostel
         const guest = await Guest.findOne({ user: user._id });
+        const hostel = await Hostel.findOne({ owners: user.id })
 
-        if (guest.birthday !== null) {
+        if ((guest && guest.birthday !== null) || hostel) {
             return res.status(200).json({
                 data: {
                     name: user.name,
                     isNewUser: false,
+                    role: user.role,
+                },
+                success: true,
+                message: 'User authenticated successfully',
+            });
+        } else {
+            return res.status(200).json({
+                data: {
+                    name: user.name,
+                    isNewUser: true,
                     role: user.role
                 },
                 success: true,
-                message: 'User authenticated successfully'
+                message: 'New user authenticated successfully',
             });
         }
-
-        res.status(200).json({
-            data: {
-                name: user.name,
-                isNewUser: true,
-                role: user.role
-            },
-            success: true,
-            message: 'New user authenticated successfully'
-        })
 
     } catch (error) {
         console.log("Error in isAuthenticated controller", error.message);
@@ -54,10 +57,11 @@ export const localhostLogin = async (req, res) => {
             user.sessionToken = token;
             await user.save();
 
-            // Verify if is a new user (have the birth date)
+            // Verify if is a new user (have the birth date) or has a hostel
             const guest = await Guest.findOne({ user: user._id });
+            const hostel = await Hostel.findOne({ owners: user.id })
 
-            if (guest && guest.birthday !== null) {
+            if ((guest && guest.birthday !== null) || hostel) {
                 return res.status(200).json({
                     data: {
                         name: user.name,
@@ -138,19 +142,31 @@ export const googleLogin = async (req, res) => {
 
             generateTokenAndSetCookie(user._id, res);
 
+            // Verify if is a new user (have the birth date) or has a hostel
             const guest = await Guest.findOne({ user: user._id });
+            const hostel = await Hostel.findOne({ owners: user.id })
 
-            // Verify if is a new user (have the birth date)
-            const isNewUser = !guest?.birthday;
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser,
-                    role: user.role,
-                },
-                success: true,
-                message: 'User logged with Google successfully'
-            });
+            if ((guest && guest.birthday !== null) || hostel) {
+                return res.status(200).json({
+                    data: {
+                        name: user.name,
+                        isNewUser: false,
+                        role: user.role,
+                    },
+                    success: true,
+                    message: 'User logged with Google successfully',
+                });
+            } else {
+                return res.status(200).json({
+                    data: {
+                        name: user.name,
+                        isNewUser: true,
+                        role: user.role
+                    },
+                    success: true,
+                    message: 'New user logged with Google successfully',
+                });
+            }
         }
 
         // New user creation logic
@@ -229,10 +245,11 @@ export const appleLogin = async (req, res) => {
             user.sessionToken = token;
             await user.save();
 
-            // Verify if is a new user (have the birth date)
+            // Verify if is a new user (have the birth date) or has a hostel
             const guest = await Guest.findOne({ user: user._id });
+            const hostel = await Hostel.findOne({ owners: user.id })
 
-            if (guest && guest.birthday !== null) {
+            if ((guest && guest.birthday !== null) || hostel) {
                 return res.status(200).json({
                     data: {
                         name: user.name,
@@ -240,19 +257,19 @@ export const appleLogin = async (req, res) => {
                         role: user.role,
                     },
                     success: true,
-                    message: 'User logged successfully',
+                    message: 'User logged with Apple successfully',
+                });
+            } else {
+                return res.status(200).json({
+                    data: {
+                        name: user.name,
+                        isNewUser: true,
+                        role: user.role
+                    },
+                    success: true,
+                    message: 'New user logged with Apple successfully',
                 });
             }
-
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: true,
-                    role: user.role
-                },
-                success: true,
-                message: 'New user logged successfully',
-            });
         }
 
         // Create a new user
