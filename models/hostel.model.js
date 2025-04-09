@@ -1,6 +1,9 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const HostelSchema = new mongoose.Schema({
+    username: {
+        type: String, required: true
+    },
     name: {
         type: String, required: true
     },
@@ -9,9 +12,6 @@ const HostelSchema = new mongoose.Schema({
             type: String, required: true
         },
         city: {
-            type: String, required: true
-        },
-        state: {
             type: String, required: true
         },
         country: {
@@ -30,8 +30,8 @@ const HostelSchema = new mongoose.Schema({
     website: {
         type: String
     },
-    description: {
-        type: String
+    experience_with_volunteers: {
+        type: Boolean
     },
     rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
     owners: [{
@@ -50,4 +50,6 @@ const HostelSchema = new mongoose.Schema({
     created_at: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Hostel", HostelSchema);
+const Hostel = mongoose.model("Hostel", HostelSchema)
+
+export default Hostel

@@ -12,7 +12,7 @@ export const saveGuest = async (req, res) => {
         const guest = await Guest.findOne({ user: user._id });
 
         if (guest) {
-            // Guest exists, update guest data if birthday is empty
+            // Guest exists (guest just exists if created by google, that upload the profile photo on the authentication), update guest data if birthday is empty
             if (!guest.birthday || guest.birthday === null) {
                 guest.birthday = guestData.birthday || guest.birthday;
                 guest.phoneNumber = guestData.phoneNumber || guest.phoneNumber;
