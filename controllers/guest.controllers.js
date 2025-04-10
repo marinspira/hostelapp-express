@@ -2,6 +2,7 @@ import { getRelativeFilePath } from "../middleware/saveUploads.js";
 import Guest from "../models/guest.model.js"
 import fs from 'fs';
 import path from 'path';
+import User from "../models/user.model.js";
 
 export const saveGuest = async (req, res) => {
     try {
@@ -133,6 +134,55 @@ export const updateGuest = async (req, res) => {
     }
 };
 
+export const searchGuest = async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        // Pesquisa no campo "email" de todos os usuários com "role" igual a "guest"
+        const usersWithEmailMatch = await User.find({
+            email: { $regex: username, $options: 'i' },
+            role: 'guest',
+        });
+
+        // Pesquisa no campo "username" da coleção "Guest"
+        const guestsWithUsernameMatch = await Guest.find({
+            username: { $regex: username, $options: 'i' }
+        });
+
+        if (usersWithEmailMatch.length === 0 && guestsWithUsernameMatch.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No guest or user found with the given username.',
+            });
+        }
+
+        const guests = []
+
+        for (const user of usersWithEmailMatch) {
+            const guest = await Guest.findOne({ user: user._id });
+
+            guests.push({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                image: guest && guest.guestPhotos && guest.guestPhotos.length > 0 ? guest.guestPhotos[0] : null,  // A imagem do guest
+                username: guest.username, 
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Guest found successfully.',
+            data: guests,
+        });
+    } catch (error) {
+        console.error("Error in searchGuest:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+}
 
 export const saveGuestProfileImages = async (req, res) => {
     try {
