@@ -150,9 +150,10 @@ export const searchGuest = async (req, res) => {
         });
 
         if (usersWithEmailMatch.length === 0 && guestsWithUsernameMatch.length === 0) {
-            return res.status(404).json({
-                success: false,
+            return res.status(200).json({
+                success: true,
                 message: 'No guest or user found with the given username.',
+                data: [],
             });
         }
 
@@ -166,7 +167,7 @@ export const searchGuest = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 image: guest && guest.guestPhotos && guest.guestPhotos.length > 0 ? guest.guestPhotos[0] : null,  // A imagem do guest
-                username: guest.username, 
+                username: guest.username,
             });
         }
 
