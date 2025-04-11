@@ -6,6 +6,9 @@ const HostelSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected', 'suspended'],
         default: 'pending'
     },
+    logo: {
+        type: String
+    },
     username: {
         type: String, required: true
     },

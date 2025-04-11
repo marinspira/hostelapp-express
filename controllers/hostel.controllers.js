@@ -15,7 +15,6 @@ export const createHostel = async (req, res) => {
                 data: existingHostel
             });
         } else {
-
             const username = await generateUniqueUsername(hostel.name);
 
             const newHostel = new Hostel({
@@ -43,6 +42,36 @@ export const createHostel = async (req, res) => {
         }
     } catch (error) {
         console.error("Error in createHostel controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getHostelOverview = async (req, res) => {
+    try {
+        const user = req.user
+        const existingHostel = await Hostel.findOne({ owners: user._id });
+
+        if (!existingHostel) {
+            return res.status(200).json({
+                message: 'Hostel not found',
+                success: true,
+                data: existingHostel
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Hostel found succefully!',
+            success: true,
+            data: {
+                logo: existingHostel.logo,
+                name: existingHostel.name,
+                username: existingHostel.username,
+                email: existingHostel.email
+            }
+        });
+
+    } catch (error) {
+        console.error("Error in getHostelOverview controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
