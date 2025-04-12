@@ -16,7 +16,7 @@ import hostelRoutes from "./routes/hostel.routes.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 // Criando servidor HTTP e instância do Socket.IO
 const server = http.createServer(app);
