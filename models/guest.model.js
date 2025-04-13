@@ -54,7 +54,12 @@ const GuestSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    reservations: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Reservation",
+        default: null
+    }],
 }, { timestamps: true })
 
 const Guest = mongoose.model("Guest", GuestSchema)

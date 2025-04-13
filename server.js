@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth.routes.js";
 import guestRoutes from "./routes/guest.routes.js";
 import hostelRoutes from "./routes/hostel.routes.js";
 import roomRoutes from "./routes/room.routes.js";
+import reservationRoutes from "./routes/reservation.routes.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/guest", guestRoutes);
 app.use("/api/hostel", hostelRoutes)
 app.use("/api/room", roomRoutes)
+app.use("/api/reservation", reservationRoutes)
 
 // Static files
 const uploadsPath = path.join(__dirname, "uploads");
