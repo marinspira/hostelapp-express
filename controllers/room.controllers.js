@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Hostel from "../models/hostel.model.js";
 import Room from "../models/room.model.js";
 
@@ -11,6 +12,19 @@ export const createRoom = async (req, res) => {
         if (!hostel) {
             return res.status(400).json({
                 message: 'Hostel does not exist!',
+                success: false,
+            });
+        }
+
+        // Verificar se já existe um quarto com o mesmo nome no hostel
+        const existingRoom = await Room.findOne({
+            name: room.name,
+            hostel: hostel._id,
+        });
+
+        if (existingRoom) {
+            return res.status(400).json({
+                message: 'A room with the same name already exists in this hostel.',
                 success: false,
             });
         }
@@ -58,6 +72,109 @@ export const createRoom = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in createRoom controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getAllRooms = async (req, res) => {
+    try {
+        const user = req.user
+        const hostel = await Hostel.findOne({ owners: user._id });
+
+        if (!hostel) {
+            return res.status(400).json({
+                message: 'Hostel not found!',
+                success: false,
+            });
+        }
+
+        const today = new Date();
+
+        const rooms = await Room.aggregate([
+            {
+                $match: {
+                    hostel: new mongoose.Types.ObjectId(hostel._id),
+                },
+            },
+            {
+                $unwind: "$beds",
+            },
+            {
+                $lookup: {
+                    from: "reservations",
+                    let: {
+                        roomName: "$name",
+                        bedNumber: "$beds.bed_number",
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$room_number", "$$roomName"] },
+                                        { $eq: ["$bed_number", "$$bedNumber"] },
+                                        { $lte: ["$checkin_date", today] },
+                                        { $gte: ["$checkout_date", today] },
+                                    ],
+                                },
+                            },
+                        },
+                    ],
+                    as: "reservation",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$reservation",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "guests",
+                    localField: "reservation.guest",
+                    foreignField: "user",
+                    as: "guest",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$guest",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    name: { $first: "$name" },
+                    type: { $first: "$type" },
+                    capacity: { $first: "$capacity" },
+                    organization_by: { $first: "$organization_by" },
+                    hostel: { $first: "$hostel" },
+                    beds: {
+                        $push: {
+                            bed_number: "$beds.bed_number",
+                            assigned_by: "$beds.assigned_by",
+                            guestPhoto: { $arrayElemAt: ["$guest.guestPhotos", 0] },
+                        },
+                    },
+                },
+            },
+            {
+                $sort: { name: 1 }, // ordena pelos nomes dos quartos
+            },
+        ]);
+
+        console.log(rooms)
+
+        return res.status(200).json({
+            message: 'Rooms retrieved successfully!',
+            success: true,
+            data: rooms,
+        });
+
+    } catch (error) {
+        console.error("Error in getRooms controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
