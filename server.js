@@ -54,22 +54,14 @@ const io = new Server(server, {
 
 // Evento de conexão do Socket.IO
 io.on("connection", (socket) => {
-    console.log("Usuário conectado:", socket.id);
+    console.log(`User Connected: ${socket.id}`);
 
-     // Enviar histórico ao usuário quando ele conectar
-     Message.find().sort({ timestamp: -1 }).limit(50)
-     .then(messages => {
-         socket.emit("chatHistory", messages);
-     });
-
-    socket.on("sendMessage", async (data) => {
-        console.log("Nova mensagem recebida:", data);
-        const savedMessage = await saveMessage(data);
-        io.emit("receiveMessage", savedMessage);
+    socket.on("join_room", (data) => {
+        socket.join(data);
     });
 
-    socket.on("disconnect", () => {
-        console.log("Usuário desconectado:", socket.id);
+    socket.on("send_message", (data) => {
+        socket.to(data.room).emit("receive_message", data);
     });
 });
 
