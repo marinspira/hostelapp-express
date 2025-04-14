@@ -23,7 +23,7 @@ const RoomSchema = new mongoose.Schema({
             type: String, 
             required: true 
         },
-        assigned_by: { 
+        reservation_id: { 
             type: mongoose.Schema.Types.ObjectId, 
             ref: "Reservation", 
             default: null 

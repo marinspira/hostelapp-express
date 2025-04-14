@@ -50,7 +50,7 @@ export const createRoom = async (req, res) => {
 
             beds.push({
                 bed_number: bedNumber,
-                assigned_by: null,
+                reservation_id: null,
             });
         }
 
@@ -154,7 +154,7 @@ export const getAllRooms = async (req, res) => {
                     beds: {
                         $push: {
                             bed_number: "$beds.bed_number",
-                            assigned_by: "$beds.assigned_by",
+                            reservation_id: "$beds.reservation_id",
                             guestPhoto: { $arrayElemAt: ["$guest.guestPhotos", 0] },
                         },
                     },

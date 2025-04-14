@@ -33,6 +33,9 @@ export const saveGuest = async (req, res) => {
                 return res.status(400).json({ error: 'Birthday cannot be updated for existing guest!' });
             }
         } else {
+
+            // TODO: Criar username para guest
+
             const newGuest = new Guest({
                 phoneNumber: guestData.phoneNumber,
                 birthday: guestData.birthday,
@@ -149,6 +152,8 @@ export const searchGuest = async (req, res) => {
             username: { $regex: username, $options: 'i' }
         });
 
+        // TODO: Pesquisar no campo "name" de todos os usuários com "role" igual a "guest"
+
         if (usersWithEmailMatch.length === 0 && guestsWithUsernameMatch.length === 0) {
             return res.status(200).json({
                 success: true,
@@ -163,7 +168,7 @@ export const searchGuest = async (req, res) => {
             const guest = await Guest.findOne({ user: user._id });
 
             guests.push({
-                _id: user._id,
+                user_id_guest: user._id,
                 name: user.name,
                 email: user.email,
                 image: guest && guest.guestPhotos && guest.guestPhotos.length > 0 ? guest.guestPhotos[0] : null,  // A imagem do guest

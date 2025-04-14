@@ -45,10 +45,10 @@ const HostelSchema = new mongoose.Schema({
     owners: [{
         type: mongoose.Schema.Types.ObjectId, ref: "User"
     }],
-    guests: [{
+    user_id_guests: [{
         type: mongoose.Schema.Types.ObjectId, ref: "User"
     }],
-    staffs: [{
+    user_id_staffs: [{
         type: mongoose.Schema.Types.ObjectId, ref: "User"
     }],
     events: [{
