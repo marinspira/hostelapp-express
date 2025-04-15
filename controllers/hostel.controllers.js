@@ -1,3 +1,4 @@
+import Guest from "../models/guest.model.js";
 import Hostel from "../models/hostel.model.js";
 import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
@@ -9,10 +10,9 @@ export const createHostel = async (req, res) => {
         const existingHostel = await Hostel.findOne({ owners: user._id });
 
         if (existingHostel) {
-            return res.status(200).json({
+            return res.status(409).json({
                 message: 'Hostel already exists',
-                success: true,
-                data: existingHostel
+                success: false,
             });
         } else {
             const username = await generateUniqueUsername(hostel.name);
@@ -52,10 +52,9 @@ export const getHostelOverview = async (req, res) => {
         const existingHostel = await Hostel.findOne({ owners: user._id });
 
         if (!existingHostel) {
-            return res.status(200).json({
+            return res.status(409).json({
                 message: 'Hostel not found',
-                success: true,
-                data: existingHostel
+                success: false,
             });
         }
 
@@ -72,6 +71,57 @@ export const getHostelOverview = async (req, res) => {
 
     } catch (error) {
         console.error("Error in getHostelOverview controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getAllGuests = async (req, res) => {
+    try {
+        const user = req.user
+        const existingHostel = await Hostel.findOne({ owners: user._id });
+
+        if (!existingHostel) {
+            return res.status(409).json({
+                message: 'Hostel not found',
+                success: false,
+            });
+        }
+
+        const user_id_guests = existingHostel.user_id_guests || [];
+
+        if (!user_id_guests.length) {
+            return res.status(200).json({
+                message: 'No guests found',
+                success: true,
+                data: []
+            });
+        }
+
+        // TODO: Ordernar por data de reserva
+
+        const filteredGuestsData = await Guest.find({ user: { $in: user_id_guests } })
+            .select("guestPhotos user")
+            .populate({
+                path: "user",
+                select: "name"
+            });
+
+        const guests = filteredGuestsData.map((guest) => ({
+            userId: guest.user._id,
+            name: guest.user.name,
+            firstPhoto: guest.guestPhotos?.[0] || null
+        }));
+
+        console.log(guests);
+
+        return res.status(200).json({
+            message: 'Guests',
+            success: true,
+            data: guests
+        });
+
+    } catch (error) {
+        console.error("Error in getAllGuests controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
