@@ -1,6 +1,8 @@
 import Conversation from "../models/conversation.model.js";
 import Hostel from "../models/hostel.model.js";
+import User from "../models/user.model.js";
 import Message from "../models/messages.model.js";
+import Guest from "../models/guest.model.js";
 
 export const sendMessage = async (req, res) => {
     try {
@@ -79,55 +81,69 @@ export const sendMessage = async (req, res) => {
 
 export const getAllConversations = async (req, res) => {
     try {
-        const userId = req.user
-        const hostel = await Hostel.findOne({ owners: userId });
+        const user = req.user
+        const hostel = await Hostel.findOne({ owners: user._id });
 
         let conversations;
 
         if (!hostel) {
-            conversations = await Conversation.find({ user: userId })
-
+            conversations = await Conversation.find({
+                "participants.user": user._id
+            })
         } else {
-            conversations = await Conversation.find({ hostel: hostel._id })
-                .populate({
-                    path: "user",
-                    match: { role: "guest" },
-                    select: "username photo email"
-                })
-                .sort({ updatedAt: -1 });
+            conversations = await Conversation.find({
+                "participants.hostel": hostel._id
+            })
         }
 
-        console.log(conversations)
+        const results = await Promise.all(conversations.map(async (conversation) => {
+            const lastMessage = await Message.findOne({ conversation: conversation._id })
+                .sort({ createdAt: -1 });
 
-        const results = await Promise.all(
-            conversations.map(async (conversation) => {
-                const lastMessage = await Message.findOne({ conversation: conversation._id })
-                    .sort({ createdAt: -1 });
+            const other = conversation.participants.find(p => {
+                return (
+                    (p.user && p.user.toString() !== user._id.toString()) ||
+                    (p.hostel && hostel && p.hostel.toString() !== hostel._id.toString())
+                );
+            });
 
-                return {
-                    _id: conversation._id,
-                    user: {
-                        _id: conversation.user?._id,
-                        username: conversation.user?.username,
-                        photo: conversation.user?.photo || null,
-                        email: conversation.user?.email
-                    },
-                    lastMessage: lastMessage
-                        ? {
-                            text: lastMessage.text,
-                            createdAt: lastMessage.createdAt,
-                        }
-                        : null
+            const guest = await Guest.findOne({ user: other.user._id }).select("guestPhotos");
+            const firstPhoto = guest?.guestPhotos?.[0] || null;
+
+            let otherData = null;
+
+            if (other?.user) {
+                const otherUser = await User.findById(other.user).select("name");
+                otherData = {
+                    _id: otherUser._id,
+                    name: otherUser.name,
+                    photo: firstPhoto
                 };
-            })
-        );
+            }
 
-        console.log("results: ", results)
+            // if (other?.hostel) { ... }
 
-        res.status(200).json({ conversations: results.filter(c => c.user._id) });
+            return {
+                conversationId: conversation._id,
+                participant: otherData,
+                lastMessage: lastMessage
+                    ? {
+                        text: lastMessage.text,
+                        createdAt: lastMessage.createdAt,
+                    }
+                    : null
+            };
+        }));
+        console.log(results)
+
+        res.status(200).json({
+            message: "Get all conversations successfully",
+            data: results,
+            success: true,
+        });
 
     } catch (error) {
-        ror("Error in getAllConversations controller", error.message);
+        console.error("Error in getAllConversations controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
