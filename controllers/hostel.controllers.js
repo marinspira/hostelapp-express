@@ -112,8 +112,6 @@ export const getAllGuests = async (req, res) => {
             firstPhoto: guest.guestPhotos?.[0] || null
         }));
 
-        console.log(guests);
-
         return res.status(200).json({
             message: 'Guests',
             success: true,
