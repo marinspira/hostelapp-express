@@ -115,7 +115,7 @@ export const getAllConversations = async (req, res) => {
             if (other?.user) {
                 const otherUser = await User.findById(other.user).select("name");
                 otherData = {
-                    _id: otherUser._id,
+                    userId: otherUser._id,
                     name: otherUser.name,
                     photo: firstPhoto
                 };
