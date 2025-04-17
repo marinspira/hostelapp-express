@@ -150,21 +150,39 @@ export const getAllConversations = async (req, res) => {
 
 export const getMessages = async (req, res) => {
     try {
-        const { conversationId, limit = 20, before } = req.query;
+        const { conversationOrUserId } = req.params;
+        const user = req.user
+        const hostel = await Hostel.findOne({ owners: user._id });
 
-        const conversation = await Conversation.findById(conversationId);
+        const limit = 20
+
+        const conversation = await Conversation.findById(conversationOrUserId);
         if (!conversation) {
-            return res.status(404).json({ message: "Conversa não encontrada!" });
+            return res.status(404).json({ message: "Conversation not found" });
         }
 
-        const messages = await Message.find({ conversation: conversationId })
+        const messages = await Message.find({ conversation: conversationOrUserId })
             .sort({ createdAt: -1 })
             .limit(parseInt(limit))
             .exec();
 
-        res.status(200).json({ messages: messages.reverse() });
+        console.log(messages)
+
+        // v2: alterar sender para hostelId verificacao, para quando o hostel puder ter mais de um owner
+        const formattedMessages = messages.map(msg => ({
+            text: msg.text,
+            time: msg.createdAt,
+            sender: msg.sender?.toString() === user._id.toString() ? "me" : "other"
+        }));
+
+        res.status(200).json({
+            message: "Get all messages successfully",
+            data: formattedMessages,
+            success: true,
+        });
+
     } catch (error) {
-        console.error("Erro ao obter mensagens", error);
-        return res.status(500).json({ error: "Erro interno do servidor" });
+        console.error("Error in getMessages controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
