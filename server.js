@@ -15,11 +15,17 @@ import hostelRoutes from "./routes/hostel.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import reservationRoutes from "./routes/reservation.routes.js";
 import conversationRoutes from "./routes/conversation.routes.js";
+import stripeRoutes from "./routes/stripe.routes.js";
+import Stripe from 'stripe';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2023-10-16',
+});
 
 // Criando servidor HTTP e instância do Socket.IO
 const server = http.createServer(app);
@@ -42,6 +48,7 @@ app.use("/api/hostel", hostelRoutes)
 app.use("/api/room", roomRoutes)
 app.use("/api/reservation", reservationRoutes)
 app.use("/api/conversation", conversationRoutes)
+app.use("/api/stripe", stripeRoutes)
 
 // Static files
 const uploadsPath = path.join(__dirname, "uploads");
