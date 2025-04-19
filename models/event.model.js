@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
+
 const EventSchema = new mongoose.Schema({
-    title: {
+    name: {
         type: String, required: true
     },
     description: {
@@ -8,8 +10,43 @@ const EventSchema = new mongoose.Schema({
     price: {
         type: Number, required: true
     },
+    hostel_location: {
+        type: Boolean
+    },
     date: {
         type: Date, required: true
+    },
+    photos_last_event: {
+        type: [String]
+    },
+    spots_available: {
+        type: Number
+    },
+    limited_spots: {
+        type: Boolean
+    },
+    paid_event: {
+        type: Boolean
+    },
+    payment_to_hostel: {
+        type: Boolean
+    },
+    payment_methods: {
+        type: [String]
+    },
+    address: {
+        street: {
+            type: String
+        },
+        city: {
+            type: String
+        },
+        zip: {
+            type: String
+        }
+    },
+    hostel_id: {
+        type: mongoose.Schema.Types.ObjectId, ref: "Hostel"
     },
     suggested_by: {
         type: mongoose.Schema.Types.ObjectId, ref: "User"
@@ -20,18 +57,17 @@ const EventSchema = new mongoose.Schema({
     status: {
         type: String, enum: ["pendente", "aprovado"], default: "pendente"
     },
-    icon: {
-        type: String, // URLs das imagens de comprovação
-    },
     photos_last_event: {
         type: [String]
     },
-    photos_this_event: {
-        type: [String]
+    img: {
+        type: String
     },
     created_at: {
         type: Date, default: Date.now
     }
 });
 
-module.exports = mongoose.model("Event", EventSchema);
+const Event = mongoose.model("Event", EventSchema)
+
+export default Event
