@@ -4,7 +4,7 @@ import { createHostelStripeAccount, finalizeStripeConnection } from "../controll
 
 const router = express.Router()
 
-router.post("/createHostelStripeAccount", protectRoute, createHostelStripeAccount)
-router.get('/stripeSuccess', finalizeStripeConnection);
+router.post("/create-hostel-stripe-account", protectRoute, createHostelStripeAccount)
+router.get('/success', finalizeStripeConnection);
 
 export default router

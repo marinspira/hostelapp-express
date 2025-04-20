@@ -14,7 +14,7 @@ export const createEvent = async (req, res) => {
             });
         }
 
-        const newEvent = new Event({ 
+        const newEvent = new Event({
             name: event.name,
             description: event.description,
             price: event.price,
@@ -33,7 +33,7 @@ export const createEvent = async (req, res) => {
                 zip: hostel.zip
             },
             hostel_id: hostel._id
-         });
+        });
         await newEvent.save()
 
         return res.status(201).json({
@@ -41,6 +41,32 @@ export const createEvent = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in createEvent controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getEvent = async (req, res) => {
+    try {
+        const user = req.user
+        const hostel = await Hostel.findOne({ owners: user._id });
+
+        if (!hostel) {
+            return res.status(400).json({
+                message: 'Hostel does not exist!',
+                success: false,
+            });
+        }
+
+        const event = await Event.findOne({ hostel_id: hostel._id })
+
+        return res.status(200).json({
+            message: "Event found successfully",
+            success: true,
+            data: event
+        })
+
+    } catch (error) {
+        console.error("Error in getEvent controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }

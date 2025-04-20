@@ -18,7 +18,7 @@ export const createHostelStripeAccount = async (req, res) => {
         const accountLink = await stripe.accountLinks.create({
             account: account.id,
             refresh_url: `${process.env.EXPO_PUBLIC_SERVER_ADDRESS}/voltar?hostelId=${hostel._id}`,
-            return_url: `${process.env.EXPO_PUBLIC_SERVER_ADDRESS}/stripeSuccess?hostelId=${hostel._id}&accountId=${account.id}`,
+            return_url: `${process.env.EXPO_PUBLIC_SERVER_ADDRESS}/api/stripe/success?hostelId=${hostel._id}&accountId=${account.id}`,
             type: 'account_onboarding',
         });
 
@@ -41,7 +41,8 @@ export const finalizeStripeConnection = async (req, res) => {
     hostel.stripeAccountId = accountId;
     await hostel.save();
 
-    const redirectUrl = `hostelapp://events`;
+    // DEPLOY ACTION TODO: Change url to hostelapp://
+    const redirectUrl = `exp://irwsgfw-marinspira-8081.exp.direct/host/(screens)/allEvents`;
 
     return res.redirect(302, redirectUrl);
   };
