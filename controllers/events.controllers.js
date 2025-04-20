@@ -45,7 +45,7 @@ export const createEvent = async (req, res) => {
     }
 }
 
-export const getEvent = async (req, res) => {
+export const getAllEvents = async (req, res) => {
     try {
         const user = req.user
         const hostel = await Hostel.findOne({ owners: user._id });
@@ -57,7 +57,7 @@ export const getEvent = async (req, res) => {
             });
         }
 
-        const event = await Event.findOne({ hostel_id: hostel._id })
+        const event = await Event.find({ hostel_id: hostel._id })
 
         return res.status(200).json({
             message: "Event found successfully",
