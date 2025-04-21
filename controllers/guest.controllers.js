@@ -3,6 +3,7 @@ import Guest from "../models/guest.model.js"
 import fs from 'fs';
 import path from 'path';
 import User from "../models/user.model.js";
+import Reservation from "../models/reservation.model.js";
 
 export const saveGuest = async (req, res) => {
     try {
@@ -286,6 +287,69 @@ export const deleteGuestProfileImage = async (req, res) => {
 
     } catch (error) {
         console.error('Error in deleteGuestProfileImage: ', error.message)
+        return res.status(500).json({ error: 'Internal Server Error' })
+    }
+}
+
+export const getHome = async (req, res) => {
+    try {
+        const user = req.user
+        const guest = await Guest.findOne({ user: user._id })
+
+        if (!guest) {
+            return res.status(404).json({
+                message: 'Guest not found!',
+                success: false
+            })
+        }
+
+        const reservations = await Reservation.find({ guest_id: user._id })
+
+        const now = new Date();
+
+        const currentReservation = reservations.find((reservation) => {
+            const checkinDate = new Date(reservation.checkin_date);
+            checkinDate.setHours(0, 1, 0, 0);
+
+            const checkoutDate = new Date(reservation.checkout_date);
+            checkoutDate.setHours(10, 0, 0, 0);
+
+            return now >= checkinDate && now < checkoutDate;
+        });
+
+        console.log(currentReservation)
+
+        if (!currentReservation) {
+            return res.status(200).json({
+                success: true,
+                message: "Any reservation at the moment",
+                data: null
+            })
+        }
+
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Any reservation at the moment",
+            data: {
+                hostel: {
+                    id: "",
+                    img: "",
+                    name: "",
+                },
+                otherGuests: [{
+                    name: "",
+                    img: ""
+                }],
+                hostelEvents: ["events"]
+            }
+        })
+
+        console.log("reservas: ", reservations)
+
+    } catch (error) {
+        console.error('Error in getHome: ', error.message)
         return res.status(500).json({ error: 'Internal Server Error' })
     }
 }
