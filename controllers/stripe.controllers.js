@@ -42,7 +42,7 @@ export const finalizeStripeConnection = async (req, res) => {
     await hostel.save();
 
     // DEPLOY ACTION TODO: Change url to hostelapp://
-    const redirectUrl = `exp://irwsgfw-marinspira-8081.exp.direct/host/(screens)/allEvents`;
+    const redirectUrl = `exp://irwsgfw-marinspira-8081.exp.direct/host/(screens)/events/all`;
 
     return res.redirect(302, redirectUrl);
   };

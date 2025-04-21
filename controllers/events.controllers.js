@@ -1,11 +1,15 @@
 import Hostel from "../models/hostel.model.js";
 import Event from "../models/event.model.js";
+import { getRelativeFilePath } from "../middleware/saveUploads.js";
 
 export const createEvent = async (req, res) => {
     try {
         const user = req.user
         const hostel = await Hostel.findOne({ owners: user._id });
-        const { event } = req.body
+
+        const event = req.body.event
+        console.log(event)
+        const imagePath = getRelativeFilePath(req, req.file)
 
         if (!hostel) {
             return res.status(400).json({
@@ -27,12 +31,12 @@ export const createEvent = async (req, res) => {
             payment_methods: event.payment_methods,
             status: hostel ? "aprovado" : "pendente",
             address: {
-                street: hostel.street,
-                city: hostel.city,
-                country: hostel.country,
-                zip: hostel.zip
+                street: event.hostel_location === true ? hostel.address.street : event.street,
+                city: event.hostel_location === true ? hostel.address.city : event.city,
+                zip: event.hostel_location === true ? hostel.address.zip : event.zip
             },
-            hostel_id: hostel._id
+            hostel_id: hostel._id,
+            img: imagePath
         });
         await newEvent.save()
 
