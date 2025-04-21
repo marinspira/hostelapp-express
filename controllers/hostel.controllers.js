@@ -1,13 +1,18 @@
+import { getRelativeFilePath } from "../middleware/saveUploads.js";
 import Guest from "../models/guest.model.js";
 import Hostel from "../models/hostel.model.js";
+import { countryCurrencyMap } from "../utils/currencies.js";
 import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
 export const createHostel = async (req, res) => {
     try {
         const user = req.user
-        const { hostel } = req.body
+        const hostel = req.body.hostel
+        const imagePath = getRelativeFilePath(req, req.file)
 
         const existingHostel = await Hostel.findOne({ owners: user._id });
+
+        const currency = countryCurrencyMap[hostel.country] || "EUR";
 
         if (existingHostel) {
             return res.status(409).json({
@@ -26,6 +31,7 @@ export const createHostel = async (req, res) => {
                     country: hostel.country,
                     zip: hostel.zip
                 },
+                currency: currency,
                 phone: hostel.phone,
                 email: hostel.email,
                 website: hostel.website,

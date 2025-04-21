@@ -44,6 +44,9 @@ const HostelSchema = new mongoose.Schema({
     experience_with_volunteers: {
         type: Boolean
     },
+    currency: {
+        type: String, required: true
+    },
     rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
     owners: [{
         type: mongoose.Schema.Types.ObjectId, ref: "User"
