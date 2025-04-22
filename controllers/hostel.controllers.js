@@ -25,6 +25,7 @@ export const createHostel = async (req, res) => {
             const newHostel = new Hostel({
                 username: username,
                 name: hostel.name,
+                logo: imagePath,
                 address: {
                     street: hostel.street,
                     city: hostel.city,
@@ -52,7 +53,7 @@ export const createHostel = async (req, res) => {
     }
 }
 
-export const getHostelOverview = async (req, res) => {
+export const getHostel = async (req, res) => {
     try {
         const user = req.user
         const existingHostel = await Hostel.findOne({ owners: user._id });
@@ -67,16 +68,11 @@ export const getHostelOverview = async (req, res) => {
         return res.status(200).json({
             message: 'Hostel found succefully!',
             success: true,
-            data: {
-                logo: existingHostel.logo,
-                name: existingHostel.name,
-                username: existingHostel.username,
-                email: existingHostel.email
-            }
+            data: existingHostel
         });
 
     } catch (error) {
-        console.error("Error in getHostelOverview controller", error.message);
+        console.error("Error in getHostel controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }

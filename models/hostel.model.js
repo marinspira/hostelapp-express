@@ -6,6 +6,10 @@ const HostelSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected', 'suspended'],
         default: 'pending'
     },
+    isNewUser: {
+        type: Boolean,
+        default: true
+    },
     stripeAccountId: {
         type: String
     },

@@ -8,6 +8,10 @@ const GuestSchema = new mongoose.Schema({
     guestPhotos: {
         type: [String]
     },
+    isNewUser: {
+        type: Boolean,
+        default: true
+    },
     phoneNumber: {
         type: String
     },
