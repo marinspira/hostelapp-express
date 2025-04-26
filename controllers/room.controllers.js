@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Hostel from "../models/hostel.model.js";
+import Reservation from "../models/reservation.model.js";
 import Room from "../models/room.model.js";
 
 export const createRoom = async (req, res) => {
@@ -16,7 +17,6 @@ export const createRoom = async (req, res) => {
             });
         }
 
-        // Verificar se já existe um quarto com o mesmo nome no hostel
         const existingRoom = await Room.findOne({
             name: room.name,
             hostel: hostel._id,
@@ -38,12 +38,11 @@ export const createRoom = async (req, res) => {
             });
         }
 
-        // Geração dinâmica dos beds
         const beds = [];
         for (let i = 0; i < capacity; i++) {
             let bedNumber;
             if (room.organization_by === 'Por letras') {
-                bedNumber = String.fromCharCode(65 + i); // 65 é A
+                bedNumber = String.fromCharCode(65 + i);
             } else {
                 bedNumber = String(i + 1);
             }
@@ -62,8 +61,11 @@ export const createRoom = async (req, res) => {
             beds,
             hostel: hostel._id,
         });
-
+        
         await newRoom.save();
+
+        hostel.rooms.push(newRoom._id);
+        await hostel.save();
 
         return res.status(201).json({
             message: 'Room created!',
@@ -161,7 +163,7 @@ export const getAllRooms = async (req, res) => {
                 },
             },
             {
-                $sort: { name: 1 }, // ordena pelos nomes dos quartos
+                $sort: { name: 1 },
             },
         ]);
 
@@ -175,6 +177,72 @@ export const getAllRooms = async (req, res) => {
 
     } catch (error) {
         console.error("Error in getRooms controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getBedsAvailable = async (req, res) => {
+    try {
+        const user = req.user
+        const hostel = await Hostel.findOne({ owners: user._id });
+
+        const { checkin_date, checkout_date } = req.query;
+
+        console.log("checkinDate")
+
+        const checkinDate = new Date(checkin_date);
+        const checkoutDate = new Date(checkout_date);
+        console.log(checkinDate)
+
+        if (!hostel) {
+            return res.status(400).json({
+                message: 'Hostel not found!',
+                success: false,
+            });
+        }
+
+        if (!checkin_date || !checkout_date) {
+            return res.status(400).json({
+                message: "Checkin and checkout dates are required",
+                success: false,
+            });
+        }
+
+        const reservations = await Reservation.find({
+            hostel_id: hostel._id,
+            $or: [
+                { checkin_date: { $lt: checkoutDate }, checkout_date: { $gt: checkinDate } }
+            ]
+        });
+
+        const rooms = await Room.find({ hostel: hostel._id });
+
+        const occupiedBeds = reservations.map(res => ({
+            room_number: res.room_number,
+            bed_number: res.bed_number
+        }));
+
+        const bedsAvailable = rooms.map(room => {
+            const availableBeds = room.beds.filter(bed => {
+                return !occupiedBeds.some(
+                    occ => occ.room_number === room.name && occ.bed_number === bed.bed_number
+                );
+            });
+
+            return {
+                room_number: room.name,
+                beds: availableBeds.map(b => b.bed_number)
+            };
+        });
+
+        return res.status(200).json({
+            message: 'Available beds retrieved successfully!',
+            success: true,
+            data: bedsAvailable,
+        })
+
+    } catch (error) {
+        console.error("Error in getBedsAvailable controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
