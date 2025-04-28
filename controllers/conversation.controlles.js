@@ -52,7 +52,7 @@ export const sendMessage = async (req, res) => {
         } else {
             conversation = await Conversation.findById(conversationId);
             if (!conversation) {
-                return res.status(404).json({
+                return res.status(400).json({
                     message: "Conversation not found",
                     success: false,
                 });
@@ -183,7 +183,11 @@ export const getMessages = async (req, res) => {
 
         const conversation = await Conversation.findById(conversationOrUserId);
         if (!conversation) {
-            return res.status(404).json({ message: "Conversation not found" });
+            return res.status(200).json({
+                message: "Conversation not started yet",
+                success: true,
+                data: []
+            });
         }
 
         const messages = await Message.find({ conversation: conversationOrUserId })
