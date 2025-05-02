@@ -1,6 +1,9 @@
 import { getRelativeFilePath } from "../middleware/saveUploads.js";
+import Event from "../models/event.model.js";
 import Guest from "../models/guest.model.js";
 import Hostel from "../models/hostel.model.js";
+import Room from "../models/room.model.js";
+import User from "../models/user.model.js";
 import { countryCurrencyMap } from "../utils/currencies.js";
 import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
@@ -122,6 +125,43 @@ export const getAllGuests = async (req, res) => {
 
     } catch (error) {
         console.error("Error in getAllGuests controller", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getHomeScreen = async (req, res) => {
+    try {
+        const user = req.user
+        const existingHostel = await Hostel.findOne({ owners: user._id });
+
+        if (!existingHostel) {
+            return res.status(409).json({
+                message: 'Hostel not found',
+                success: false,
+            });
+        }
+
+        const rooms = await Room.find({ hostel: existingHostel._id })
+            .sort({ date: -1 })
+            .limit(3)
+            .select('_id type name capacity beds');
+
+        const events = await Event.find({ hostel_id: existingHostel._id })
+            .sort({ date: -1 })
+            .limit(3)
+            .select('_id img name date price photos_last_event attendees');
+
+        return res.status(200).json({
+            message: 'Home content',
+            success: true,
+            data: {
+                events,
+                rooms
+            }
+        });
+
+    } catch (error) {
+        console.error("Error in getHomeScreen controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
