@@ -3,6 +3,7 @@ import Hostel from "../models/hostel.model.js";
 import Reservation from "../models/reservation.model.js";
 import Room from "../models/room.model.js";
 import Guest from "../models/guest.model.js";
+import Conversation from "../models/conversation.model.js";
 
 export const createReservation = async (req, res) => {
     try {
@@ -37,7 +38,7 @@ export const createReservation = async (req, res) => {
                 success: false,
             });
         }
-        
+
         const newReservation = new Reservation({
             user_id_guest: new mongoose.Types.ObjectId(String(reservation.user_id_guest)),
             room_number: reservation.room_number,
@@ -93,6 +94,31 @@ export const createReservation = async (req, res) => {
         if (!updatedHostel) {
             return res.status(500).json({
                 message: "Failed to update hostel with new guest",
+                success: false,
+            });
+        }
+
+        // Adiciona guest no grupo do hostel
+        const hostelGroup = await Conversation.findOneAndUpdate(
+            {
+                $and: [
+                    { participants: { $elemMatch: { hostel: hostel._id } } },
+                    { group: true }
+                ]
+            },
+            {
+                $addToSet: {
+                    participants: {
+                        user: new mongoose.Types.ObjectId(reservation.user_id_guest)
+                    }
+                }
+            },
+            { new: true }
+        );
+        
+        if (!hostelGroup) {
+            return res.status(500).json({
+                message: "Failed to update conversation group with new participant",
                 success: false,
             });
         }

@@ -10,7 +10,11 @@ const ConversationSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
         }
-    }]
+    }],
+    group: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 const Conversation = mongoose.model("Conversation", ConversationSchema)
