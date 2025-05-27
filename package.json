@@ -4,6 +4,7 @@
   "main": "service.js",
   "scripts": {
     "start": "node server.js",
+    "test": "echo \"No tests yet\"",
     "dev": "nodemon server.js"
   },
   "keywords": [],
