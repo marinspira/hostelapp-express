@@ -6,10 +6,6 @@ const HostelSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected', 'suspended'],
         default: 'pending'
     },
-    isNewUser: {
-        type: Boolean,
-        default: true
-    },
     stripeAccountId: {
         type: String
     },
@@ -40,7 +36,7 @@ const HostelSchema = new mongoose.Schema({
         type: String
     },
     email: {
-        type: String, unique: true, required: true
+        type: String, unique: true, required: false
     },
     website: {
         type: String
@@ -49,7 +45,7 @@ const HostelSchema = new mongoose.Schema({
         type: Boolean
     },
     currency: {
-        type: String, required: true
+        type: String, required: false
     },
     rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
     owners: [{

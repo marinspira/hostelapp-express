@@ -25,7 +25,11 @@ const UserSchema = new mongoose.Schema({
     sessionToken: {
         type: String,
         default: null
-    }
+    },
+    isNewUser: {
+        type: Boolean,
+        default: true
+    },
 }, { timestamps: true })
 
 UserSchema.pre('validate', function (next) {
