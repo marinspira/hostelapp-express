@@ -45,6 +45,9 @@ export const createHostel = async (req, res) => {
             })
             await newHostel.save();
 
+            user.isNewUser = false;
+            await user.save()
+
             const conversation = new Conversation({
                 participants: [
                     { hostel: newHostel._id },

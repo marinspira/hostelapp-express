@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import User from "../models/user.model.js";
 import Reservation from "../models/reservation.model.js";
+import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
 export const saveGuest = async (req, res) => {
     try {
@@ -12,10 +13,13 @@ export const saveGuest = async (req, res) => {
         const user = req.user
 
         const guest = await Guest.findOne({ user: user._id });
+        const username = await generateUniqueUsername(user.name);
 
         if (guest) {
+
             // Guest exists (guest just exists if created by google, that upload the profile photo on the authentication), update guest data if birthday is empty
             if (!guest.birthday || guest.birthday === null) {
+                gguest.username = username;
                 guest.birthday = guestData.birthday || guest.birthday;
                 guest.phoneNumber = guestData.phoneNumber || guest.phoneNumber;
                 guest.country = guestData.country || guest.country;
@@ -25,11 +29,16 @@ export const saveGuest = async (req, res) => {
                 guest.pets = guestData.pets || guest.pets;
                 guest.showProfileAuthorization = guestData.showProfileAuthorization || guest.showProfileAuthorization;
                 await guest.save();
+
+                user.isNewUser = false;
+                await user.save()
+
                 return res.status(200).json({
                     message: 'Guest updated!',
                     success: true,
                     data: guest
                 });
+
             } else {
                 return res.status(400).json({ error: 'Birthday cannot be updated for existing guest!' });
             }
@@ -38,6 +47,7 @@ export const saveGuest = async (req, res) => {
             // TODO: Criar username para guest
 
             const newGuest = new Guest({
+                username: username,
                 phoneNumber: guestData.phoneNumber,
                 birthday: guestData.birthday,
                 country: guestData.country,
@@ -48,8 +58,11 @@ export const saveGuest = async (req, res) => {
                 showProfileAuthorization: guestData.showProfileAuthorization,
                 user: user._id
             });
-
             await newGuest.save();
+
+            user.isNewUser = false;
+            await user.save()
+
             return res.status(201).json({
                 message: 'Guest created!',
                 success: true,
