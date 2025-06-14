@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import http from "http";
+import logger from "./logs.js"
+import morgan from "morgan";
+import fs from 'fs';
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
 import cookieParser from "cookie-parser";
@@ -56,6 +59,19 @@ app.use("/api/event", eventRoutes)
 const uploadsPath = path.join(__dirname, "uploads");
 app.use("/uploads", express.static(uploadsPath));
 
+// Middleware HTTP logs morgan + winston
+const logDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
+
+app.use(morgan('combined', {
+    stream: {
+        write: (message) => logger.info(message.trim())
+    }
+}));
+
+// Websocket
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:8081",
