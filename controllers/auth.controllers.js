@@ -128,6 +128,8 @@ export const googleLogin = async (req, res) => {
         const user = await User.findOne({ email });
 
         console.log('check user on cookies:', user)
+        console.log('check user on cookies:', token)
+        console.log('check user on cookies:', user)
 
         // Existing user logic
         if (user) {
@@ -186,11 +188,14 @@ export const googleLogin = async (req, res) => {
             return res.status(400).json({ error: "Error creating new user" })
         }
 
+        const username = await generateUniqueUsername(user.name);
+
         // Create Guest if user has a profile picture
         if (userInfo.picture) {
             const newGuest = new Guest({
                 guestPhotos: [userInfo.picture],
-                user: newUser._id
+                user: newUser._id,
+                username
             })
             await newGuest.save()
         }
