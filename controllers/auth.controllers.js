@@ -124,10 +124,10 @@ export const googleLogin = async (req, res) => {
             return res.status(400).json({ error: 'Invalid token' });
         }
 
-        console.log('check user on cookies:', user)
-
         const email = userInfo.email
         const user = await User.findOne({ email });
+
+        console.log('check user on cookies:', user)
 
         // Existing user logic
         if (user) {
