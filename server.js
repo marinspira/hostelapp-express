@@ -27,6 +27,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+// Winston settings
+console.log = (...args) => logger.info(args.join(' '));
+console.error = (...args) => logger.error(args.join(' '));
+
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2023-10-16',
 });
