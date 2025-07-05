@@ -58,13 +58,7 @@ const swaggerDefinition = {
     info: {
       title: 'HostelApp API',
       version: '1.0.0',
-      description: 'API using Swagger with Express',
     },
-    servers: [
-      {
-        url: 'http://localhost:8000',
-      },
-    ],
   };
 
   // Options for swagger-jsdoc
