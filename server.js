@@ -6,6 +6,8 @@ import http from "http";
 import logger from "./logs.js"
 import morgan from "morgan";
 import fs from 'fs';
+import swaggerUi from "swagger-ui-express"
+import swaggerJsdoc from "swagger-jsdoc"
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
 import cookieParser from "cookie-parser";
@@ -48,6 +50,33 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+
+// Swagger definition (OpenAPI 3.0)
+const swaggerDefinition = {
+    openapi: '3.0.0',
+    info: {
+      title: 'HostelApp API',
+      version: '1.0.0',
+      description: 'API using Swagger with Express',
+    },
+    servers: [
+      {
+        url: 'http://localhost:8000',
+      },
+    ],
+  };
+
+  // Options for swagger-jsdoc
+const options = {
+    swaggerDefinition,
+    apis: ['./routes/*.js'],
+  };
+
+  const swaggerSpec = swaggerJsdoc(options);
+
+// Swagger route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -95,6 +124,7 @@ io.on("connection", (socket) => {
         socket.to(data.room).emit("receive_message", data);
     });
 });
+
 
 // Iniciar o servidor HTTP e conectar ao MongoDB
 server.listen(PORT, () => {
