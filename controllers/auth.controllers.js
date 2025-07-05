@@ -127,10 +127,6 @@ export const googleLogin = async (req, res) => {
         const email = userInfo.email
         const user = await User.findOne({ email });
 
-        console.log('check user on cookies:', user)
-        console.log('check user on cookies:', token)
-        console.log('check user on cookies:', user)
-
         // Existing user logic
         if (user) {
             // Validate Google and Apple IDs

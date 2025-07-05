@@ -3,9 +3,13 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import http from "http";
+import helmet from 'helmet';
 import logger from "./logs.js"
 import morgan from "morgan";
 import fs from 'fs';
+import swaggerUi from "swagger-ui-express"
+import swaggerJsdoc from "swagger-jsdoc"
+import rateLimit from 'express-rate-limit';
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
 import cookieParser from "cookie-parser";
@@ -49,6 +53,33 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+
+// Swagger definition (OpenAPI 3.0)
+const swaggerDefinition = {
+    openapi: '3.0.0',
+    info: {
+      title: 'HostelApp API',
+      version: '1.0.0',
+      description: "To use protected endpoints, first call `POST /api/auth/login`. It will set a JWT cookie in your browser, which authenticates you for subsequent requests. Note: There is a rate limit of 20 requests per 15 minutes per IP to protect the API from abuse."
+    },
+  };
+
+  // Options for swagger-jsdoc
+const options = {
+    swaggerDefinition,
+    apis: [
+        './routes/*.js',
+        './models/*.js', 
+    ],
+  };
+
+  const swaggerSpec = swaggerJsdoc(options);
+
+// Swagger route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use(helmet());
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/guest", guestRoutes);
@@ -75,6 +106,25 @@ app.use(morgan('combined', {
     }
 }));
 
+// Reject requests with missing or fake user agents and limiter 
+app.use((req, res, next) => {
+    const userAgent = req.get('User-Agent');
+    if (!userAgent || userAgent.length < 10) {
+      return res.status(400).json({ error: 'Invalid user agent' });
+    }
+    next();
+  });  
+
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,                 // limit each IP to 20 requests per windowMs
+    message: 'Too many requests, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use(limiter);
+
 // Websocket
 const io = new Server(server, {
     cors: {
@@ -95,6 +145,7 @@ io.on("connection", (socket) => {
         socket.to(data.room).emit("receive_message", data);
     });
 });
+
 
 // Iniciar o servidor HTTP e conectar ao MongoDB
 server.listen(PORT, () => {

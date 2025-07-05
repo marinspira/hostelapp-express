@@ -14,7 +14,7 @@ export const createHostel = async (req, res) => {
         const hostel = req.body.hostel
         const imagePath = getRelativeFilePath(req, req.file)
 
-        const existingHostel = await Hostel.findOne({ owners: user._id });
+        const existingHostel = await Hostel.findOne({ user_id_owners: user._id });
 
         const currency = countryCurrencyMap[hostel.country] || "EUR";
 
@@ -41,7 +41,7 @@ export const createHostel = async (req, res) => {
                 email: hostel.email,
                 website: hostel.website,
                 experience_with_volunteers: hostel.experience_with_volunteers,
-                owners: [user._id],
+                user_id_owners: [user._id],
             })
             await newHostel.save();
 
@@ -71,7 +71,7 @@ export const createHostel = async (req, res) => {
 export const getHostel = async (req, res) => {
     try {
         const user = req.user
-        const existingHostel = await Hostel.findOne({ owners: user._id });
+        const existingHostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!existingHostel) {
             return res.status(409).json({
@@ -95,7 +95,7 @@ export const getHostel = async (req, res) => {
 export const getAllGuests = async (req, res) => {
     try {
         const user = req.user
-        const existingHostel = await Hostel.findOne({ owners: user._id });
+        const existingHostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!existingHostel) {
             return res.status(409).json({
@@ -144,7 +144,7 @@ export const getAllGuests = async (req, res) => {
 export const getHomeScreen = async (req, res) => {
     try {
         const user = req.user
-        const existingHostel = await Hostel.findOne({ owners: user._id });
+        const existingHostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!existingHostel) {
             return res.status(409).json({
