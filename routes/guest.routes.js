@@ -103,8 +103,6 @@ router.post("/create", protectRoute, saveGuest)
  *     summary: Retrieve guest profile
  *     description: Retrieves the guest profile information for the authenticated user.
  *     tags: [Guest]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Guest retrieved successfully

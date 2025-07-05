@@ -1,5 +1,36 @@
 # HostelApp backend with Express.js and MongoDB
-A full-featured REST + WebSocket backend for managing hostels, rooms, messaging and payments—built with Express, MongoDB, Socket.IO & Stripe.
+REST API backend for managing hostels, rooms, messaging and payments—built with Express, MongoDB, Socket.IO & Stripe.
+
+## Tech Stack
+
+- **Node.js** & **Express**  
+- **MongoDB** (Mongoose ODM)  
+- **Socket.IO** for real‑time messaging  
+- **Stripe** for payments  
+- **Winston** + **Morgan** for logging  
+- **dotenv** for environment configuration  
+- **Multer** for file uploads  
+
+
+## API Documentation (Swagger)
+
+You can explore and test all available endpoints using the **Swagger UI**:
+
+![Swagger UI Screenshot](./assets/swagger-ui.png)
+
+> **Live API Docs:** [https://hostelapp-heemdbgqgkdnb7ce.northeurope-01.azurewebsites.net/api-docs]
+
+> _Note: Hosted on Azure App Service. It may take a few seconds to respond initially, as the server spins up on first request._
+
+### Authentication Required
+To use the protected endpoints:
+
+1. First call `POST /api/auth/login` with valid credentials.
+2. A `JWT` cookie will be set automatically.
+3. After that, you'll be able to access protected routes using your browser session.
+
+It will automatically include the cookie in subsequent requests if you're using the same browser session.  
+⚠️ **Note:** The API is protected with a **rate limit of 20 requests per 15 minutes per IP**.
 
 ## Features
 
@@ -23,25 +54,12 @@ A full-featured REST + WebSocket backend for managing hostels, rooms, messaging 
   - Morgan HTTP logs → Winston file logger  
 
 **Security & Headers**  
-  - CORS (configurable via `CLIENT_URL`)  
-  - Helmet for secure HTTP headers  
-  - Rate limiting, cookie‑based sessions 
+- CORS (configurable via `CLIENT_URL`)  
+- **Helmet** for secure HTTP headers  
+- **Rate Limiting**: blocks excessive requests (20 per 15 min/IP)  
+- **User-Agent Filtering**: basic bot detection middleware  
+- Cookie-based JWT session management   
 
-Note: All write actions require Authorization: Bearer <JWT>
-
----
-
-## Tech Stack
-
-- **Node.js** & **Express**  
-- **MongoDB** (Mongoose ODM)  
-- **Socket.IO** for real‑time messaging  
-- **Stripe** for payments  
-- **Winston** + **Morgan** for logging  
-- **dotenv** for environment configuration  
-- **Multer** for file uploads  
-
----
 
 ## File Uploads & Static Serving
 Multer is configured to store uploads under /uploads/users (and other model-specific folders).
@@ -49,7 +67,6 @@ Multer is configured to store uploads under /uploads/users (and other model-spec
 Uploaded files are served statically from `/uploads:`
 `GET /uploads/<folder>/<filename>`
 
----
 
 ## WebSocket Chat
 Connect to the same Express server via Socket.IO client.
@@ -60,14 +77,13 @@ Default origin is `http://localhost:3000` (configurable via CLIENT_URL).
 - send_message → broadcast a new chat message
 - receive_message → listen for incoming messages
 
----
 
 ## Logging
 Winston centralizes application logs (info & error) to `logs/hostelapp.log`.
-
 Morgan pipes HTTP request logs into Winston, so all are in one place.
 
----
+![Logs file Screenshot](./assets/logs.jpeg)
+
 
 ## License
 This project is licensed under the ISC License. See the LICENSE file for details.
