@@ -8,73 +8,84 @@ import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
 export const saveGuest = async (req, res) => {
     try {
-        const { guestData } = req.body
+        const { guestData } = req.body;
+        const user = req.user;
 
-        const user = req.user
+        if (!guestData || Object.keys(guestData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Guest data is required.",
+            });
+        }
 
-        const guest = await Guest.findOne({ user: user._id });
+        let guest = await Guest.findOne({ user: user._id });
         const username = await generateUniqueUsername(user.name);
 
         if (guest) {
+            // Guest exists, update their data.
+            let message = 'Guest profile updated successfully!';
 
-            // Guest exists (guest just exists if created by google, that upload the profile photo on the authentication), update guest data if birthday is empty
-            if (!guest.birthday || guest.birthday === null) {
-                gguest.username = username;
-                guest.birthday = guestData.birthday || guest.birthday;
-                guest.phoneNumber = guestData.phoneNumber || guest.phoneNumber;
-                guest.country = guestData.country || guest.country;
-                guest.passaportPhoto = guestData.passaportPhoto || guest.passaportPhoto;
-                guest.digitalNomad = guestData.digitalNomad || guest.digitalNomad;
-                guest.smoker = guestData.smoker || guest.smoker;
-                guest.pets = guestData.pets || guest.pets;
-                guest.showProfileAuthorization = guestData.showProfileAuthorization || guest.showProfileAuthorization;
-                await guest.save();
-
-                user.isNewUser = false;
-                await user.save()
-
-                return res.status(200).json({
-                    message: 'Guest updated!',
-                    success: true,
-                    data: guest
-                });
-
-            } else {
-                return res.status(400).json({ error: 'Birthday cannot be updated for existing guest!' });
+            // Prevent birthday from being updated if it already exists.
+            if (guest.birthday && guestData.birthday) {
+                message = "Guest profile updated, but the birthday was not changed as it can only be set once.";
+                delete guestData.birthday; 
             }
+
+            Object.assign(guest, guestData);
+
+            // Assign a username if it doesn't exist
+            if (!guest.username) {
+                guest.username = username;
+            }
+
+            await guest.save();
+
+            if (user.isNewUser) {
+                user.isNewUser = false;
+                await user.save();
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: message,
+                data: guest
+            });
+
         } else {
-
-            // TODO: Criar username para guest
-
+            // Guest does not exist, create a new one
             const newGuest = new Guest({
+                ...guestData,
                 username: username,
-                phoneNumber: guestData.phoneNumber,
-                birthday: guestData.birthday,
-                country: guestData.country,
-                passaportPhoto: guestData.passaportPhoto,
-                digitalNomad: guestData.digitalNomad,
-                smoker: guestData.smoker,
-                pets: guestData.pets,
-                showProfileAuthorization: guestData.showProfileAuthorization,
                 user: user._id
             });
+
             await newGuest.save();
 
             user.isNewUser = false;
-            await user.save()
+            await user.save();
 
             return res.status(201).json({
-                message: 'Guest created!',
                 success: true,
+                message: 'Guest profile created successfully!',
                 data: newGuest
             });
         }
 
     } catch (error) {
-        console.error("Error in saveGuest controller", error.message);
-        return res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error in saveGuest controller:", error.message);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: "Validation error, please check your data.",
+                errors: error.errors
+            });
+        }
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
     }
-}
+};
 
 export const getGuest = async (req, res) => {
     try {
