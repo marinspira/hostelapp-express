@@ -3,7 +3,7 @@ import Hostel from "../models/hostel.model.js";
 import Reservation from "../models/reservation.model.js";
 import Room from "../models/room.model.js";
 import Guest from "../models/guest.model.js";
-import Conversation from "../models/conversation.model.js";
+import Chat from "../models/chat.model.js";
 
 export const createReservation = async (req, res) => {
     try {
@@ -99,7 +99,7 @@ export const createReservation = async (req, res) => {
         }
 
         // Adiciona guest no grupo do hostel
-        const hostelGroup = await Conversation.findOneAndUpdate(
+        const hostelGroup = await Chat.findOneAndUpdate(
             {
                 $and: [
                     { participants: { $elemMatch: { hostel: hostel._id } } },
@@ -118,7 +118,7 @@ export const createReservation = async (req, res) => {
         
         if (!hostelGroup) {
             return res.status(500).json({
-                message: "Failed to update conversation group with new participant",
+                message: "Failed to update chat group with new participant",
                 success: false,
             });
         }

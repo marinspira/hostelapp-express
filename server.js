@@ -21,7 +21,7 @@ import guestRoutes from "./routes/guest.routes.js";
 import hostelRoutes from "./routes/hostel.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import reservationRoutes from "./routes/reservation.routes.js";
-import conversationRoutes from "./routes/conversation.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 import stripeRoutes from "./routes/stripe.routes.js";
 import eventRoutes from "./routes/event.routes.js";
 import Stripe from 'stripe';
@@ -82,13 +82,13 @@ app.use(helmet());
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/guest", guestRoutes);
-app.use("/api/hostel", hostelRoutes)
-app.use("/api/room", roomRoutes)
-app.use("/api/reservation", reservationRoutes)
-app.use("/api/conversation", conversationRoutes)
+app.use("/api/guests", guestRoutes);
+app.use("/api/hostels", hostelRoutes)
+app.use("/api/rooms", roomRoutes)
+app.use("/api/reservations", reservationRoutes)
+app.use("/api/chats", chatRoutes)
 app.use("/api/stripe", stripeRoutes)
-app.use("/api/event", eventRoutes)
+app.use("/api/events", eventRoutes)
 
 // Static files
 const uploadsPath = path.join(__dirname, "uploads");

@@ -8,16 +8,14 @@ const router = express.Router()
 // Guest details
 /**
  * @swagger
- * /api/guest/create:
+ * /api/guests/create:
  *   post:
  *     summary: Create or update a guest profile
  *     description: >
  *       Creates a new guest profile or updates an existing one.
  *       This is typically used after initial user registration (e.g., via Google) to complete the profile.
  *       If a birthday is already set, it cannot be updated; the request will succeed, but the birthday field will be ignored.
- *     tags: [Guest]
- *     security:
- *       - cookieAuth: []
+ *     tags: [Guests]
  *     requestBody:
  *       required: true
  *       content:
@@ -103,11 +101,11 @@ router.post("/create", protectRoute, saveGuest)
 
 /**
  * @swagger
- * /api/guest/get:
+ * /api/guests/get:
  *   get:
  *     summary: Retrieve guest profile
  *     description: Retrieves the guest profile information for the authenticated user.
- *     tags: [Guest]
+ *     tags: [Guests]
  *     responses:
  *       200:
  *         description: Guest retrieved successfully
@@ -159,11 +157,11 @@ router.get("/get", protectRoute, getGuest)
 
 /**
  * @swagger
- * /api/guest/update:
+ * /api/guests/update:
  *   put:
  *     summary: Update guest profile
  *     description: Updates editable fields on the guest profile (all data fields), and returns only the updated relevant guest data. For profile screen.
- *     tags: [Guest]
+ *     tags: [Guests]
  *     requestBody:
  *       required: true
  *       content:
@@ -248,11 +246,11 @@ router.get("/home", protectRoute, getHome)
 // Search a guest
 /**
  * @swagger
- * /api/guest/{username}:
+ * /api/guests/{username}:
  *   get:
  *     summary: Search guests by username or email
  *     description: Searches for guest users by matching the provided username or email (case-insensitive). Returns limited guest data including user ID, name, email, profile image, and username.
- *     tags: [Guest]
+ *     tags: [Guests]
  *     parameters:
  *       - in: path
  *         name: username

@@ -1,5 +1,5 @@
 import { getRelativeFilePath } from "../middleware/saveUploads.js";
-import Conversation from "../models/conversation.model.js";
+import Chat from "../models/chat.model.js";
 import Event from "../models/event.model.js";
 import Guest from "../models/guest.model.js";
 import Hostel from "../models/hostel.model.js";
@@ -48,13 +48,13 @@ export const createHostel = async (req, res) => {
             user.isNewUser = false;
             await user.save()
 
-            const conversation = new Conversation({
+            const chat = new Chat({
                 participants: [
                     { hostel: newHostel._id },
                 ],
                 group: true
             });
-            await conversation.save();
+            await chat.save();
 
             return res.status(201).json({
                 message: 'Hostel created!',
