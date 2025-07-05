@@ -137,10 +137,44 @@ export const updateGuest = async (req, res) => {
 
         await guest.save();
 
+        const {
+            guestPhotos,
+            phoneNumber,
+            country,
+            passaportPhoto,
+            interests,
+            languages,
+            digitalNomad,
+            smoker,
+            pets,
+            showProfileAuthorization,
+            description,
+            instagram,
+            linkedin,
+            twitter,
+            username
+        } = guest;
+
         return res.status(200).json({
             success: true,
             message: "Guest updated successfully",
-            data: guest,
+            data: {
+                guestPhotos,
+                phoneNumber,
+                country,
+                passaportPhoto,
+                interests,
+                languages,
+                digitalNomad,
+                smoker,
+                pets,
+                showProfileAuthorization,
+                description,
+                instagram,
+                linkedin,
+                twitter,
+                username
+            },
         });
     } catch (error) {
         console.error("Error in updateGuest:", error.message);
@@ -155,20 +189,50 @@ export const searchGuest = async (req, res) => {
     const { username } = req.params;
 
     try {
-        // Pesquisa no campo "email" de todos os usuários com "role" igual a "guest"
+        // Find users by email (case-insensitive)
         const usersWithEmailMatch = await User.find({
             email: { $regex: username, $options: 'i' },
             role: 'guest',
         });
 
-        // Pesquisa no campo "username" da coleção "Guest"
+        // Find guests by username
         const guestsWithUsernameMatch = await Guest.find({
             username: { $regex: username, $options: 'i' }
-        });
+        }).populate('user'); // Populate user for access to name/email
 
-        // TODO: Pesquisar no campo "name" de todos os usuários com "role" igual a "guest"
+        // Merge results
+        const guests = [];
 
-        if (usersWithEmailMatch.length === 0 && guestsWithUsernameMatch.length === 0) {
+        // Process users matched by email
+        for (const user of usersWithEmailMatch) {
+            const guest = await Guest.findOne({ user: user._id });
+
+            if (guest) {
+                guests.push({
+                    user_id_guest: user._id,
+                    name: user.name,
+                    email: user.email,
+                    image: guest.guestPhotos?.[0] || null,
+                    username: guest.username,
+                });
+            }
+        }
+
+        // Process guests matched by username
+        for (const guest of guestsWithUsernameMatch) {
+            // Avoid duplicates if already added via user email
+            if (!guests.some(g => g.user_id_guest.toString() === guest.user._id.toString())) {
+                guests.push({
+                    user_id_guest: guest.user._id,
+                    name: guest.user.name,
+                    email: guest.user.email,
+                    image: guest.guestPhotos?.[0] || null,
+                    username: guest.username,
+                });
+            }
+        }
+
+        if (guests.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: 'No guest or user found with the given username.',
@@ -176,23 +240,9 @@ export const searchGuest = async (req, res) => {
             });
         }
 
-        const guests = []
-
-        for (const user of usersWithEmailMatch) {
-            const guest = await Guest.findOne({ user: user._id });
-
-            guests.push({
-                user_id_guest: user._id,
-                name: user.name,
-                email: user.email,
-                image: guest && guest.guestPhotos && guest.guestPhotos.length > 0 ? guest.guestPhotos[0] : null,  // A imagem do guest
-                username: guest.username,
-            });
-        }
-
         return res.status(200).json({
             success: true,
-            message: 'Guest found successfully.',
+            message: 'Guest(s) found successfully.',
             data: guests,
         });
     } catch (error) {
@@ -202,7 +252,7 @@ export const searchGuest = async (req, res) => {
             message: "Internal Server Error",
         });
     }
-}
+};
 
 export const saveGuestProfileImages = async (req, res) => {
     try {

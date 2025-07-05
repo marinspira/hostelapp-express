@@ -18,6 +18,8 @@ const router = express.Router()
  *         description: User is authenticated
  *         content:
  *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *             examples:
  *               ExistingUser:
  *                 summary: Existing user
@@ -92,8 +94,8 @@ router.post("/is-authenticated", protectRoute, isAuthenticated)
  *             example:
  *               data:
  *                 name: "Maria"
- *                 isNewUser: false
  *                 role: "guest"
+ *                 isNewUser: false
  *               success: true
  *               message: "User logged successfully"
  *       201:
@@ -102,9 +104,9 @@ router.post("/is-authenticated", protectRoute, isAuthenticated)
  *           application/json:
  *             example:
  *               data:
- *                 isNewUser: true
  *                 name: "Maria"
  *                 role: "guest"
+ *                 isNewUser: true
  *               success: true
  *               message: "New user created successfully"
  *       400:
