@@ -108,7 +108,7 @@ router.get("/:id", protectRoute, getMessages)
 
 /**
  * @swagger
- * /api/chats/:
+ * /api/chats/send-message:
  *   post:
  *     summary: Send a message and handle chat creation
  *     tags: [Chats]
@@ -158,6 +158,6 @@ router.get("/:id", protectRoute, getMessages)
  *       '500':
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post("/", protectRoute, sendMessage)
+router.post("/send-message", protectRoute, sendMessage)
 
 export default router

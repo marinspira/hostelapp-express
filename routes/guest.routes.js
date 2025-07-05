@@ -101,7 +101,7 @@ router.post("/create", protectRoute, saveGuest)
 
 /**
  * @swagger
- * /api/guests/get:
+ * /api/guests/me:
  *   get:
  *     summary: Retrieve guest profile
  *     description: Retrieves the guest profile information for the authenticated user.
@@ -153,7 +153,7 @@ router.post("/create", protectRoute, saveGuest)
  *             example:
  *               error: Internal Server Error
  */
-router.get("/get", protectRoute, getGuest)
+router.get("/me", protectRoute, getGuest)
 
 /**
  * @swagger
