@@ -8,11 +8,14 @@ const router = express.Router()
 // Guest details
 /**
  * @swagger
- * /api/guest/create:
+ * /api/guests/create:
  *   post:
- *     summary: Create or update guest if partially created by Google
- *     description: Creates a new guest profile or completes it if it was created via Google auth. Only a few data fields are being sent. For register screen.
- *     tags: [Guest]
+ *     summary: GUEST USER ONLY - Create or update a guest profile
+ *     description: >
+ *       Creates a new guest profile or updates an existing one.
+ *       This is typically used after initial user registration (e.g., via Google) to complete the profile.
+ *       If a birthday is already set, it cannot be updated; the request will succeed, but the birthday field will be ignored.
+ *     tags: [Guests]
  *     requestBody:
  *       required: true
  *       content:
@@ -21,88 +24,88 @@ const router = express.Router()
  *             type: object
  *             properties:
  *               guestData:
- *                 type: object
- *                 properties:
- *                   phoneNumber:
- *                     type: string
- *                     example: "+1-555-123-4567"
- *                   birthday:
- *                     type: string
- *                     format: date
- *                     example: "1990-01-01"
- *                   country:
- *                     type: string
- *                     example: "Germany"
- *                   passaportPhoto:
- *                     type: string
- *                     example: "uploads/passport_photo.jpg"
- *                   digitalNomad:
- *                     type: boolean
- *                     example: true
- *                   smoker:
- *                     type: boolean
- *                     example: false
- *                   pets:
- *                     type: boolean
- *                     example: false
- *                   showProfileAuthorization:
- *                     type: boolean
- *                     example: true
-  *     responses:
- *       201:
- *         description: Guest created
+ *                 $ref: '#/components/schemas/Guest'
+ *     responses:
+ *       '201':
+ *         description: Guest profile created successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
- *               message: Guest created!
+ *               message: "Guest profile created successfully!"
  *               data:
  *                 _id: "60f7e7c8c456bc1d9c111111"
- *                 username: "mariazinha123"
- *                 phoneNumber: "+1-123-456-7890"
- *                 birthday: "1990-01-01"
- *                 country: "Brazil"
- *                 passaportPhoto: "uploads/users/guest1/passport.jpg"
- *                 digitalNomad: true
- *                 smoker: false
- *                 pets: true
- *                 showProfileAuthorization: true
+ *                 username: "newuser123"
+ *                 birthday: "1995-05-10"
+ *                 country: "Australia"
  *                 user: "60f7e7c8c456bc1d9c999999"
- *       200:
- *         description: Guest updated
+ *       '200':
+ *         description: Guest profile updated successfully.
+ *         content:
+ *           application/json:
+ *             examples:
+ *               ProfileUpdated:
+ *                 summary: When the profile is updated normally
+ *                 value:
+ *                   success: true
+ *                   message: "Guest profile updated successfully!"
+ *                   data:
+ *                     _id: "60f7e7c8c456bc1d9c111111"
+ *                     username: "existinguser"
+ *                     birthday: "1990-01-01"
+ *                     country: "Brazil"
+ *               BirthdayIgnored:
+ *                 summary: When an update to an existing birthday is attempted
+ *                 value:
+ *                   success: true
+ *                   message: "Guest profile updated, but the birthday was not changed as it can only be set once."
+ *                   data:
+ *                     _id: "60f7e7c8c456bc1d9c111111"
+ *                     username: "existinguser"
+ *                     birthday: "1990-01-01"
+ *                     country: "Argentina"
+ *       '400':
+ *         description: Bad Request - The request is invalid.
+ *         content:
+ *           application/json:
+ *             examples:
+ *               MissingData:
+ *                 summary: When guestData is empty
+ *                 value:
+ *                   success: false
+ *                   message: "Guest data is required."
+ *               ValidationError:
+ *                 summary: When Mongoose validation fails
+ *                 value:
+ *                   success: false
+ *                   message: "Validation error, please check your data."
+ *                   errors:
+ *                     country:
+ *                       message: "Path `country` is required."
+ *                       name: "ValidatorError"
+ *       '401':
+ *         description: Unauthorized - No token provided or token is invalid.
  *         content:
  *           application/json:
  *             example:
- *               success: true
- *               message: Guest updated!
- *               data:
- *                 _id: "60f7e7c8c456bc1d9c111111"
- *                 username: "existinguser"
- *                 birthday: "1990-01-01"
- *                 phoneNumber: "+1-123-456-7890"
- *                 country: "Brazil"
- *       400:
- *         description: Birthday cannot be updated for existing guest
+ *               error: "Unauthorized - No Token Provided"
+ *       '500':
+ *         description: Internal Server Error.
  *         content:
  *           application/json:
  *             example:
- *               error: Birthday cannot be updated for existing guest!
- *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             example:
- *               error: Internal Server Error
+ *               success: false
+ *               message: "Internal Server Error"
  */
 router.post("/create", protectRoute, saveGuest)
 
 /**
  * @swagger
- * /api/guest/get:
+ * /api/guests/me:
  *   get:
- *     summary: Retrieve guest profile
+ *     summary: GUEST USER ONLY - Retrieve guest profile
  *     description: Retrieves the guest profile information for the authenticated user.
- *     tags: [Guest]
+ *     tags: [Guests]
  *     responses:
  *       200:
  *         description: Guest retrieved successfully
@@ -150,15 +153,15 @@ router.post("/create", protectRoute, saveGuest)
  *             example:
  *               error: Internal Server Error
  */
-router.get("/get", protectRoute, getGuest)
+router.get("/me", protectRoute, getGuest)
 
 /**
  * @swagger
- * /api/guest/update:
+ * /api/guests/update:
  *   put:
- *     summary: Update guest profile
+ *     summary: GUEST USER ONLY - Update guest profile
  *     description: Updates editable fields on the guest profile (all data fields), and returns only the updated relevant guest data. For profile screen.
- *     tags: [Guest]
+ *     tags: [Guests]
  *     requestBody:
  *       required: true
  *       content:
@@ -243,11 +246,11 @@ router.get("/home", protectRoute, getHome)
 // Search a guest
 /**
  * @swagger
- * /api/guest/{username}:
+ * /api/guests/{username}:
  *   get:
  *     summary: Search guests by username or email
  *     description: Searches for guest users by matching the provided username or email (case-insensitive). Returns limited guest data including user ID, name, email, profile image, and username.
- *     tags: [Guest]
+ *     tags: [Guests]
  *     parameters:
  *       - in: path
  *         name: username

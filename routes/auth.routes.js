@@ -71,21 +71,19 @@ router.post("/is-authenticated", protectRoute, isAuthenticated)
  *             required:
  *               - credentials
  *               - role
- *             properties:
- *               credentials:
- *                 type: object
- *                 required:
- *                   - email
- *                 properties:
- *                   email:
- *                     type: string
- *                     example: "maria.guest@hostelapp.com"
- *                   appleId:
- *                     type: string
- *                     example: "9876543210"
- *               role:
- *                 type: string
- *                 example: "guest"
+ *           examples:
+ *             GuestLoginExample:
+ *               summary: Guest login
+ *               value:
+ *                 credentials:
+ *                   email: "maria.guest@hostelapp.com"
+ *                 role: "guest"
+ *             HostelOwnerLoginExample:
+ *               summary: Hostel owner login
+ *               value:
+ *                 credentials:
+ *                   email: "maria.owner@hostelapp.com"
+ *                 role: "host"
  *     responses:
  *       200:
  *         description: User logged in successfully
@@ -135,6 +133,30 @@ router.post("/google", googleLogin)
 
 router.post("/apple", appleLogin)
 
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Log the user out and clear the authentication cookie
+ *     description: >
+ *       This endpoint logs out the current user by clearing the JWT cookie set during login.  
+ *       After calling this endpoint, the user will no longer be authenticated for protected routes.
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: User logged out successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               message: "User logged out successfully"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Internal Server Error"
+ */
 router.post("/logout", logout)
 
 export default router

@@ -73,7 +73,7 @@ Connect to the same Express server via Socket.IO client.
 Default origin is `http://localhost:3000` (configurable via CLIENT_URL).
 
 ### Events:
-- join_room → join a conversation room
+- join_room → join a chat room
 - send_message → broadcast a new chat message
 - receive_message → listen for incoming messages
 

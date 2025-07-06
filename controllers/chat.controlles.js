@@ -1,4 +1,4 @@
-import Conversation from "../models/conversation.model.js";
+import Chat from "../models/chat.model.js";
 import Hostel from "../models/hostel.model.js";
 import User from "../models/user.model.js";
 import Message from "../models/messages.model.js";
@@ -9,58 +9,58 @@ export const sendMessage = async (req, res) => {
         const user = req.user
         const hostel = await Hostel.findOne({ owners: user._id });
 
-        const { conversationId, text, recipientId } = req.body;
+        const { chatId, text, recipientId } = req.body;
 
-        let conversation;
+        let chat;
 
-        if (!conversationId) {
+        if (!chatId) {
             if (hostel) {
-                conversation = await Conversation.findOne({
+                chat = await Chat.findOne({
                     $and: [
                         { participants: { $elemMatch: { hostel: hostel._id } } },
                         { participants: { $elemMatch: { user: recipientId } } }
                     ]
                 });
-                if (!conversation) {
-                    conversation = new Conversation({
+                if (!chat) {
+                    chat = new Chat({
                         participants: [
                             { hostel: hostel._id },
                             { user: recipientId }
                         ]
                     });
 
-                    await conversation.save();
+                    await chat.save();
                 }
             } else {
-                conversation = await Conversation.findOne({
+                chat = await Chat.findOne({
                     $and: [
                         { participants: { $elemMatch: { user: user._id } } },
                         { participants: { $elemMatch: { user: recipientId } } }
                     ]
                 });
 
-                if (!conversation) {
-                    conversation = new Conversation({
+                if (!chat) {
+                    chat = new Chat({
                         participants: [
                             { user: user._id },
                             { user: recipientId }
                         ]
                     });
-                    await conversation.save();
+                    await chat.save();
                 }
             }
         } else {
-            conversation = await Conversation.findById(conversationId);
-            if (!conversation) {
+            chat = await Chat.findById(chatId);
+            if (!chat) {
                 return res.status(400).json({
-                    message: "Conversation not found",
+                    message: "Chat not found",
                     success: false,
                 });
             }
         }
 
         const message = new Message({
-            conversation: conversation._id,
+            chat: chat._id,
             sender: user._id,
             senderModel: hostel ? 'Hostel' : 'User',
             text
@@ -79,33 +79,33 @@ export const sendMessage = async (req, res) => {
     }
 };
 
-export const getAllConversations = async (req, res) => {
+export const getAllChats = async (req, res) => {
     try {
         const user = req.user
         const hostel = await Hostel.findOne({ owners: user._id });
 
-        let conversations;
+        let chats;
 
         if (!hostel) {
-            conversations = await Conversation.find({
+            chats = await Chat.find({
                 "participants.user": user._id
             })
         } else {
-            conversations = await Conversation.find({
+            chats = await Chat.find({
                 "participants.hostel": hostel._id
             })
         }
 
-        const results = await Promise.all(conversations.map(async (conversation) => {
-            const lastMessage = await Message.findOne({ conversation: conversation._id })
+        const results = await Promise.all(chats.map(async (chat) => {
+            const lastMessage = await Message.findOne({ chat: chat._id })
                 .sort({ createdAt: -1 });
 
             let other = null
 
             if (!hostel) {
-                if (conversation.participants.length !== 2) return null;
+                if (chat.participants.length !== 2) return null;
 
-                const found = conversation.participants.find(p => {
+                const found = chat.participants.find(p => {
                     return (
                         (p.user && p.user.toString() !== user._id.toString()) ||
                         (p.hostel)
@@ -118,9 +118,9 @@ export const getAllConversations = async (req, res) => {
                     other = { id: found.hostel, type: "hostel" };
                 }
             } else {
-                if (conversation.participants.length !== 2) return null;
+                if (chat.participants.length !== 2) return null;
 
-                const found = conversation.participants.find(p => {
+                const found = chat.participants.find(p => {
                     return (p.user && p.user.toString() !== user._id.toString());
                 });
 
@@ -152,7 +152,7 @@ export const getAllConversations = async (req, res) => {
             }
 
             return {
-                conversationId: conversation._id,
+                chatId: chat._id,
                 participant: otherData,
                 lastMessage: lastMessage
                     ? {
@@ -164,33 +164,33 @@ export const getAllConversations = async (req, res) => {
         }));
 
         res.status(200).json({
-            message: "Get all conversations successfully",
+            message: "Get all chats successfully",
             data: results,
             success: true,
         });
 
     } catch (error) {
-        console.error("Error in getAllConversations controller", error.message);
+        console.error("Error in getAllChats controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
 export const getMessages = async (req, res) => {
     try {
-        const { conversationOrUserId } = req.params;
+        const { id } = req.params;
         const user = req.user
         const limit = 20
 
-        const conversation = await Conversation.findById(conversationOrUserId);
-        if (!conversation) {
+        const chat = await Chat.findById(id);
+        if (!chat) {
             return res.status(200).json({
-                message: "Conversation not started yet",
+                message: "Chat not found or not started yet",
                 success: true,
                 data: []
             });
         }
 
-        const messages = await Message.find({ conversation: conversationOrUserId })
+        const messages = await Message.find({ chat: id })
             .sort({ createdAt: -1 })
             .limit(parseInt(limit))
             .exec();
