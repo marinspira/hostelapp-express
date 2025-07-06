@@ -10,7 +10,7 @@ const router = express.Router()
  * @swagger
  * /api/guests/create:
  *   post:
- *     summary: Create or update a guest profile
+ *     summary: GUEST USER ONLY - Create or update a guest profile
  *     description: >
  *       Creates a new guest profile or updates an existing one.
  *       This is typically used after initial user registration (e.g., via Google) to complete the profile.
@@ -103,7 +103,7 @@ router.post("/create", protectRoute, saveGuest)
  * @swagger
  * /api/guests/me:
  *   get:
- *     summary: Retrieve guest profile
+ *     summary: GUEST USER ONLY - Retrieve guest profile
  *     description: Retrieves the guest profile information for the authenticated user.
  *     tags: [Guests]
  *     responses:
@@ -159,7 +159,7 @@ router.get("/me", protectRoute, getGuest)
  * @swagger
  * /api/guests/update:
  *   put:
- *     summary: Update guest profile
+ *     summary: GUEST USER ONLY - Update guest profile
  *     description: Updates editable fields on the guest profile (all data fields), and returns only the updated relevant guest data. For profile screen.
  *     tags: [Guests]
  *     requestBody:
