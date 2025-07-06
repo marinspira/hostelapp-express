@@ -2,10 +2,15 @@
   "name": "hostelapp",
   "version": "1.0.0",
   "main": "service.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"No tests yet\"",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "dev": "nodemon server.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
   },
   "keywords": [],
   "author": "",
@@ -33,7 +38,8 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
-    "nodemon": "^3.1.9"
-  },
-  "type": "module"
+    "jest": "^30.0.4",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.1"
+  }
 }

@@ -141,8 +141,17 @@ io.on("connection", (socket) => {
         socket.join(data);
     });
 
+      // Simulate message reception
+    socket.on('client_message', (data) => {
+    console.log('📩 Received from client:', data);
+    })
+
     socket.on("send_message", (data) => {
         socket.to(data.room).emit("receive_message", data);
+    });
+
+    socket.on('disconnect', () => {
+      console.log(`Client disconnected: ${socket.id}`);
     });
 });
 
