@@ -10,6 +10,7 @@ import fs from 'fs';
 import swaggerUi from "swagger-ui-express"
 import swaggerJsdoc from "swagger-jsdoc"
 import rateLimit from 'express-rate-limit';
+import { logAnalyzer } from 'api-traffic-analyzer'
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
 import cookieParser from "cookie-parser";
@@ -52,7 +53,7 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(logAnalyzer);
 
 // Swagger definition (OpenAPI 3.0)
 const swaggerDefinition = {

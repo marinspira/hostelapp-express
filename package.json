@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "analyzer": "node ./node_modules/api-traffic-analyzer/dist/cli.js logs/users.log"
   },
   "jest": {
     "testEnvironment": "node",
@@ -17,6 +18,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "api-traffic-analyzer": "^1.0.3",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
