@@ -57,13 +57,20 @@ app.use(logAnalyzer);
 
 // Swagger definition (OpenAPI 3.0)
 const swaggerDefinition = {
-    openapi: '3.0.0',
-    info: {
-      title: 'HostelApp API',
-      version: '1.0.0',
-      description: "To use protected endpoints, first call `POST /api/auth/login`. It will set a JWT cookie in your browser, which authenticates you for subsequent requests. Note: There is a rate limit of 20 requests per 15 minutes per IP to protect the API from abuse."
-    },
-  };
+  openapi: '3.0.0',
+  info: {
+    title: 'HostelApp API',
+    version: '1.0.0',
+    description:
+      "To use protected endpoints, first call `POST /api/auth/login`. This will set a JWT cookie in your browser to authenticate subsequent requests.\n\n" +
+      "🔐 Access Control:\n" +
+      "- Some endpoints are only available when logged in as a **host**.\n" +
+      "- Others require logging in as a **guest** — both roles can be selected during login at `/api/auth/login`.\n\n" +
+      "⚠️ Notes:\n" +
+      "1. There is a **rate limit of 20 requests per 15 minutes per IP** to protect the API from abuse.\n" +
+      "2. **Cookies are being set for analytics purposes.**"
+  },
+};
 
   // Options for swagger-jsdoc
 const options = {
