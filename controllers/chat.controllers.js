@@ -7,7 +7,7 @@ import Guest from "../models/guest.model.js";
 export const sendMessage = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         const { chatId, text, recipientId } = req.body;
 
@@ -82,7 +82,7 @@ export const sendMessage = async (req, res) => {
 export const getAllChats = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         let chats;
 

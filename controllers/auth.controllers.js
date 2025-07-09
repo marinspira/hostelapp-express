@@ -13,7 +13,7 @@ export const isAuthenticated = async (req, res) => {
 
         // Verify if is a new user (have the birth date) or has a hostel
         const guest = await Guest.findOne({ user: user._id });
-        const hostel = await Hostel.findOne({ owners: user.id })
+        const hostel = await Hostel.findOne({ user_id_owners: user.id })
 
         if ((guest && guest.birthday !== null) || hostel) {
             return res.status(200).json({

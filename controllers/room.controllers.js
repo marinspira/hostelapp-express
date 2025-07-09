@@ -8,7 +8,7 @@ export const createRoom = async (req, res) => {
         const user = req.user
         const { room } = req.body
 
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!hostel) {
             return res.status(400).json({
@@ -81,7 +81,7 @@ export const createRoom = async (req, res) => {
 export const getAllRooms = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!hostel) {
             return res.status(400).json({
@@ -184,7 +184,7 @@ export const getAllRooms = async (req, res) => {
 export const getBedsAvailable = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         const { checkin_date, checkout_date } = req.query;
 
