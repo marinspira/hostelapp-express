@@ -5,7 +5,7 @@ import { getRelativeFilePath } from "../middleware/saveUploads.js";
 export const createEvent = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         const event = req.body.event
         console.log(event)
@@ -52,7 +52,7 @@ export const createEvent = async (req, res) => {
 export const getAllEvents = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!hostel) {
             return res.status(400).json({

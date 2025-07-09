@@ -12,7 +12,7 @@ export const createReservation = async (req, res) => {
 
         console.log(reservation)
 
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!hostel) {
             return res.status(400).json({

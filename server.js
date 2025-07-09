@@ -149,7 +149,7 @@ io.on("connection", (socket) => {
 
     socket.on("join_room", (data) => {
         socket.join(data);
-        callback({ status: 'ok' });
+        // callback({ status: 'ok' });
     });
 
       // Simulate message reception

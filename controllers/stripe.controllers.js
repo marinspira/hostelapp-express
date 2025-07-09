@@ -4,7 +4,7 @@ import { stripe } from "../server.js";
 export const createHostelStripeAccount = async (req, res) => {
     try {
         const user = req.user
-        const hostel = await Hostel.findOne({ owners: user._id });
+        const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
         if (!hostel) {
             return res.status(400).json({
