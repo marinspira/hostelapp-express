@@ -25,6 +25,7 @@ import reservationRoutes from "./routes/reservation.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import stripeRoutes from "./routes/stripe.routes.js";
 import eventRoutes from "./routes/event.routes.js";
+import backofficeRoutes from "./routes/backoffice.routes.js";
 import Stripe from 'stripe';
 
 dotenv.config();
@@ -97,6 +98,7 @@ app.use("/api/reservations", reservationRoutes)
 app.use("/api/chats", chatRoutes)
 app.use("/api/stripe", stripeRoutes)
 app.use("/api/events", eventRoutes)
+app.use("/api/backoffice", backofficeRoutes)
 
 // Static files
 const uploadsPath = path.join(__dirname, "uploads");
@@ -147,6 +149,7 @@ io.on("connection", (socket) => {
 
     socket.on("join_room", (data) => {
         socket.join(data);
+        callback({ status: 'ok' });
     });
 
       // Simulate message reception
@@ -156,6 +159,7 @@ io.on("connection", (socket) => {
 
     socket.on("send_message", (data) => {
         socket.to(data.room).emit("receive_message", data);
+        callback({ status: 'ok' });
     });
 
     socket.on('disconnect', () => {

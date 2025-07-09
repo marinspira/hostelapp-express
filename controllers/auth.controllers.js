@@ -120,6 +120,7 @@ export const googleLogin = async (req, res) => {
         const { token, role } = req.body;
 
         const userInfo = await getGoogleUserInfo(token);
+        
         if (!userInfo) {
             return res.status(400).json({ error: 'Invalid token' });
         }
@@ -178,8 +179,8 @@ export const googleLogin = async (req, res) => {
         });
 
         if (newUser) {
-            await newUser.save();
             generateTokenAndSetCookie(newUser._id, res)
+            await newUser.save();
         } else {
             return res.status(400).json({ error: "Error creating new user" })
         }
