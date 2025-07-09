@@ -161,7 +161,7 @@ const HostelSchema = new mongoose.Schema({
         type: String
     },
     email: {
-        type: String, unique: true, required: false
+        type: String, required: true
     },
     website: {
         type: String
@@ -176,8 +176,7 @@ const HostelSchema = new mongoose.Schema({
     user_id_owners: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
-        validate: [arr => arr.length > 0, 'At least one owner is required.']
+        required: true
     }],
     user_id_guests: [{
         type: mongoose.Schema.Types.ObjectId, ref: "User"

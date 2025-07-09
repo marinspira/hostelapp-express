@@ -30,7 +30,9 @@ To use the protected endpoints:
 3. After that, you'll be able to access protected routes using your browser session.
 
 It will automatically include the cookie in subsequent requests if you're using the same browser session.  
-⚠️ **Note:** The API is protected with a **rate limit of 20 requests per 15 minutes per IP**.
+⚠️ **Notes:** 
+- The API is protected with a **rate limit of 20 requests per 15 minutes per IP**.
+- This project also uses my own lib [api-traffic-analyzer](https://github.com/marinspira/api-traffic-analyzer) to log access activity via cookies for analytics purposes. 
 
 ## Features
 

@@ -45,7 +45,7 @@ export const createHostel = async (req, res) => {
             })
             await newHostel.save();
 
-            user.isNewUser = false;
+            User.isNewUser = false;
             await user.save()
 
             const chat = new Chat({
@@ -63,7 +63,7 @@ export const createHostel = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Error in createHostel controller", error.message);
+        console.error("Error in create hostel controller", error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }

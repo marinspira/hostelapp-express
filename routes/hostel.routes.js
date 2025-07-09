@@ -20,16 +20,69 @@ const router = express.Router()
  *           schema:
  *             type: object
  *             required:
- *               - hostel
  *               - photo
  *             properties:
- *               hostel:
+ *               hostel[name]:
  *                 type: string
- *                 description: JSON stringified hostel data
- *                 example: '{"name": "Sunny Hostel", "street": "Rua das Flores", "city": "Lisbon", "country": "Portugal", "zip": "1200-456", "phone": "+351912345678", "email": "sunny@hostels.com", "website": "https://sunnyhostel.com", "experience_with_volunteers": "5 years"}'
+ *                 description: Name of the hostel
+ *                 example: HostelApp
+ *               hostel[zip]:
+ *                 type: string
+ *                 example: "230492"
+ *               hostel[street]:
+ *                 type: string
+ *                 example: Teste
+ *               hostel[city]:
+ *                 type: string
+ *                 example: Sampa
+ *               hostel[country]:
+ *                 type: string
+ *                 example: Argentina
+ *               hostel[website]:
+ *                 type: string
+ *                 example: https://hostelaoo.com
+ *               hostel[experience_with_volunteers]:
+ *                 type: string
+ *                 enum: [ "true", "false" ]
+ *                 example: "false"
+ *               hostel[policies]:
+ *                 type: string
+ *                 enum: [ "true", "false" ]
+ *                 example: "true"
+ *               imageId:
+ *                 type: string
+ *                 example: hostelImage
+ *                 description: Optional image ID to associate with photo
  *               photo:
  *                 type: string
  *                 format: binary
+ *                 description: Photo file to upload
+ *           examples:
+ *             example-1:
+ *               summary: Example with nested keys in form data
+ *               value:
+ *                 hostel[name]: HostelApp
+ *                 hostel[zip]: "230492"
+ *                 hostel[street]: Teste
+ *                 hostel[city]: Sampa
+ *                 hostel[country]: Argentina
+ *                 hostel[website]: https://hostelaoo.com
+ *                 hostel[experience_with_volunteers]: "false"
+ *                 example: "false"
+ *               hostel[policies]:
+ *                 type: string
+ *                 enum: [ "true", "false" ]
+ *                 example: "true"
+ *               imageId:
+ *                 type: string
+ *                 example: hostelImage
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *                 description: Photo file to upload
+ *           encoding:
+ *             photo:
+ *               contentType: image/png 
  *     responses:
  *       201:
  *         description: Hostel created successfully
