@@ -2,6 +2,7 @@ import express from "express"
 import protectRoute from "../middleware/protectRoute.js"
 import { createEvent, getAllEvents } from "../controllers/events.controllers.js"
 import { upload } from "../middleware/saveUploads.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -40,7 +41,7 @@ const router = express.Router()
  *       500:
  *         description: Internal Server Error
  */
-router.post("/create", protectRoute, upload.single('photo'), createEvent)
+router.post("/create", protectRoute, upload.single('photo'), catchAsync(createEvent))
 
 /**
  * @swagger
@@ -73,6 +74,6 @@ router.post("/create", protectRoute, upload.single('photo'), createEvent)
  *       500:
  *         description: Internal Server Error
  */
-router.get("/", protectRoute, getAllEvents)
+router.get("/", protectRoute, catchAsync(getAllEvents))
 
 export default router

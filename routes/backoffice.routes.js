@@ -1,5 +1,5 @@
 import express from "express"
-import { getHostelStats, getUsers, getUserStats, getHostels } from "../controllers/backoffice.js"
+import { getHostelStats, getUsers, getUserStats, getHostels } from "../controllers/backoffice.controllers.js"
 import { authenticateToken } from "../middleware/bearerAuthentication.js"
 
 const router = express.Router()

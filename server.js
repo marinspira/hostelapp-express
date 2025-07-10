@@ -27,6 +27,7 @@ import stripeRoutes from "./routes/stripe.routes.js";
 import eventRoutes from "./routes/event.routes.js";
 import backofficeRoutes from "./routes/backoffice.routes.js";
 import Stripe from 'stripe';
+import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ console.log = (...args) => logger.info(args.join(' '));
 console.error = (...args) => logger.error(args.join(' '));
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2023-10-16',
+  apiVersion: '2023-10-16',
 });
 
 // Criando servidor HTTP e instância do Socket.IO
@@ -73,16 +74,16 @@ const swaggerDefinition = {
   },
 };
 
-  // Options for swagger-jsdoc
+// Options for swagger-jsdoc
 const options = {
-    swaggerDefinition,
-    apis: [
-        './routes/*.js',
-        './models/*.js', 
-    ],
-  };
+  swaggerDefinition,
+  apis: [
+    './routes/*.js',
+    './models/*.js',
+  ],
+};
 
-  const swaggerSpec = swaggerJsdoc(options);
+const swaggerSpec = swaggerJsdoc(options);
 
 // Swagger route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -111,65 +112,65 @@ if (!fs.existsSync(logDir)) {
 }
 
 app.use(morgan('combined', {
-    stream: {
-        write: (message) => logger.info(message.trim())
-    }
+  stream: {
+    write: (message) => logger.info(message.trim())
+  }
 }));
+
+app.use(errorHandler);
 
 // Reject requests with missing or fake user agents and limiter 
 app.use((req, res, next) => {
-    const userAgent = req.get('User-Agent');
-    if (!userAgent || userAgent.length < 10) {
-      return res.status(400).json({ error: 'Invalid user agent' });
-    }
-    next();
-  });  
+  const userAgent = req.get('User-Agent');
+  if (!userAgent || userAgent.length < 10) {
+    return res.status(400).json({ error: 'Invalid user agent' });
+  }
+  next();
+});
 
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20,                 // limit each IP to 20 requests per windowMs
-    message: 'Too many requests, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,                 // limit each IP to 20 requests per windowMs
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-  app.use(limiter);
+app.use(limiter);
 
 // Websocket
 const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:8081",
-        methods: ["GET", "POST"],
-    },
+  cors: {
+    origin: "http://localhost:8081",
+    methods: ["GET", "POST"],
+  },
 });
 
-// Evento de conexão do Socket.IO
+// Socket.IO events
 io.on("connection", (socket) => {
-    console.log(`User Connected: ${socket.id}`);
+  console.log(`User Connected: ${socket.id}`);
 
-    socket.on("join_room", (data) => {
-        socket.join(data);
-        // callback({ status: 'ok' });
-    });
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    // callback({ status: 'ok' });
+  });
 
-      // Simulate message reception
-    socket.on('client_message', (data) => {
+  // Simulate message reception
+  socket.on('client_message', (data) => {
     console.log('📩 Received from client:', data);
-    })
+  })
 
-    socket.on("send_message", (data) => {
-        socket.to(data.room).emit("receive_message", data);
-        callback({ status: 'ok' });
-    });
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
+    callback({ status: 'ok' });
+  });
 
-    socket.on('disconnect', () => {
-      console.log(`Client disconnected: ${socket.id}`);
-    });
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
 });
 
-
-// Iniciar o servidor HTTP e conectar ao MongoDB
 server.listen(PORT, () => {
-    connectToMongoDB();
-    console.log(`Server running on port ${PORT}`);
+  connectToMongoDB();
+  console.log(`Server running on port ${PORT}`);
 });
