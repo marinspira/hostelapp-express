@@ -1,6 +1,7 @@
 import express from "express"
 import { getHostelStats, getUsers, getUserStats, getHostels } from "../controllers/backoffice.controllers.js"
 import { authenticateToken } from "../middleware/bearerAuthentication.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -25,7 +26,7 @@ const router = express.Router()
  *       500:
  *         description: Internal Server Error
  */
-router.get("/users", authenticateToken, getUsers)
+router.get("/users", authenticateToken, catchAsync(getUsers))
 
 /**
  * @swagger
@@ -48,7 +49,7 @@ router.get("/users", authenticateToken, getUsers)
  *       500:
  *         description: Internal Server Error
  */
-router.get("/hostels", authenticateToken, getHostels)
+router.get("/hostels", authenticateToken, catchAsync(getHostels))
 
 /**
 * @swagger
@@ -130,7 +131,7 @@ router.get("/hostels", authenticateToken, getHostels)
 *       500:
 *         description: Internal server error
 */
-router.get("/hostels-stats", authenticateToken, getHostelStats)
+router.get("/hostels-stats", authenticateToken, catchAsync(getHostelStats))
 
 /**
  * @swagger
@@ -190,6 +191,6 @@ router.get("/hostels-stats", authenticateToken, getHostelStats)
  *       500:
  *         description: Internal server error
  */
-router.get("/users-stats", authenticateToken, getUserStats)
+router.get("/users-stats", authenticateToken, catchAsync(getUserStats))
 
 export default router
