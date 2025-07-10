@@ -1,6 +1,7 @@
 import express from "express"
 import protectRoute from "../middleware/protectRoute.js"
 import { createRoom, getAllRooms, getBedsAvailable } from "../controllers/room.controllers.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -85,7 +86,7 @@ const router = express.Router()
  *             example:
  *               error: Internal Server Error
  */
-router.post("/create", protectRoute, createRoom)
+router.post("/create", protectRoute, catchAsync(createRoom))
 
 /**
  * @swagger
@@ -130,7 +131,7 @@ router.post("/create", protectRoute, createRoom)
  *             example:
  *               error: Internal Server Error
  */
-router.get("/", protectRoute, getAllRooms)
+router.get("/", protectRoute, catchAsync(getAllRooms))
 
 /**
  * @swagger
@@ -189,6 +190,6 @@ router.get("/", protectRoute, getAllRooms)
  *             example:
  *               error: Internal Server Error
  */
-router.get("/beds-available", protectRoute, getBedsAvailable)
+router.get("/beds-available", protectRoute, catchAsync(getBedsAvailable))
 
 export default router
