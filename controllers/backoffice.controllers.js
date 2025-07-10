@@ -1,3 +1,4 @@
+import ErrorLog from "../models/errorLog.js";
 import Hostel from "../models/hostel.model.js";
 import User from "../models/user.model.js"
 
@@ -188,4 +189,21 @@ export const getHostels = async (req, res) => {
     message: "",
     data: hostelsDTO
   });
+}
+
+export const getErrorLogs = async (req, res) => {
+  const logs = await ErrorLog.find().sort({ time: -1 }).limit(100);
+
+  const logsDTO = logs.map(log => ({
+    message: log.message,
+    stack: log.stack,
+    route: log.route,
+    method: log.method,
+    time: log.time,
+  }));
+
+  return res.status(200).json({
+    success: true,
+    data: logsDTO
+  })
 }

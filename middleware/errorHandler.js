@@ -1,4 +1,6 @@
-const errorHandler = (err, req, res, next) => {
+import ErrorLog from "../models/errorLog.js";
+
+const errorHandler = async (err, req, res, next) => {
     console.error('Global error handler caught:', err);
 
     const errorDetails = {
@@ -8,7 +10,14 @@ const errorHandler = (err, req, res, next) => {
         method: req.method,
         time: new Date(),
     };
-    console.log("Error details from middleware:", errorDetails);
+
+    console.log("Error details from middleware:", JSON.stringify(errorDetails, null, 2));
+
+    try {
+        await ErrorLog.create(errorDetails);
+    } catch (err) {
+        console.error("Failed to save error to MongoDB:", err.message);
+    }
 
     if (res.headersSent) {
         return next(err);
