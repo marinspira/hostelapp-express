@@ -27,7 +27,7 @@ export const createEvent = async (req, res) => {
         paid_event: event.paid_event,
         payment_to_hostel: event.payment_to_hostel,
         payment_methods: event.payment_methods,
-        status: hostel ? "aprovado" : "pendente",
+        status: hostel ? "approved" : "pending",
         address: {
             street: event.hostel_location === true ? hostel.address.street : event.street,
             city: event.hostel_location === true ? hostel.address.city : event.city,
