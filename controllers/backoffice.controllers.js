@@ -1,4 +1,4 @@
-import ErrorLog from "../models/errorLog.js";
+import ErrorLog from "../models/logs.model.js";
 import Hostel from "../models/hostel.model.js";
 import User from "../models/user.model.js"
 

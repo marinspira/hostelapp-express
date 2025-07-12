@@ -1,4 +1,4 @@
-import ErrorLog from "../models/errorLog.js";
+import ErrorLog from "../models/logs.model.js";
 
 const errorHandler = async (err, req, res, next) => {
     console.error('Global error handler caught:', err);
