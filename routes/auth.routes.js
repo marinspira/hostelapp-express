@@ -1,6 +1,7 @@
 import express from "express"
 import { googleLogin, appleLogin, logout, isAuthenticated, localhostLogin } from "../controllers/auth.controllers.js"
 import protectRoute from "../middleware/protectRoute.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -46,7 +47,7 @@ const router = express.Router()
  *             example:
  *               error: "Internal Server Error"
  */
-router.post("/is-authenticated", protectRoute, isAuthenticated)
+router.post("/is-authenticated", protectRoute, catchAsync(isAuthenticated))
 
 /**
  * @swagger
@@ -127,11 +128,11 @@ router.post("/is-authenticated", protectRoute, isAuthenticated)
  *                 value:
  *                   error: "Internal Server Error"
  */
-router.post('/login', localhostLogin)
+router.post('/login', catchAsync(localhostLogin))
 
-router.post("/google", googleLogin)
+router.post("/google", catchAsync(googleLogin))
 
-router.post("/apple", appleLogin)
+router.post("/apple", catchAsync(appleLogin))
 
 /**
  * @swagger
@@ -157,6 +158,6 @@ router.post("/apple", appleLogin)
  *             example:
  *               error: "Internal Server Error"
  */
-router.post("/logout", logout)
+router.post("/logout", catchAsync(logout))
 
 export default router

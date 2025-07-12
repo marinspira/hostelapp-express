@@ -6,7 +6,7 @@ export const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: 'Missing token' });
     }
 
-    if (token !== "only_a_test") {
+    if (token !== process.env.BACKOFFICE_BEARER_TOKEN) {
         return res.status(403).json({ message: 'Invalid or expired token' });
     }
 

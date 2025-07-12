@@ -2,6 +2,7 @@ import express from "express"
 import { deleteGuestProfileImage, getGuest, getHome, saveGuest, saveGuestProfileImages, searchGuest, updateGuest } from "../controllers/guest.controllers.js"
 import protectRoute from "../middleware/protectRoute.js"
 import { upload } from "../middleware/saveUploads.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -97,7 +98,7 @@ const router = express.Router()
  *               success: false
  *               message: "Internal Server Error"
  */
-router.post("/create", protectRoute, saveGuest)
+router.post("/create", protectRoute, catchAsync(saveGuest))
 
 /**
  * @swagger
@@ -153,7 +154,7 @@ router.post("/create", protectRoute, saveGuest)
  *             example:
  *               error: Internal Server Error
  */
-router.get("/me", protectRoute, getGuest)
+router.get("/me", protectRoute, catchAsync(getGuest))
 
 /**
  * @swagger
@@ -239,9 +240,9 @@ router.get("/me", protectRoute, getGuest)
  *       500:
  *         description: Internal Server Error
  */
-router.put("/update", protectRoute, updateGuest)
+router.put("/update", protectRoute, catchAsync(updateGuest))
 
-router.get("/home", protectRoute, getHome)
+router.get("/home", protectRoute, catchAsync(getHome))
 
 // Search a guest
 /**
@@ -285,10 +286,10 @@ router.get("/home", protectRoute, getHome)
  *       500:
  *         description: Internal Server Error
  */
-router.get("/:username", protectRoute, searchGuest)
+router.get("/:username", protectRoute, catchAsync(searchGuest))
 
 // Guest images
-router.post("/save-images", protectRoute, upload.single('photo'), saveGuestProfileImages)
-router.delete("/delete-images", protectRoute, deleteGuestProfileImage)
+router.post("/save-images", protectRoute, upload.single('photo'), catchAsync(saveGuestProfileImages))
+router.delete("/delete-images", protectRoute, catchAsync(deleteGuestProfileImage))
 
 export default router

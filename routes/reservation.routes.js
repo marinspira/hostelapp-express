@@ -1,6 +1,7 @@
 import express from "express"
 import protectRoute from "../middleware/protectRoute.js"
 import { createReservation } from "../controllers/reservation.controllers.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -83,6 +84,6 @@ const router = express.Router()
  *               message: Failed to update room with reservation ID
  *               success: false
  */
-router.post("/create", protectRoute, createReservation)
+router.post("/create", protectRoute, catchAsync(createReservation))
 
 export default router

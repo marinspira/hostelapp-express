@@ -1,6 +1,7 @@
 import express from "express"
-import { getHostelStats, getUsers, getUserStats, getHostels } from "../controllers/backoffice.js"
+import { getHostelStats, getUsers, getUserStats, getHostels, getErrorLogs } from "../controllers/backoffice.controllers.js"
 import { authenticateToken } from "../middleware/bearerAuthentication.js"
+import catchAsync from "../utils/catchAsync.js"
 
 const router = express.Router()
 
@@ -25,7 +26,7 @@ const router = express.Router()
  *       500:
  *         description: Internal Server Error
  */
-router.get("/users", authenticateToken, getUsers)
+router.get("/users", authenticateToken, catchAsync(getUsers))
 
 /**
  * @swagger
@@ -48,7 +49,7 @@ router.get("/users", authenticateToken, getUsers)
  *       500:
  *         description: Internal Server Error
  */
-router.get("/hostels", authenticateToken, getHostels)
+router.get("/hostels", authenticateToken, catchAsync(getHostels))
 
 /**
 * @swagger
@@ -130,7 +131,7 @@ router.get("/hostels", authenticateToken, getHostels)
 *       500:
 *         description: Internal server error
 */
-router.get("/hostels-stats", authenticateToken, getHostelStats)
+router.get("/hostels-stats", authenticateToken, catchAsync(getHostelStats))
 
 /**
  * @swagger
@@ -190,6 +191,52 @@ router.get("/hostels-stats", authenticateToken, getHostelStats)
  *       500:
  *         description: Internal server error
  */
-router.get("/users-stats", authenticateToken, getUserStats)
+router.get("/users-stats", authenticateToken, catchAsync(getUserStats))
+
+/**
+ * @swagger
+ * /api/backoffice/error-logs:
+ *   get:
+ *     summary: Retrieve a list of recent backend errors
+ *     description: Get the last 100 errors logged by the global error handler.
+ *     tags: [Backoffice]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of error logs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       message:
+ *                         type: string
+ *                         example: "ValidationError: Event validation failed"
+ *                       stack:
+ *                         type: string
+ *                         example: "ValidationError: Event validation failed at Document..."
+ *                       route:
+ *                         type: string
+ *                         example: "/api/events/create"
+ *                       method:
+ *                         type: string
+ *                         example: "POST"
+ *                       time:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-07-10T17:52:49.598Z"
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/error-logs", authenticateToken, catchAsync(getErrorLogs))
 
 export default router
