@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode'
 import Hostel from "../models/hostel.model.js"
 import Guest from "../models/guest.model.js"
 import { getGoogleUserInfo } from "../utils/getGoogleUserInfo.js";
+import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 
 export const isAuthenticated = async (req, res) => {
     const user = req.user
