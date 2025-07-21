@@ -1,5 +1,5 @@
 import express from "express"
-import { getHostelStats, getUsers, getUserStats, getHostels, getErrorLogs } from "../controllers/backoffice.controllers.js"
+import { getHostelStats, getUsers, getUserStats, getHostels, getErrorLogs, saveFrontendLogs } from "../controllers/backoffice.controllers.js"
 import { authenticateToken } from "../middleware/bearerAuthentication.js"
 import catchAsync from "../utils/catchAsync.js"
 
@@ -227,7 +227,7 @@ router.get("/users-stats", authenticateToken, catchAsync(getUserStats))
  *                       route:
  *                         type: string
  *                         example: "/api/events/create"
- *                       method:
+ *                       type:
  *                         type: string
  *                         example: "POST"
  *                       time:
@@ -238,5 +238,7 @@ router.get("/users-stats", authenticateToken, catchAsync(getUserStats))
  *         description: Internal server error
  */
 router.get("/error-logs", authenticateToken, catchAsync(getErrorLogs))
+
+router.post("/frontend-logs", authenticateToken, catchAsync(saveFrontendLogs))
 
 export default router

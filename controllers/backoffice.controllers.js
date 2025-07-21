@@ -198,12 +198,35 @@ export const getErrorLogs = async (req, res) => {
     message: log.message,
     stack: log.stack,
     route: log.route,
-    method: log.method,
+    type: log.method,
     time: log.time,
   }));
 
   return res.status(200).json({
     success: true,
     data: logsDTO
+  })
+}
+
+export const saveFrontendLogs = async (req, res) => {
+  const logs = req.body
+
+  const errorDetails = logs.map(log => ({
+    message: log.message,
+    time: log.timestamp,
+    type: log.type,
+    route: "Frontend",
+  }));
+
+  try {
+    await ErrorLog.create(errorDetails);
+  } catch (err) {
+    console.error("Failed to save error to MongoDB:", err.message);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Frontend logs saved successfully",
+    data: errorDetails
   })
 }

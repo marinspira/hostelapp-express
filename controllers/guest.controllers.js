@@ -109,8 +109,6 @@ export const updateGuest = async (req, res) => {
     const user = req.user;
     const { guestData } = req.body;
 
-    console.log(req.body)
-
     const guest = await Guest.findOne({ user: user._id });
 
     if (!guest) {
@@ -253,9 +251,12 @@ export const saveGuestProfileImages = async (req, res) => {
         });
     }
 
+    const username = await generateUniqueUsername(user.name);
+
     const newGuest = new Guest({
         guestPhotos: [imagePath],
-        user: user._id
+        user: user._id,
+        username
     })
 
     if (newGuest) {

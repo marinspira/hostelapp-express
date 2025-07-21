@@ -7,7 +7,7 @@ const errorHandler = async (err, req, res, next) => {
         message: err.message,
         stack: err.stack,
         route: req.originalUrl,
-        method: req.method,
+        type: req.method,
         time: new Date(),
     };
 
