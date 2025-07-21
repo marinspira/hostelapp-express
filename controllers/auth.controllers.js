@@ -169,7 +169,7 @@ export const googleLogin = async (req, res) => {
         return res.status(400).json({ error: "Error creating new user" })
     }
 
-    const username = await generateUniqueUsername(user.name);
+    const username = await generateUniqueUsername(newUser.name);
 
     // Create Guest if user has a profile picture
     if (userInfo.picture) {
