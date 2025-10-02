@@ -4,8 +4,29 @@ import User from "../models/user.model.js";
 import Message from "../models/messages.model.js";
 import Guest from "../models/guest.model.js";
 
+// Helper to get sender name/photo for a message
+const getSenderName = async (msg) => {
+    if (!msg) return null;
+    try {
+        if (msg.senderModel === 'User') {
+            const senderUser = await User.findById(msg.sender).select('name');
+            const senderGuest = await Guest.findOne({ user: msg.sender }).select('guestPhotos');
+            return senderUser?.name || senderGuest?.guestPhotos?.[0] || null;
+        } else if (msg.senderModel === 'Hostel') {
+            const senderHostel = await Hostel.findById(msg.sender).select('name');
+            return senderHostel?.name || null;
+        }
+    } catch (err) {
+        console.error('Error resolving sender name:', err);
+        return null;
+    }
+}
+
 export const sendMessage = async (req, res) => {
     const user = req.user
+    if (!user) {
+        return res.status(401).json({ message: 'Not authenticated', success: false });
+    }
     const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
     const { chatId, text, recipientId } = req.body;
@@ -76,6 +97,9 @@ export const sendMessage = async (req, res) => {
 
 export const getAllChats = async (req, res) => {
     const user = req.user
+    if (!user) {
+        return res.status(401).json({ message: 'Not authenticated', success: false });
+    }
     const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
     let chats;
@@ -101,6 +125,7 @@ export const getAllChats = async (req, res) => {
                 const hostelParticipant = chat.participants.find(p => p.hostel);
                 if (hostelParticipant) {
                     const hostelData = await Hostel.findById(hostelParticipant.hostel).select("name logo");
+                    if (!hostelData) return null;
                     return {
                         chatId: chat._id,
                         conversationId: chat._id,
@@ -108,14 +133,15 @@ export const getAllChats = async (req, res) => {
                         participant: {
                             userId: hostelData._id,
                             name: `${hostelData.name}`,
-                            photo: hostelData.logo || hostelData.photo || null
+                            photo: hostelData.logo || hostelData.photo || null,
                         },
                         lastMessage: lastMessage
                             ? {
-                                text: lastMessage.text,
-                                createdAt: lastMessage.createdAt,
-                            }
-                            : null
+                                  text: lastMessage.text,
+                                  createdAt: lastMessage.createdAt,
+                                  senderName: await getSenderName(lastMessage),
+                              }
+                            : null,
                     };
                 }
                 return null;
@@ -136,6 +162,7 @@ export const getAllChats = async (req, res) => {
                         ? {
                             text: lastMessage.text,
                             createdAt: lastMessage.createdAt,
+                            senderName: await getSenderName(lastMessage),
                         }
                         : null
                 };
@@ -179,18 +206,20 @@ export const getAllChats = async (req, res) => {
             const guest = await Guest.findOne({ user: other.id }).select("guestPhotos");
             const firstPhoto = guest?.guestPhotos?.[0] || null;
             const otherUser = await User.findById(other.id).select("name");
+            if (!otherUser) return null;
 
             otherData = {
                 userId: otherUser._id,
                 name: otherUser.name,
-                photo: firstPhoto
+                photo: firstPhoto,
             };
         } else if (other.type === "hostel") {
             const hostelData = await Hostel.findById(other.id).select("name logo");
+            if (!hostelData) return null;
             otherData = {
                 userId: hostelData._id,
                 name: hostelData.name,
-                photo: hostelData.logo || null
+                photo: hostelData.logo || null,
             };
         }
 
@@ -220,6 +249,9 @@ export const getAllChats = async (req, res) => {
 export const getMessages = async (req, res) => {
     const { id } = req.params;
     const user = req.user
+    if (!user) {
+        return res.status(401).json({ message: 'Not authenticated', success: false });
+    }
     const limit = 20
 
     const chat = await Chat.findById(id);
@@ -232,20 +264,53 @@ export const getMessages = async (req, res) => {
     }
 
     const messages = await Message.find({ chat: id })
+        .populate('sender')
         .sort({ createdAt: -1 })
         .limit(parseInt(limit))
         .exec();
 
+    // Check if user is part of hostel
+    const hostel = await Hostel.findOne({ user_id_owners: user._id });
+    const isGroup = chat.group;
+
     // TODO v2: change sender to hostelId verification, for when hostel have more than one owner
-    const formattedMessages = messages.map(msg => ({
-        text: msg.text,
-        time: msg.createdAt,
-        sender: msg.sender?.toString() === user._id.toString() ? "me" : "other"
+    const formattedMessages = await Promise.all(messages.map(async (msg) => {
+        const isMyMessage = msg.sender?._id?.toString() === user._id.toString();
+        let senderInfo = null;
+
+        // If it's a group chat and not my message, get sender information
+        if (isGroup && !isMyMessage) {
+            if (msg.senderModel === 'User') {
+                const senderUser = await User.findById(msg.sender._id).select('name');
+                const senderGuest = await Guest.findOne({ user: msg.sender._id }).select('guestPhotos');
+                
+                senderInfo = {
+                    name: senderUser?.name || 'Unknown',
+                    photo: senderGuest?.guestPhotos?.[0] || null
+                };
+            } else if (msg.senderModel === 'Hostel') {
+                const senderHostel = await Hostel.findById(msg.sender._id).select('name logo');
+                
+                senderInfo = {
+                    name: senderHostel?.name || 'Unknown',
+                    photo: senderHostel?.logo || null
+                };
+            }
+        }
+
+        return {
+            text: msg.text,
+            time: msg.createdAt,
+            sender: isMyMessage ? "me" : "other",
+            senderName: senderInfo?.name || null,
+            senderPhoto: senderInfo?.photo || null
+        };
     }));
 
     res.status(200).json({
         message: "Get all messages successfully",
         data: formattedMessages,
+        isGroup: isGroup,
         success: true,
     });
 };

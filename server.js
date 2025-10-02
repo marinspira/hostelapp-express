@@ -152,7 +152,6 @@ io.on("connection", (socket) => {
 
   socket.on("join_room", (data) => {
     socket.join(data);
-    // callback({ status: 'ok' });
   });
 
   // Simulate message reception
@@ -162,7 +161,24 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", (data) => {
     socket.to(data.room).emit("receive_message", data);
-    callback({ status: 'ok' });
+    // callback({ status: 'ok' });
+  });
+
+  // Typing indicator events
+  socket.on('typing', (data) => {
+    try {
+      socket.to(data.room).emit('user_typing', { room: data.room, senderName: data.senderName });
+    } catch (err) {
+      console.error('Error broadcasting typing event', err);
+    }
+  });
+
+  socket.on('stop_typing', (data) => {
+    try {
+      socket.to(data.room).emit('user_stop_typing', { room: data.room, senderName: data.senderName });
+    } catch (err) {
+      console.error('Error broadcasting stop_typing event', err);
+    }
   });
 
   socket.on('disconnect', () => {
