@@ -1,304 +1,389 @@
-import User from "../models/user.model.js"
+import User from "../models/user.model.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
-import { jwtDecode } from 'jwt-decode'
-import Hostel from "../models/hostel.model.js"
-import Guest from "../models/guest.model.js"
+import { jwtDecode } from "jwt-decode";
+import Hostel from "../models/hostel.model.js";
+import Guest from "../models/guest.model.js";
 import { getGoogleUserInfo } from "../utils/getGoogleUserInfo.js";
 import generateUniqueUsername from "../utils/generateUniqueUsername.js";
+import EmailCode from "../models/emailCode.model.js";
+import sendEmail from "../services/auth/sendEmail.js";
+import bcrypt from "bcrypt";
 
 export const isAuthenticated = async (req, res) => {
-    const user = req.user
-    const guest = await Guest.findOne({ user: user._id });
-    const hostel = await Hostel.findOne({ user_id_owners: user.id })
+  const user = req.user;
+  const guest = await Guest.findOne({ user: user._id });
+  const hostel = await Hostel.findOne({ user_id_owners: user.id });
 
-    if ((guest && guest.birthday) || hostel) {
-        return res.status(200).json({
-            data: {
-                name: user.name,
-                isNewUser: false,
-                role: user.role,
-            },
-            success: true,
-            message: 'User authenticated successfully',
-        });
-    } else {
-        return res.status(200).json({
-            data: {
-                name: user.name,
-                isNewUser: true,
-                role: user.role
-            },
-            success: true,
-            message: 'New user authenticated successfully',
-        });
-    }
-}
+  if ((guest && guest.birthday) || hostel) {
+    return res.status(200).json({
+      data: {
+        name: user.name,
+        isNewUser: false,
+        role: user.role,
+      },
+      success: true,
+      message: "User authenticated successfully",
+    });
+  } else {
+    return res.status(200).json({
+      data: {
+        name: user.name,
+        isNewUser: true,
+        role: user.role,
+      },
+      success: true,
+      message: "New user authenticated successfully",
+    });
+  }
+};
 
 export const localhostLogin = async (req, res) => {
-    const { credentials, role } = req.body
+  const { credentials, role } = req.body;
 
-    const email = credentials.email
+  const email = credentials.email;
 
-    const user = await User.findOne({ email })
+  const user = await User.findOne({ email });
 
-    if (user) {
-        const token = generateTokenAndSetCookie(user._id, res);
+  if (user) {
+    const token = generateTokenAndSetCookie(user._id, res);
 
-        user.sessionToken = token;
-        await user.save();
+    user.sessionToken = token;
+    await user.save();
 
-        // Verify if is a new user (have the birth date) or has a hostel
-        const guest = await Guest.findOne({ user: user._id });
-        const hostel = await Hostel.findOne({ owners: user.id })
+    // Verify if is a new user (have the birth date) or has a hostel
+    const guest = await Guest.findOne({ user: user._id });
+    const hostel = await Hostel.findOne({ owners: user.id });
 
-        if ((guest && guest.birthday !== null) || hostel) {
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: false,
-                    role: user.role,
-                },
-                success: true,
-                message: 'User logged successfully',
-            });
-        } else {
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: true,
-                    role: user.role
-                },
-                success: true,
-                message: 'New user logged successfully',
-            });
-        }
-
-    }
-
-    const newUser = new User({
-        name: credentials.name,
-        email: credentials.email,
-        appleId: credentials.appleId,
-        role
-    });
-
-    if (newUser) {
-        await newUser.save();
-        generateTokenAndSetCookie(newUser._id, res)
-    } else {
-        return res.status(400).json({ error: "Error creating new user" })
-    }
-
-    return res.status(201).json({
+    if ((guest && guest.birthday !== null) || hostel) {
+      return res.status(200).json({
         data: {
-            isNewUser: true,
-            name: newUser.name,
-            role: newUser.role
+          name: user.name,
+          isNewUser: false,
+          role: user.role,
         },
         success: true,
-        message: 'New user created with Google successfully'
-    });
-}
+        message: "User logged successfully",
+      });
+    } else {
+      return res.status(200).json({
+        data: {
+          name: user.name,
+          isNewUser: true,
+          role: user.role,
+        },
+        success: true,
+        message: "New user logged successfully",
+      });
+    }
+  }
+
+  const newUser = new User({
+    name: credentials.name,
+    email: credentials.email,
+    appleId: credentials.appleId,
+    role,
+  });
+
+  if (newUser) {
+    await newUser.save();
+    generateTokenAndSetCookie(newUser._id, res);
+  } else {
+    return res.status(400).json({ error: "Error creating new user" });
+  }
+
+  return res.status(201).json({
+    data: {
+      isNewUser: true,
+      name: newUser.name,
+      role: newUser.role,
+    },
+    success: true,
+    message: "New user created with Google successfully",
+  });
+};
 
 export const googleLogin = async (req, res) => {
-    const { token, role } = req.body;
+  const { token, role } = req.body;
 
-    const userInfo = await getGoogleUserInfo(token);
+  const userInfo = await getGoogleUserInfo(token);
 
-    if (!userInfo) {
-        return res.status(400).json({ error: 'Invalid token' });
+  if (!userInfo) {
+    return res.status(400).json({ error: "Invalid token" });
+  }
+
+  const email = userInfo.email;
+  const user = await User.findOne({ email });
+
+  // Existing user logic
+  if (user) {
+    // Validate Google and Apple IDs
+    if (user.googleId && user.googleId !== userInfo.id) {
+      return res.status(400).json({ error: "Invalid token" });
     }
 
-    const email = userInfo.email
-    const user = await User.findOne({ email });
-
-    // Existing user logic
-    if (user) {
-        // Validate Google and Apple IDs
-        if (user.googleId && user.googleId !== userInfo.id) {
-            return res.status(400).json({ error: 'Invalid token' });
-        }
-
-        if (user.appleId && !user.googleId) {
-            return res.status(400).json({
-                error: 'This email is already linked to a Apple account. Please log in using Apple.',
-            });
-        }
-
-        generateTokenAndSetCookie(user._id, res);
-
-        // Verify if is a new user (have the birth date) or has a hostel
-        const guest = await Guest.findOne({ user: user._id });
-        const hostel = await Hostel.findOne({ owners: user.id })
-
-        if ((guest && guest.birthday !== null) || hostel) {
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: false,
-                    role: user.role,
-                },
-                success: true,
-                message: 'User logged with Google successfully',
-            });
-        } else {
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: true,
-                    role: user.role
-                },
-                success: true,
-                message: 'New user logged with Google successfully',
-            });
-        }
+    if (user.appleId && !user.googleId) {
+      return res.status(400).json({
+        error:
+          "This email is already linked to a Apple account. Please log in using Apple.",
+      });
     }
 
-    // New user creation logic
-    const newUser = new User({
-        name: userInfo.name,
-        email: userInfo.email,
-        googleId: userInfo.id,
-        role
-    });
+    generateTokenAndSetCookie(user._id, res);
 
-    if (newUser) {
-        generateTokenAndSetCookie(newUser._id, res)
-        await newUser.save();
-    } else {
-        return res.status(400).json({ error: "Error creating new user" })
-    }
+    // Verify if is a new user (have the birth date) or has a hostel
+    const guest = await Guest.findOne({ user: user._id });
+    const hostel = await Hostel.findOne({ owners: user.id });
 
-    const username = await generateUniqueUsername(newUser.name);
-
-    // Create Guest if user has a profile picture
-    if (userInfo.picture) {
-        const newGuest = new Guest({
-            guestPhotos: [userInfo.picture],
-            user: newUser._id,
-            username
-        })
-        await newGuest.save()
-    }
-
-    return res.status(201).json({
+    if ((guest && guest.birthday !== null) || hostel) {
+      return res.status(200).json({
         data: {
-            isNewUser: true,
-            name: newUser.name,
-            role: newUser.role
+          name: user.name,
+          isNewUser: false,
+          role: user.role,
         },
         success: true,
-        message: 'New user created with Google successfully'
+        message: "User logged with Google successfully",
+      });
+    } else {
+      return res.status(200).json({
+        data: {
+          name: user.name,
+          isNewUser: true,
+          role: user.role,
+        },
+        success: true,
+        message: "New user logged with Google successfully",
+      });
+    }
+  }
+
+  // New user creation logic
+  const newUser = new User({
+    name: userInfo.name,
+    email: userInfo.email,
+    googleId: userInfo.id,
+    role,
+  });
+
+  if (newUser) {
+    generateTokenAndSetCookie(newUser._id, res);
+    await newUser.save();
+  } else {
+    return res.status(400).json({ error: "Error creating new user" });
+  }
+
+  const username = await generateUniqueUsername(newUser.name);
+
+  // Create Guest if user has a profile picture
+  if (userInfo.picture) {
+    const newGuest = new Guest({
+      guestPhotos: [userInfo.picture],
+      user: newUser._id,
+      username,
     });
-}
+    await newGuest.save();
+  }
+
+  return res.status(201).json({
+    data: {
+      isNewUser: true,
+      name: newUser.name,
+      role: newUser.role,
+    },
+    success: true,
+    message: "New user created with Google successfully",
+  });
+};
 
 export const appleLogin = async (req, res) => {
-    const { identityToken, fullName, role } = req.body
+  const { identityToken, fullName, role } = req.body;
 
-    if (!identityToken) {
-        return res.status(400).json({ error: 'Missing identity token' });
+  if (!identityToken) {
+    return res.status(400).json({ error: "Missing identity token" });
+  }
+
+  //   const decodedToken = await verifyAppleToken(identityToken);
+
+  const decodedToken = jwtDecode(identityToken);
+  const email = decodedToken.email;
+  const appleId = decodedToken.sub;
+
+  const user = await User.findOne({ email });
+
+  // Login if user already exists
+  if (user) {
+    // If the email exists but the appleId does not match
+    if (user.appleId && user.appleId !== appleId) {
+      return res.status(400).json({ error: "Invalid token" });
     }
 
-    //   const decodedToken = await verifyAppleToken(identityToken);
-
-    const decodedToken = jwtDecode(identityToken)
-    const email = decodedToken.email
-    const appleId = decodedToken.sub
-
-    const user = await User.findOne({ email });
-
-    // Login if user already exists
-    if (user) {
-        // If the email exists but the appleId does not match
-        if (user.appleId && user.appleId !== appleId) {
-            return res.status(400).json({ error: 'Invalid token' });
-        }
-
-        // If the email exists but is associated with Google
-        if (user.googleId && !user.appleId) {
-            return res.status(400).json({
-                error: 'This email is already linked to a Google account. Please log in using Google.',
-            });
-        }
-
-        const token = generateTokenAndSetCookie(user._id, res);
-
-        user.sessionToken = token;
-        await user.save();
-
-        // Verify if is a new user (have the birth date) or has a hostel
-        const guest = await Guest.findOne({ user: user._id });
-        const hostel = await Hostel.findOne({ owners: user.id })
-
-        if ((guest && guest.birthday !== null) || hostel) {
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: false,
-                    role: user.role,
-                },
-                success: true,
-                message: 'User logged with Apple successfully',
-            });
-        } else {
-            return res.status(200).json({
-                data: {
-                    name: user.name,
-                    isNewUser: true,
-                    role: user.role
-                },
-                success: true,
-                message: 'New user logged with Apple successfully',
-            });
-        }
+    // If the email exists but is associated with Google
+    if (user.googleId && !user.appleId) {
+      return res.status(400).json({
+        error:
+          "This email is already linked to a Google account. Please log in using Google.",
+      });
     }
 
-    // Create a new user
-    const firstName = fullName.split(' ')[0]
-    const lastName = fullName.split(' ')[1]
+    const token = generateTokenAndSetCookie(user._id, res);
 
-    if (firstName && lastName === 'null') {
-        return res.status(400).json({ error: "Error with the information received. Please, try logging in with Google." });
-    }
+    user.sessionToken = token;
+    await user.save();
 
-    const newUser = new User({
-        name: fullName,
-        appleId: decodedToken.sub,
-        email: decodedToken.email,
-        googleId: null,
-        role,
-    });
+    // Verify if is a new user (have the birth date) or has a hostel
+    const guest = await Guest.findOne({ user: user._id });
+    const hostel = await Hostel.findOne({ owners: user.id });
 
-    if (newUser) {
-        const token = generateToken(newUser._id);
-        newUser.sessionToken = token;
-
-        await newUser.save();
-
-        return res.status(201).json({
-            data: {
-                name: user.name,
-                isNewUser: true,
-                role: user.role
-            },
-            success: true,
-            message: 'New user created successfully',
-        });
+    if ((guest && guest.birthday !== null) || hostel) {
+      return res.status(200).json({
+        data: {
+          name: user.name,
+          isNewUser: false,
+          role: user.role,
+        },
+        success: true,
+        message: "User logged with Apple successfully",
+      });
     } else {
-        return res.status(400).json({ error: "Invalid user data" })
+      return res.status(200).json({
+        data: {
+          name: user.name,
+          isNewUser: true,
+          role: user.role,
+        },
+        success: true,
+        message: "New user logged with Apple successfully",
+      });
     }
-}
+  }
+
+  // Create a new user
+  const firstName = fullName.split(" ")[0];
+  const lastName = fullName.split(" ")[1];
+
+  if (firstName && lastName === "null") {
+    return res.status(400).json({
+      error:
+        "Error with the information received. Please, try logging in with Google.",
+    });
+  }
+
+  const newUser = new User({
+    name: fullName,
+    appleId: decodedToken.sub,
+    email: decodedToken.email,
+    googleId: null,
+    role,
+  });
+
+  if (newUser) {
+    const token = generateToken(newUser._id);
+    newUser.sessionToken = token;
+
+    await newUser.save();
+
+    return res.status(201).json({
+      data: {
+        name: user.name,
+        isNewUser: true,
+        role: user.role,
+      },
+      success: true,
+      message: "New user created successfully",
+    });
+  } else {
+    return res.status(400).json({ error: "Invalid user data" });
+  }
+};
 
 export const logout = async (req, res) => {
-    res.cookie("jwt", "", { maxAge: 0 })
+  res.cookie("jwt", "", { maxAge: 0 });
 
-    res.clearCookie("jwt", {
-        httpOnly: true,
-        sameSite: "strict",
-    });
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "strict",
+  });
 
-    res.status(200).json({
-        message: "Logged out successfully",
-        success: true
+  res.status(200).json({
+    message: "Logged out successfully",
+    success: true,
+  });
+};
+
+export const sendEmailCode = async (req, res) => {
+  const { email } = req.body;
+  if (!email)
+    return res.status(400).json({ message: "Missing email", success: false });
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+  const codeHash = await bcrypt.hash(code, 10);
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  console.log(
+    `[sendEmailCode] Code for ${email}: ${code} (expires at ${expiresAt.toLocaleString()})`
+  );
+
+  // upsert code
+  await EmailCode.findOneAndUpdate(
+    { email },
+    { codeHash, expiresAt },
+    { upsert: true, new: true }
+  );
+
+  // send email
+  try {
+    await sendEmail({
+      to: email,
+      subject: "Seu código de login",
+      text: `Seu código é ${code}. Ele expira em 10 minutos.`,
+      html: `<p>Seu código é <strong>${code}</strong>. Ele expira em 10 minutos.</p>`,
     });
+  } catch (e) {
+    console.error("Failed to send verification email", e);
+  }
+
+  return res.status(200).json({ success: true, message: "Code sent" });
+};
+
+export const verifyEmailCode = async (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code)
+    return res
+      .status(400)
+      .json({ message: "Missing email or code", success: false });
+
+  const record = await EmailCode.findOne({ email });
+  if (!record)
+    return res
+      .status(400)
+      .json({ message: "Code not found or expired", success: false });
+
+  const match = await bcrypt.compare(code, record.codeHash);
+  if (!match)
+    return res.status(401).json({ message: "Invalid code", success: false });
+
+  // remove used code
+  try {
+    await EmailCode.deleteOne({ email });
+  } catch (e) {
+    console.error("Failed to delete used email code", e);
+  }
+
+  // find or create user
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = new User({ email, role: "guest" });
+    await user.save();
+  }
+
+  const sessionToken = generateTokenAndSetCookie(user._id, res);
+  user.sessionToken = sessionToken;
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged in",
+    data: { name: user.name, isNewUser: true, role: user.role, sessionToken },
+  });
 };

@@ -18,14 +18,6 @@
  *         email:
  *           type: string
  *           example: maria@example.com
- *         googleId:
- *           type: string
- *           nullable: true
- *           example: 1234567890abcdef
- *         appleId:
- *           type: string
- *           nullable: true
- *           example: abcdef1234567890
  *         role:
  *           type: string
  *           enum: [host, guest]
@@ -51,42 +43,28 @@ import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     email: {
-        type: String,
-        required: true,
-    },
-    googleId: {
-        type: String,
-        default: null,
-    },
-    appleId: {
-        type: String,
-        default: null,
+      type: String,
+      required: true,
     },
     role: {
-        type: String,
+      type: String,
         enum: ['host', 'guest'],
         required: true
     },
     sessionToken: {
-        type: String,
-        default: null
+      type: String,
+      default: null
     },
     isNewUser: {
-        type: Boolean,
-        default: true
+      type: Boolean,
+      default: true
     },
 }, { timestamps: true })
 
-UserSchema.pre('validate', function (next) {
-    if (!this.googleId && !this.appleId) {
-        return next(new Error('Either googleId or appleId is required.'));
-    }
-    next();
-});
 
 const User = mongoose.model("User", UserSchema)
 
