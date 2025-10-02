@@ -94,6 +94,55 @@ export const getAllChats = async (req, res) => {
         const lastMessage = await Message.findOne({ chat: chat._id })
             .sort({ createdAt: -1 });
 
+        // Se é um chat de grupo
+        if (chat.group) {
+            if (!hostel) {
+                // Para guests: buscar o hostel do grupo
+                const hostelParticipant = chat.participants.find(p => p.hostel);
+                if (hostelParticipant) {
+                    const hostelData = await Hostel.findById(hostelParticipant.hostel).select("name logo");
+                    return {
+                        chatId: chat._id,
+                        conversationId: chat._id,
+                        isGroup: true,
+                        participant: {
+                            userId: hostelData._id,
+                            name: `${hostelData.name}`,
+                            photo: hostelData.logo || hostelData.photo || null
+                        },
+                        lastMessage: lastMessage
+                            ? {
+                                text: lastMessage.text,
+                                createdAt: lastMessage.createdAt,
+                            }
+                            : null
+                    };
+                }
+                return null;
+            } else {
+                // Para hostels: mostrar o chat de grupo com seus guests
+                const guestCount = chat.participants.filter(p => p.user).length;
+                
+                return {
+                    chatId: chat._id,
+                    conversationId: chat._id,
+                    isGroup: true,
+                    participant: {
+                        userId: hostel._id,
+                        name: `Group Chat (${guestCount} guests)`,
+                        photo: hostel.logo || hostel.photo || null
+                    },
+                    lastMessage: lastMessage
+                        ? {
+                            text: lastMessage.text,
+                            createdAt: lastMessage.createdAt,
+                        }
+                        : null
+                };
+            }
+        }
+
+        // Chat individual (código original)
         let other = null
 
         if (!hostel) {
@@ -137,16 +186,18 @@ export const getAllChats = async (req, res) => {
                 photo: firstPhoto
             };
         } else if (other.type === "hostel") {
-            const hostelData = await Hostel.findById(other.id).select("name photo");
+            const hostelData = await Hostel.findById(other.id).select("name logo");
             otherData = {
                 userId: hostelData._id,
                 name: hostelData.name,
-                photo: hostelData.photo || null
+                photo: hostelData.logo || null
             };
         }
 
         return {
             chatId: chat._id,
+            conversationId: chat._id,
+            isGroup: false,
             participant: otherData,
             lastMessage: lastMessage
                 ? {
@@ -156,10 +207,12 @@ export const getAllChats = async (req, res) => {
                 : null
         };
     }));
+    // Remove null or empty results (e.g. deleted chats or malformed entries)
+    const filtered = results.filter(r => r && r.participant && r.participant.name);
 
     res.status(200).json({
         message: "Get all chats successfully",
-        data: results,
+        data: filtered,
         success: true,
     });
 };

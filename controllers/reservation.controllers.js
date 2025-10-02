@@ -3,7 +3,7 @@ import Hostel from "../models/hostel.model.js";
 import Reservation from "../models/reservation.model.js";
 import Room from "../models/room.model.js";
 import Guest from "../models/guest.model.js";
-import Chat from "../models/chat.model.js";
+import { addGuestToHostelGroup } from "../services/chat/groupChatManager.js";
 
 export const createReservation = async (req, res) => {
     const user = req.user
@@ -66,11 +66,11 @@ export const createReservation = async (req, res) => {
         });
     }
 
-    // Adiciona reserva em reservations na coleção Guest
+    // Adiciona reserva em reservations na coleção Guest (usa $addToSet para evitar duplicações)
     const guestUpdateResult = await Guest.updateOne(
         { user: reservation.user_id_guest },
         {
-            $push: { reservations: newReservation._id }
+            $addToSet: { reservations: newReservation._id }
         }
     );
 
@@ -97,27 +97,12 @@ export const createReservation = async (req, res) => {
         });
     }
 
-    // Adiciona guest no grupo do hostel
-    const hostelGroup = await Chat.findOneAndUpdate(
-        {
-            $and: [
-                { participants: { $elemMatch: { hostel: hostel._id } } },
-                { group: true }
-            ]
-        },
-        {
-            $addToSet: {
-                participants: {
-                    user: new mongoose.Types.ObjectId(reservation.user_id_guest)
-                }
-            }
-        },
-        { new: true }
-    );
-
-    if (!hostelGroup) {
+    try {
+        await addGuestToHostelGroup(hostel._id, reservation.user_id_guest);
+    } catch (error) {
+        console.error("Failed to add guest to hostel group:", error);
         return res.status(500).json({
-            message: "Failed to update chat group with new participant",
+            message: "Failed to add guest to hostel group chat",
             success: false,
         });
     }

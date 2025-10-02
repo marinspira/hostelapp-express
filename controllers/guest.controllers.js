@@ -329,7 +329,7 @@ export const getHome = async (req, res) => {
         })
     }
 
-    const reservations = await Reservation.find({ guest_id: user._id })
+    const reservations = await Reservation.find({ user_id_guest: user._id }).populate('hostel_id')
 
     const now = new Date();
 
@@ -348,19 +348,27 @@ export const getHome = async (req, res) => {
     if (!currentReservation) {
         return res.status(200).json({
             success: true,
-            message: "Any reservation at the moment",
+            message: "No current reservation",
             data: null
         })
     }
 
     return res.status(200).json({
         success: true,
-        message: "Any reservation at the moment",
+        message: "Current reservation found",
         data: {
             hostel: {
-                id: "",
-                img: "",
-                name: "",
+                id: currentReservation.hostel_id?._id || "",
+                img: currentReservation.hostel_id?.logo || "",
+                name: currentReservation.hostel_id?.name || "",
+            },
+            reservation: {
+                id: currentReservation._id,
+                room: currentReservation.room_number,
+                bed: currentReservation.bed_number,
+                checkinDate: currentReservation.checkin_date,
+                checkoutDate: currentReservation.checkout_date,
+                status: currentReservation.status
             },
             otherGuests: [{
                 name: "",
@@ -369,4 +377,75 @@ export const getHome = async (req, res) => {
             hostelEvents: ["events"]
         }
     })
+}
+
+export const getCurrentStay = async (req, res) => {
+    try {
+        const user = req.user
+        const guest = await Guest.findOne({ user: user._id })
+
+        if (!guest) {
+            return res.status(404).json({
+                message: 'Guest not found!',
+                success: false
+            })
+        }
+
+        const now = new Date();
+        
+        // Busca reservas ativas
+        const activeReservations = await Reservation.find({
+            user_id_guest: user._id,
+            checkin_date: { $lte: now },
+            checkout_date: { $gt: now },
+            status: { $in: ['walking in', 'in house'] }
+        }).populate('hostel_id');
+
+        if (activeReservations.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "Guest is not currently staying at any hostel",
+                data: {
+                    isCurrentlyStaying: false,
+                    activeReservations: []
+                }
+            })
+        }
+
+        const formattedReservations = activeReservations.map(reservation => ({
+            reservationId: reservation._id,
+            hostel: {
+                id: reservation.hostel_id?._id,
+                name: reservation.hostel_id?.name,
+                logo: reservation.hostel_id?.logo,
+                address: reservation.hostel_id?.address,
+                phone: reservation.hostel_id?.phone,
+                email: reservation.hostel_id?.email
+            },
+            room: reservation.room_number,
+            bed: reservation.bed_number,
+            checkinDate: reservation.checkin_date,
+            checkoutDate: reservation.checkout_date,
+            status: reservation.status,
+            daysRemaining: Math.ceil((new Date(reservation.checkout_date) - now) / (1000 * 60 * 60 * 24))
+        }));
+
+        return res.status(200).json({
+            success: true,
+            message: "Guest is currently staying at hostel(s)",
+            data: {
+                isCurrentlyStaying: true,
+                activeReservations: formattedReservations,
+                totalActiveStays: formattedReservations.length
+            }
+        })
+
+    } catch (error) {
+        console.error("Error checking current stay:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
 }

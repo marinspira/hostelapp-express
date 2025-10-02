@@ -7,6 +7,7 @@ import Room from "../models/room.model.js";
 import User from "../models/user.model.js";
 import { countryCurrencyMap } from "../utils/currencies.js";
 import generateUniqueUsername from "../utils/generateUniqueUsername.js";
+import { ensureHostelGroupChat } from "../services/chat/groupChatManager.js";
 
 export const createHostel = async (req, res) => {
     const user = req.user
@@ -47,13 +48,7 @@ export const createHostel = async (req, res) => {
         User.isNewUser = false;
         await user.save()
 
-        const chat = new Chat({
-            participants: [
-                { hostel: newHostel._id },
-            ],
-            group: true
-        });
-        await chat.save();
+        await ensureHostelGroupChat(newHostel._id);
 
         return res.status(201).json({
             message: 'Hostel created!',

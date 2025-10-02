@@ -66,43 +66,87 @@
  *           example: "2025-07-01T08:35:12.000Z"
  */
 import mongoose from "mongoose";
+import Guest from "./guest.model.js";
 
-const ReservationSchema = new mongoose.Schema({
+const ReservationSchema = new mongoose.Schema(
+  {
     status: {
-        type: String,
-        enum: ['walking in', 'in house', 'checked out'],
-        default: 'walking in'
+      type: String,
+      enum: ["walking in", "in house", "checked out"],
+      default: "walking in",
     },
     hostel_id: {
-        type: mongoose.Schema.Types.ObjectId, ref: "Hostel"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hostel",
     },
     user_id_guest: {
-        type: mongoose.Schema.Types.ObjectId, ref: "User"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     checkin_date: {
-        type: Date
+      type: Date,
     },
     checkout_date: {
-        type: Date,
-        required: true,
-        validate: {
-            validator: function(value) {
-                return value > this.checkin_date;
-            },
-            message: 'Checkout date must be after checkin date'
-        }
+      type: Date,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value > this.checkin_date;
+        },
+        message: "Checkout date must be after checkin date",
+      },
     },
     room_number: {
-        type: String, required: true
+      type: String,
+      required: true,
     },
     bed_number: {
-        type: String, required: true
+      type: String,
+      required: true,
     },
     created_at: {
-        type: Date, default: Date.now
+      type: Date,
+      default: Date.now,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-const Reservation = mongoose.model("Reservation", ReservationSchema)
+// After a reservation is saved, ensure its id is present in the Guest.reservations array
+ReservationSchema.post("save", async function (doc) {
+  try {
+    if (!doc.user_id_guest) return;
 
-export default Reservation
+    await Guest.updateOne(
+      { user: doc.user_id_guest },
+      { $addToSet: { reservations: doc._id } }
+    );
+  } catch (err) {
+    console.error("Error adding reservation to Guest.reservations:", err);
+  }
+
+  try {
+    if (!doc.hostel_id || !doc.user_id_guest) return;
+    await addGuestToHostelGroup(doc.hostel_id, doc.user_id_guest);
+  } catch (err) {
+    console.error("Error adding guest to hostel group chat:", err);
+  }
+});
+
+// When a reservation is removed, pull it from the Guest.reservations array
+ReservationSchema.post("remove", async function (doc) {
+  try {
+    if (!doc.user_id_guest) return;
+
+    await Guest.updateOne(
+      { user: doc.user_id_guest },
+      { $pull: { reservations: doc._id } }
+    );
+  } catch (err) {
+    console.error("Error removing reservation from Guest.reservations:", err);
+  }
+});
+
+const Reservation = mongoose.model("Reservation", ReservationSchema);
+
+export default Reservation;
