@@ -155,7 +155,7 @@ export const getAllChats = async (req, res) => {
                     isGroup: true,
                     participant: {
                         userId: hostel._id,
-                        name: `Group Chat (${guestCount} guests)`,
+                        name: hostel.name,
                         photo: hostel.logo || hostel.photo || null
                     },
                     lastMessage: lastMessage

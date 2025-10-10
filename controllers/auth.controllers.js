@@ -346,7 +346,7 @@ export const sendEmailCode = async (req, res) => {
 };
 
 export const verifyEmailCode = async (req, res) => {
-  const { email, code } = req.body;
+  const { email, code, role } = req.body;
   if (!email || !code)
     return res
       .status(400)
@@ -373,7 +373,7 @@ export const verifyEmailCode = async (req, res) => {
   let user = await User.findOne({ email });
 
   if (!user) {
-    user = new User({ email, role: "guest" });
+    user = new User({ email, role });
     await user.save();
   }
 
