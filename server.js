@@ -141,7 +141,7 @@ app.use(limiter);
 // Websocket
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:8081",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });

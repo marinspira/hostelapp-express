@@ -233,6 +233,9 @@ export const saveGuestProfileImages = async (req, res) => {
     const user = req.user
     const guest = await Guest.findOne({ user: user._id })
 
+    console.log('Image path to save:', imagePath);
+    console.log(guest);
+
     if (guest) {
         if (imageId < guest.guestPhotos.length) {
             guest.guestPhotos[imageId] = imagePath;
@@ -251,12 +254,9 @@ export const saveGuestProfileImages = async (req, res) => {
         });
     }
 
-    const username = await generateUniqueUsername(user.name);
-
     const newGuest = new Guest({
         guestPhotos: [imagePath],
         user: user._id,
-        username
     })
 
     if (newGuest) {
@@ -264,7 +264,10 @@ export const saveGuestProfileImages = async (req, res) => {
 
         return res.status(201).json({
             message: 'New guest created, and photos added.',
-            success: true
+            success: true,
+            data: {
+                imagePath
+            }
         })
     } else {
         return res.status(400).json({ error: 'Error saving guest' })

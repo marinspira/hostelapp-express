@@ -92,10 +92,6 @@
 import mongoose from "mongoose";
 
 const GuestSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true
-    },
     guestPhotos: {
         type: [String]
     },
