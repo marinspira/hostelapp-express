@@ -296,6 +296,42 @@ export const appleLogin = async (req, res) => {
   }
 };
 
+export const updateUser = async (req, res) => {
+  const { userData } = req.body;
+  const user = req.user;
+
+  if (!userData || Object.keys(userData).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'User data is required.',
+    });
+  }
+
+  console.log('Updating user with data:', userData);
+
+  try {
+    Object.assign(user, userData);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'User updated successfully!',
+      data: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isNewUser: user.isNewUser,
+      }
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update user.',
+    });
+  }
+};
+
 export const logout = async (req, res) => {
   res.cookie("jwt", "", { maxAge: 0 });
 
@@ -315,17 +351,19 @@ export const sendEmailCode = async (req, res) => {
   if (!email)
     return res.status(400).json({ message: "Missing email", success: false });
 
+  const emailLowercase = email.toLowerCase();
+
   const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
   const codeHash = await bcrypt.hash(code, 10);
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   console.log(
-    `[sendEmailCode] Code for ${email}: ${code} (expires at ${expiresAt.toLocaleString()})`
+    `[sendEmailCode] Code for ${emailLowercase}: ${code} (expires at ${expiresAt.toLocaleString()})`
   );
 
   // upsert code
   await EmailCode.findOneAndUpdate(
-    { email },
+    { email: emailLowercase },
     { codeHash, expiresAt },
     { upsert: true, new: true }
   );
@@ -333,10 +371,10 @@ export const sendEmailCode = async (req, res) => {
   // send email
   try {
     await sendEmail({
-      to: email,
-      subject: "Seu código de login",
-      text: `Seu código é ${code}. Ele expira em 10 minutos.`,
-      html: `<p>Seu código é <strong>${code}</strong>. Ele expira em 10 minutos.</p>`,
+      to: emailLowercase,
+      subject: "Your login code",
+      text: `Your code is ${code}. It expires in 10 minutes.`,
+      html: `<p>Your code is <strong>${code}</strong>. It expires in 10 minutes.</p>`,
     });
   } catch (e) {
     console.error("Failed to send verification email", e);
@@ -352,7 +390,9 @@ export const verifyEmailCode = async (req, res) => {
       .status(400)
       .json({ message: "Missing email or code", success: false });
 
-  const record = await EmailCode.findOne({ email });
+  const emailLowercase = email.toLowerCase();
+
+  const record = await EmailCode.findOne({ email: emailLowercase });
   if (!record)
     return res
       .status(400)
@@ -364,17 +404,30 @@ export const verifyEmailCode = async (req, res) => {
 
   // remove used code
   try {
-    await EmailCode.deleteOne({ email });
+    await EmailCode.deleteOne({ email: emailLowercase });
   } catch (e) {
     console.error("Failed to delete used email code", e);
   }
 
   // find or create user
-  let user = await User.findOne({ email });
+  let user = await User.findOne({ email: emailLowercase });
 
   if (!user) {
-    user = new User({ email, role });
+    user = new User({ email: emailLowercase, role });
     await user.save();
+
+    // Add new user to HostelApp even if it is a owner or guest
+    try {
+      const hostelAppId = "68de685a88b0f3797372e256";
+      const hostel = await Hostel.findById(hostelAppId);
+
+      if (!hostel.user_id_guests.includes(user._id)) {
+        hostel.user_id_guests.push(user._id);
+        await hostel.save();
+      }
+    } catch (error) {
+      console.error("Error adding new user to HostelApp:", error);
+    }
   }
 
   const sessionToken = generateTokenAndSetCookie(user._id, res);

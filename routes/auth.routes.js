@@ -1,5 +1,5 @@
 import express from "express"
-import { googleLogin, appleLogin, logout, isAuthenticated, localhostLogin, sendEmailCode, verifyEmailCode } from "../controllers/auth.controllers.js"
+import { googleLogin, appleLogin, logout, isAuthenticated, localhostLogin, sendEmailCode, verifyEmailCode, updateUser } from "../controllers/auth.controllers.js"
 import protectRoute from "../middleware/protectRoute.js"
 import catchAsync from "../utils/catchAsync.js"
 
@@ -84,5 +84,47 @@ router.post('/verify-code', catchAsync(verifyEmailCode))
  *               error: "Internal Server Error"
  */
 router.post("/logout", catchAsync(logout))
+
+/**
+ * @swagger
+ * /api/auth/update-user:
+ *   put:
+ *     summary: Update user information
+ *     description: Update the authenticated user's information (name, etc.)
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userData:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     example: "Maria Ferreira"
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               message: "User updated successfully!"
+ *               data:
+ *                 name: "Maria Ferreira"
+ *                 email: "maria@example.com"
+ *                 role: "guest"
+ *                 isNewUser: false
+ *       400:
+ *         description: Bad request - user data required
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/update-user", protectRoute, catchAsync(updateUser))
 
 export default router
