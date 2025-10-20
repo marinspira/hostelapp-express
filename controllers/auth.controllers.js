@@ -8,6 +8,7 @@ import generateUniqueUsername from "../utils/generateUniqueUsername.js";
 import EmailCode from "../models/emailCode.model.js";
 import sendEmail from "../services/auth/sendEmail.js";
 import bcrypt from "bcrypt";
+import { addGuestToHostelGroup } from "../services/chat/groupChatManager.js";
 
 export const isAuthenticated = async (req, res) => {
   const user = req.user;
@@ -420,10 +421,11 @@ export const verifyEmailCode = async (req, res) => {
     try {
       const hostelAppId = "68de685a88b0f3797372e256";
       const hostel = await Hostel.findById(hostelAppId);
-
+      
       if (!hostel.user_id_guests.includes(user._id)) {
         hostel.user_id_guests.push(user._id);
         await hostel.save();
+        await addGuestToHostelGroup(hostel._id, user._id);
       }
     } catch (error) {
       console.error("Error adding new user to HostelApp:", error);

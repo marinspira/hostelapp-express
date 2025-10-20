@@ -16,10 +16,15 @@ export const saveGuest = async (req, res) => {
     });
   }
 
+  console.log("user:", user._id);
+
   let guest = await Guest.findOne({ user: user._id });
+
+  console.log("Found guest:", guest);
 
   if (guest) {
     // Guest exists, update their data.
+    console.log("Updating existing guest profile");
     let message = "Guest profile updated successfully!";
 
     // Prevent birthday from being updated if it already exists.
@@ -29,7 +34,28 @@ export const saveGuest = async (req, res) => {
       delete guestData.birthday;
     }
 
-    Object.assign(guest, guestData);
+    console.log(
+      "asnjqndmkjwenfdjwendonwefnewjofnweonfownef",
+      JSON.stringify(guestData, null, 2)
+    );
+
+    Object.assign(guest, {
+        guestPhotos: guestData.guestPhotos,
+        phoneNumber: guestData.phoneNumber,
+        birthday: guestData.birthday,
+        country: guestData.country,
+        passaportPhoto: guestData.passaportPhoto,
+        interests: guestData.interests,
+        description: guestData.description,
+        languages: guestData.languages,
+        digitalNomad: guestData.digitalNomad,
+        smoker: guestData.smoker,
+        pets: guestData.pets,
+        instagram: guestData.instagram,
+        linkedin: guestData.linkedin,
+        twitter: guestData.twitter,
+        showProfileAuthorization: guestData.showProfileAuthorization,
+      });
 
     await guest.save();
 
@@ -41,10 +67,27 @@ export const saveGuest = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: message,
-      data: guest,
+      data: {
+        guestPhotos: guest.guestPhotos,
+        phoneNumber: guest.phoneNumber,
+        birthday: guest.birthday,
+        country: guest.country,
+        passaportPhoto: guest.passaportPhoto,
+        interests: guest.interests,
+        description: guest.description,
+        languages: guest.languages,
+        digitalNomad: guest.digitalNomad,
+        smoker: guest.smoker,
+        pets: guest.pets,
+        instagram: guest.instagram,
+        linkedin: guest.linkedin,
+        twitter: guest.twitter,
+        showProfileAuthorization: guest.showProfileAuthorization,
+      },
     });
   } else {
     // Guest does not exist, create a new one
+    console.log("caindo aqui");
     const newGuest = new Guest({
       ...guestData,
       user: user._id,
@@ -58,7 +101,23 @@ export const saveGuest = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Guest profile created successfully!",
-      data: newGuest,
+      data: {
+        guestPhotos: newGuest.guestPhotos,
+        phoneNumber: newGuest.phoneNumber,
+        birthday: newGuest.birthday,
+        country: newGuest.country,
+        passaportPhoto: newGuest.passaportPhoto,
+        interests: newGuest.interests,
+        description: newGuest.description,
+        languages: newGuest.languages,
+        digitalNomad: newGuest.digitalNomad,
+        smoker: newGuest.smoker,
+        pets: newGuest.pets,
+        instagram: newGuest.instagram,
+        linkedin: newGuest.linkedin,
+        twitter: newGuest.twitter,
+        showProfileAuthorization: newGuest.showProfileAuthorization,
+      },
     });
   }
 };
