@@ -41,7 +41,7 @@ export const saveGuest = async (req, res) => {
 
     Object.assign(guest, {
         guestPhotos: guestData.guestPhotos,
-        phoneNumber: guestData.phoneNumber,
+        phone: guestData.phone,
         birthday: guestData.birthday,
         country: guestData.country,
         passaportPhoto: guestData.passaportPhoto,
@@ -69,7 +69,7 @@ export const saveGuest = async (req, res) => {
       message: message,
       data: {
         guestPhotos: guest.guestPhotos,
-        phoneNumber: guest.phoneNumber,
+        phone: guest.phone,
         birthday: guest.birthday,
         country: guest.country,
         passaportPhoto: guest.passaportPhoto,
@@ -103,7 +103,7 @@ export const saveGuest = async (req, res) => {
       message: "Guest profile created successfully!",
       data: {
         guestPhotos: newGuest.guestPhotos,
-        phoneNumber: newGuest.phoneNumber,
+        phone: newGuest.phone,
         birthday: newGuest.birthday,
         country: newGuest.country,
         passaportPhoto: newGuest.passaportPhoto,
@@ -138,7 +138,7 @@ export const getGuest = async (req, res) => {
     success: true,
     data: {
       guestPhotos: guest.guestPhotos,
-      phoneNumber: guest.phoneNumber,
+      phone: guest.phone,
       birthday: guest.birthday,
       country: guest.country,
       passaportPhoto: guest.passaportPhoto,
@@ -177,7 +177,7 @@ export const updateGuest = async (req, res) => {
 
   const {
     guestPhotos,
-    phoneNumber,
+    phone,
     country,
     passaportPhoto,
     interests,
@@ -198,7 +198,7 @@ export const updateGuest = async (req, res) => {
     message: "Guest updated successfully",
     data: {
       guestPhotos,
-      phoneNumber,
+      phone,
       country,
       passaportPhoto,
       interests,

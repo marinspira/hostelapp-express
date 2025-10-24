@@ -20,7 +20,7 @@
  *             type: string
  *           description: Array of URLs or base64 encoded images
  *           example: ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"]
- *         phoneNumber:
+ *         phone:
  *           type: string
  *           example: "+1234567890"
  *         birthday:
@@ -95,7 +95,7 @@ const GuestSchema = new mongoose.Schema({
     guestPhotos: {
         type: [String]
     },
-    phoneNumber: {
+    phone: {
         type: String
     },
     birthday: {

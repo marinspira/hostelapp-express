@@ -122,7 +122,7 @@ router.post("/create", protectRoute, catchAsync(saveGuest))
  *                     guestPhotos:
  *                       - uploads/users/guest1/photo1.jpg
  *                       - uploads/users/guest1/photo2.jpg
- *                     phoneNumber: "+1-555-123-4567"
+ *                     phone: "+1-555-123-4567"
  *                     birthday: "1990-06-15"
  *                     country: "Canada"
  *                     passaportPhoto: "uploads/users/guest1/passport.jpg"
@@ -173,7 +173,7 @@ router.get("/me", protectRoute, catchAsync(getGuest))
  *               guestData:
  *                 type: object
  *                 properties:
- *                   phoneNumber:
+ *                   phone:
  *                     type: string
  *                   country:
  *                     type: string
@@ -216,7 +216,7 @@ router.get("/me", protectRoute, catchAsync(getGuest))
  *               data:
  *                 guestPhotos:
  *                   - "uploads/users/67df062a81fec05a34d1bb76/photo1.jpg"
- *                 phoneNumber: "+1-234-567-890"
+ *                 phone: "+1-234-567-890"
  *                 country: "Brazil"
  *                 passaportPhoto: null
  *                 interests:
