@@ -9,6 +9,7 @@ import EmailCode from "../models/emailCode.model.js";
 import sendEmail from "../services/auth/sendEmail.js";
 import bcrypt from "bcrypt";
 import { addGuestToHostelGroup } from "../services/chat/groupChatManager.js";
+import { initiateHostelGuestChat } from "../services/chat/privateChatManager.js";
 
 export const isAuthenticated = async (req, res) => {
   const user = req.user;
@@ -304,11 +305,11 @@ export const updateUser = async (req, res) => {
   if (!userData || Object.keys(userData).length === 0) {
     return res.status(400).json({
       success: false,
-      message: 'User data is required.',
+      message: "User data is required.",
     });
   }
 
-  console.log('Updating user with data:', userData);
+  console.log("Updating user with data:", userData);
 
   try {
     Object.assign(user, userData);
@@ -316,19 +317,19 @@ export const updateUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'User updated successfully!',
+      message: "User updated successfully!",
       data: {
         name: user.name,
         email: user.email,
         role: user.role,
         isNewUser: user.isNewUser,
-      }
+      },
     });
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error("Error updating user:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to update user.',
+      message: "Failed to update user.",
     });
   }
 };
@@ -417,15 +418,18 @@ export const verifyEmailCode = async (req, res) => {
     user = new User({ email: emailLowercase, role });
     await user.save();
 
-    // Add new user to HostelApp even if it is a owner or guest
+    // Add to HostelApp
     try {
-      const hostelAppId = "68de685a88b0f3797372e256";
+      const hostelAppId = process.env.HOSTELAPP_OBJECT_ID;
       const hostel = await Hostel.findById(hostelAppId);
-      
+
+      // Add to HostelApp as guets
       if (!hostel.user_id_guests.includes(user._id)) {
         hostel.user_id_guests.push(user._id);
         await hostel.save();
-        await addGuestToHostelGroup(hostel._id, user._id);
+
+        // Add to HostelApp group chat
+        await initiateHostelGuestChat(hostel._id, user._id);
       }
     } catch (error) {
       console.error("Error adding new user to HostelApp:", error);
