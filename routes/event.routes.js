@@ -26,7 +26,7 @@ const router = express.Router()
  *                 type: string
  *                 format: JSON
  *                 description: JSON stringified event object
- *                 example: '{"name":"Party","description":"Live music night","price":10,"date":"2025-08-01","hostel_location":true,"paid_event":true,"limited_spots":false,"payment_methods":["cash"]}'
+ *                 example: '{"name":"Party","description":"Live music night","price":10,"date":"2025-08-01","hostel_location":true,"paid_event":true,"unlimited_spots":false,"payment_methods":["cash"]}'
  *               photo:
  *                 type: string
  *                 format: binary

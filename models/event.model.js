@@ -12,7 +12,7 @@
  *         - description
  *         - hostel_location
  *         - paid_event
- *         - limited_spots
+ *         - unlimited_spots
  *       properties:
  *         _id:
  *           type: string
@@ -41,7 +41,7 @@
  *         spots_available:
  *           type: number
  *           example: 30
- *         limited_spots:
+ *         unlimited_spots:
  *           type: boolean
  *           example: true
  *         paid_event:
@@ -119,7 +119,7 @@ const EventSchema = new mongoose.Schema({
     spots_available: {
         type: Number
     },
-    limited_spots: {
+    unlimited_spots: {
         type: Boolean, required: true
     },
     paid_event: {

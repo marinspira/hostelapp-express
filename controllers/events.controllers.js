@@ -23,7 +23,7 @@ export const createEvent = async (req, res) => {
         hostel_location: event.hostel_location,
         date: event.date,
         spots_available: event.spots_available,
-        limited_spots: event.limited_spots,
+        unlimited_spots: event.unlimited_spots,
         paid_event: event.paid_event,
         payment_to_hostel: event.payment_to_hostel,
         payment_methods: event.payment_methods,
