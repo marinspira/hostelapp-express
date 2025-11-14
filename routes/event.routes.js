@@ -28,9 +28,11 @@ const router = express.Router()
  *                 description: JSON stringified event object
  *                 example: '{"name":"Party","description":"Live music night","price":10,"date":"2025-08-01","hostel_location":true,"paid_event":true,"unlimited_spots":false,"payment_methods":["cash"]}'
  *               photo:
- *                 type: string
- *                 format: binary
- *                 description: Image for the event
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Images for the event (accepts multiple files)
  *     responses:
  *       201:
  *         description: Event created successfully
@@ -41,7 +43,7 @@ const router = express.Router()
  *       500:
  *         description: Internal Server Error
  */
-router.post("/create", protectRoute, upload.single('photo'), catchAsync(createEvent))
+router.post("/create", protectRoute, upload.array('images', 4), catchAsync(createEvent))
 
 /**
  * @swagger
