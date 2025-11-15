@@ -89,66 +89,71 @@
  *           example: "2025-07-05T11:00:00.000Z"
  */
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const GuestSchema = new mongoose.Schema({
+const GuestSchema = new mongoose.Schema(
+  {
     guestPhotos: {
-        type: [String]
+      type: [String],
     },
     phone: {
-        type: String
+      type: String,
     },
     birthday: {
-        type: String,
+      type: String,
     },
     country: {
-        type: String
+      type: String,
     },
     passaportPhoto: {
-        type: Buffer
+      type: Buffer,
     },
     interests: {
-        type: [String]
+      type: [String],
     },
     description: {
-        type: String
+      type: String,
     },
     languages: {
-        type: [String]
+      type: [String],
     },
     digitalNomad: {
-        type: Boolean
+      type: Boolean,
     },
     smoker: {
-        type: Boolean
+      type: Boolean,
     },
     pets: {
-        type: Boolean
+      type: Boolean,
     },
     instagram: {
-        type: String
+      type: String,
     },
     linkedin: {
-        type: String
+      type: String,
     },
     twitter: {
-        type: String
+      type: String,
     },
     showProfileAuthorization: {
-        type: Boolean
+      type: Boolean,
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
-    reservations: [{
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Reservation",
-        default: null
-    }],
-}, { timestamps: true })
+    reservations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Reservation',
+        default: null,
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-const Guest = mongoose.model("Guest", GuestSchema)
+const Guest = mongoose.model('Guest', GuestSchema);
 
-export default Guest
+export default Guest;

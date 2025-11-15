@@ -25,30 +25,33 @@
  *           example: "Hi there! Is the private room available?"
  */
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const MessageSchema = new mongoose.Schema({
+const MessageSchema = new mongoose.Schema(
+  {
     chat: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Chat",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Chat',
+      required: true,
     },
     sender: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        refPath: 'senderModel'
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: 'senderModel',
     },
     senderModel: {
-        type: String,
-        required: true,
-        enum: ['User', 'Hostel']
+      type: String,
+      required: true,
+      enum: ['User', 'Hostel'],
     },
     text: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-const Message = mongoose.model("Message", MessageSchema);
+const Message = mongoose.model('Message', MessageSchema);
 
-export default Message
+export default Message;

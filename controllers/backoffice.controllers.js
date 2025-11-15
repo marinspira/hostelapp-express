@@ -1,6 +1,6 @@
-import ErrorLog from "../models/logs.model.js";
-import Hostel from "../models/hostel.model.js";
-import User from "../models/user.model.js"
+import ErrorLog from '../models/logs.model.js';
+import Hostel from '../models/hostel.model.js';
+import User from '../models/user.model.js';
 
 export const getUsers = async (req, res) => {
   const users = await User.find();
@@ -8,7 +8,7 @@ export const getUsers = async (req, res) => {
   if (users.lenght > 0) {
     return res.status(400).json({
       success: true,
-      message: "Any user registered.",
+      message: 'Any user registered.',
     });
   }
 
@@ -17,15 +17,15 @@ export const getUsers = async (req, res) => {
     role: user.role,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    isNewUser: user.isNewUser
+    isNewUser: user.isNewUser,
   }));
 
   return res.status(200).json({
     success: true,
-    message: "",
-    data: usersDto
+    message: '',
+    data: usersDto,
   });
-}
+};
 
 export const getUserStats = async (req, res) => {
   const users = await User.find();
@@ -79,7 +79,7 @@ export const getUserStats = async (req, res) => {
       activeUsers,
       usersByStatus,
       usersCreatedByMonth,
-    }
+    },
   });
 };
 
@@ -89,18 +89,18 @@ export const getHostelStats = async (req, res) => {
   const totalHostels = hostels.length;
 
   const hostelsBySize = {
-    small: 0,   // < 5 rooms
-    medium: 0,  // 5 a 15 rooms
-    large: 0    // > 15 rooms
+    small: 0, // < 5 rooms
+    medium: 0, // 5 a 15 rooms
+    large: 0, // > 15 rooms
   };
 
   const hostelsByPopularity = {
-    low: 0,      // 0-5 guests
-    medium: 0,   // 6-15 guests
-    high: 0      // > 15 guests
+    low: 0, // 0-5 guests
+    medium: 0, // 6-15 guests
+    high: 0, // > 15 guests
   };
 
-  let totalEvents = 0;
+  let _totalEvents = 0;
   const hostelsCreatedByMonth = {};
   const hostelsByCountry = {};
   const hostelsByCity = {};
@@ -139,7 +139,7 @@ export const getHostelStats = async (req, res) => {
     hostelsByStatus[status] = (hostelsByStatus[status] || 0) + 1;
 
     // Event
-    totalEvents += (h.events?.length || 0);
+    _totalEvents += h.events?.length || 0;
 
     // Creation by month
     const createdAt = h.createdAt || h.created_at;
@@ -162,8 +162,8 @@ export const getHostelStats = async (req, res) => {
       hostelsByCity,
       averageRooms,
       hostelsWithVolunteers,
-      hostelsByStatus
-    }
+      hostelsByStatus,
+    },
   });
 };
 
@@ -173,7 +173,7 @@ export const getHostels = async (req, res) => {
   if (hostels.lenght > 0) {
     return res.status(400).json({
       success: true,
-      message: "Any hostel registered.",
+      message: 'Any hostel registered.',
     });
   }
 
@@ -186,10 +186,10 @@ export const getHostels = async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "",
-    data: hostelsDTO
+    message: '',
+    data: hostelsDTO,
   });
-}
+};
 
 export const getErrorLogs = async (req, res) => {
   const logs = await ErrorLog.find().sort({ time: -1 }).limit(100);
@@ -204,29 +204,29 @@ export const getErrorLogs = async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    data: logsDTO
-  })
-}
+    data: logsDTO,
+  });
+};
 
 export const saveFrontendLogs = async (req, res) => {
-  const logs = req.body
+  const logs = req.body;
 
   const errorDetails = logs.map(log => ({
     message: log.message,
     time: log.timestamp,
     type: log.type,
-    route: "Frontend",
+    route: 'Frontend',
   }));
 
   try {
     await ErrorLog.create(errorDetails);
   } catch (err) {
-    console.error("Failed to save error to MongoDB:", err.message);
+    console.error('Failed to save error to MongoDB:', err.message);
   }
 
   return res.status(200).json({
     success: true,
-    message: "Frontend logs saved successfully",
-    data: errorDetails
-  })
-}
+    message: 'Frontend logs saved successfully',
+    data: errorDetails,
+  });
+};

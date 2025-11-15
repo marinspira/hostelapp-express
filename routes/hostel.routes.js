@@ -1,10 +1,16 @@
-import express from "express"
-import protectRoute from "../middleware/protectRoute.js"
-import { createHostel, getAllGuests, getHomeScreen, getHostel } from "../controllers/hostel.controllers.js"
-import { upload } from "../middleware/saveUploads.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import protectRoute from '../middleware/protectRoute.js';
+import {
+  createHostel,
+  getAllGuests,
+  getHomeScreen,
+  getHostel,
+} from '../controllers/hostel.controllers.js';
+import { upload } from '../middleware/saveUploads.js';
+import catchAsync from '../utils/catchAsync.js';
+
+const router = express.Router();
 
 // Host details
 /**
@@ -83,7 +89,7 @@ const router = express.Router()
  *                 description: Photo file to upload
  *           encoding:
  *             photo:
- *               contentType: image/png 
+ *               contentType: image/png
  *     responses:
  *       201:
  *         description: Hostel created successfully
@@ -110,7 +116,7 @@ const router = express.Router()
  *             example:
  *               error: "Internal Server Error"
  */
-router.post("/create", protectRoute, upload.single('photo'), catchAsync(createHostel))
+router.post('/create', protectRoute, upload.single('photo'), catchAsync(createHostel));
 
 /**
  * @swagger
@@ -143,7 +149,7 @@ router.post("/create", protectRoute, upload.single('photo'), catchAsync(createHo
  *             example:
  *               error: "Internal Server Error"
  */
-router.get("/mine", protectRoute, catchAsync(getHostel))
+router.get('/mine', protectRoute, catchAsync(getHostel));
 
 // Get all guests staying in the hostel
 /**
@@ -186,9 +192,9 @@ router.get("/mine", protectRoute, catchAsync(getHostel))
  *             example:
  *               error: "Internal Server Error"
  */
-router.get("/guests", protectRoute, catchAsync(getAllGuests))
+router.get('/guests', protectRoute, catchAsync(getAllGuests));
 
 // Get Home Screen
-router.get("/getHomeScreen", protectRoute, catchAsync(getHomeScreen))
+router.get('/getHomeScreen', protectRoute, catchAsync(getHomeScreen));
 
-export default router
+export default router;

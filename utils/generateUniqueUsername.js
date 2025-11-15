@@ -1,24 +1,24 @@
-import Hostel from "../models/hostel.model.js";
-import Guest from "../models/guest.model.js";
+import Hostel from '../models/hostel.model.js';
+import Guest from '../models/guest.model.js';
 
-const generateUniqueUsername = async (name) => {
-    let baseUsername = name.replace(/\s+/g, '').toLowerCase();
+const generateUniqueUsername = async name => {
+  let baseUsername = name.replace(/\s+/g, '').toLowerCase();
 
-    let username = baseUsername;
+  let username = baseUsername;
 
-    let hostelWithSameUsername = await Hostel.findOne({ username });
-    let userWithSameUsername = await Guest.findOne({ username });
+  let hostelWithSameUsername = await Hostel.findOne({ username });
+  let userWithSameUsername = await Guest.findOne({ username });
 
-    let counter = 1;
+  let counter = 1;
 
-    while (hostelWithSameUsername || userWithSameUsername) {
-        username = `${baseUsername}${counter}`;
-        hostelWithSameUsername = await Hostel.findOne({ username });
-        userWithSameUsername = await Guest.findOne({ username });
-        counter++;
-    }
+  while (hostelWithSameUsername || userWithSameUsername) {
+    username = `${baseUsername}${counter}`;
+    hostelWithSameUsername = await Hostel.findOne({ username });
+    userWithSameUsername = await Guest.findOne({ username });
+    counter++;
+  }
 
-    return username;
-}
+  return username;
+};
 
 export default generateUniqueUsername;

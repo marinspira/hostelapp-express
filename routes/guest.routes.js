@@ -1,10 +1,19 @@
-import express from "express"
-import { deleteGuestProfileImage, getGuest, getHome, saveGuest, saveGuestProfileImages, searchGuest, updateGuest } from "../controllers/guest.controllers.js"
-import protectRoute from "../middleware/protectRoute.js"
-import { upload } from "../middleware/saveUploads.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import {
+  deleteGuestProfileImage,
+  getGuest,
+  getHome,
+  saveGuest,
+  saveGuestProfileImages,
+  searchGuest,
+  updateGuest,
+} from '../controllers/guest.controllers.js';
+import protectRoute from '../middleware/protectRoute.js';
+import { upload } from '../middleware/saveUploads.js';
+import catchAsync from '../utils/catchAsync.js';
+
+const router = express.Router();
 
 // Guest details
 /**
@@ -98,7 +107,7 @@ const router = express.Router()
  *               success: false
  *               message: "Internal Server Error"
  */
-router.post("/create", protectRoute, catchAsync(saveGuest))
+router.post('/create', protectRoute, catchAsync(saveGuest));
 
 /**
  * @swagger
@@ -154,7 +163,7 @@ router.post("/create", protectRoute, catchAsync(saveGuest))
  *             example:
  *               error: Internal Server Error
  */
-router.get("/me", protectRoute, catchAsync(getGuest))
+router.get('/me', protectRoute, catchAsync(getGuest));
 
 /**
  * @swagger
@@ -240,9 +249,9 @@ router.get("/me", protectRoute, catchAsync(getGuest))
  *       500:
  *         description: Internal Server Error
  */
-router.put("/update", protectRoute, catchAsync(updateGuest))
+router.put('/update', protectRoute, catchAsync(updateGuest));
 
-router.get("/home", protectRoute, catchAsync(getHome))
+router.get('/home', protectRoute, catchAsync(getHome));
 
 // Search a guest
 /**
@@ -286,10 +295,15 @@ router.get("/home", protectRoute, catchAsync(getHome))
  *       500:
  *         description: Internal Server Error
  */
-router.get("/:username", protectRoute, catchAsync(searchGuest))
+router.get('/:username', protectRoute, catchAsync(searchGuest));
 
 // Guest images
-router.post("/save-images", protectRoute, upload.single('photo'), catchAsync(saveGuestProfileImages))
-router.delete("/delete-images", protectRoute, catchAsync(deleteGuestProfileImage))
+router.post(
+  '/save-images',
+  protectRoute,
+  upload.single('photo'),
+  catchAsync(saveGuestProfileImages)
+);
+router.delete('/delete-images', protectRoute, catchAsync(deleteGuestProfileImage));
 
-export default router
+export default router;

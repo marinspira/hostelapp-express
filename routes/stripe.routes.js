@@ -1,11 +1,15 @@
-import express from "express"
-import protectRoute from "../middleware/protectRoute.js"
-import { createHostelStripeAccount, finalizeStripeConnection } from "../controllers/stripe.controllers.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import protectRoute from '../middleware/protectRoute.js';
+import {
+  createHostelStripeAccount,
+  finalizeStripeConnection,
+} from '../controllers/stripe.controllers.js';
+import catchAsync from '../utils/catchAsync.js';
 
-router.post("/create-hostel-stripe-account", protectRoute, catchAsync(createHostelStripeAccount))
+const router = express.Router();
+
+router.post('/create-hostel-stripe-account', protectRoute, catchAsync(createHostelStripeAccount));
 router.get('/success', catchAsync(finalizeStripeConnection));
 
-export default router
+export default router;

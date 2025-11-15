@@ -1,9 +1,10 @@
-import express from "express"
-import protectRoute from "../middleware/protectRoute.js"
-import { getAllChats, getMessages, sendMessage } from "../controllers/chat.controllers.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import protectRoute from '../middleware/protectRoute.js';
+import { getAllChats, getMessages, sendMessage } from '../controllers/chat.controllers.js';
+import catchAsync from '../utils/catchAsync.js';
+
+const router = express.Router();
 
 /**
  * @swagger
@@ -60,7 +61,7 @@ const router = express.Router()
  *       '500':
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get("/", protectRoute, catchAsync(getAllChats))
+router.get('/', protectRoute, catchAsync(getAllChats));
 
 /**
  * @swagger
@@ -105,7 +106,7 @@ router.get("/", protectRoute, catchAsync(getAllChats))
  *       '500':
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get("/:id", protectRoute, catchAsync(getMessages))
+router.get('/:id', protectRoute, catchAsync(getMessages));
 
 /**
  * @swagger
@@ -159,6 +160,6 @@ router.get("/:id", protectRoute, catchAsync(getMessages))
  *       '500':
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post("/send-message", protectRoute, catchAsync(sendMessage))
+router.post('/send-message', protectRoute, catchAsync(sendMessage));
 
-export default router
+export default router;

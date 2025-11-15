@@ -1,6 +1,7 @@
-import winston from "winston";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import winston from 'winston';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,9 +16,14 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.Console(),
-    new winston.transports.File({ filename: path.join(__dirname, 'logs', 'error.log'), level: 'error' }),
-    new winston.transports.File({ filename: path.join(__dirname, 'logs', 'combined.log') })
-  ]
+    new winston.transports.File({
+      filename: path.join(__dirname, 'logs', 'error.log'),
+      level: 'error',
+    }),
+    new winston.transports.File({
+      filename: path.join(__dirname, 'logs', 'combined.log'),
+    }),
+  ],
 });
 
-export default logger
+export default logger;

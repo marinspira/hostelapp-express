@@ -1,9 +1,10 @@
-import { getRelativeFilePath } from "../middleware/saveUploads.js";
-import Guest from "../models/guest.model.js";
-import fs from "fs";
-import path from "path";
-import User from "../models/user.model.js";
-import Reservation from "../models/reservation.model.js";
+import fs from 'fs';
+import path from 'path';
+
+import { getRelativeFilePath } from '../middleware/saveUploads.js';
+import Guest from '../models/guest.model.js';
+import User from '../models/user.model.js';
+import Reservation from '../models/reservation.model.js';
 
 export const saveGuest = async (req, res) => {
   const { guestData } = req.body;
@@ -12,50 +13,47 @@ export const saveGuest = async (req, res) => {
   if (!guestData || Object.keys(guestData).length === 0) {
     return res.status(400).json({
       success: false,
-      message: "Guest data is required.",
+      message: 'Guest data is required.',
     });
   }
 
-  console.log("user:", user._id);
+  console.log('user:', user._id);
 
   let guest = await Guest.findOne({ user: user._id });
 
-  console.log("Found guest:", guest);
+  console.log('Found guest:', guest);
 
   if (guest) {
     // Guest exists, update their data.
-    console.log("Updating existing guest profile");
-    let message = "Guest profile updated successfully!";
+    console.log('Updating existing guest profile');
+    let message = 'Guest profile updated successfully!';
 
     // Prevent birthday from being updated if it already exists.
     if (guest.birthday && guestData.birthday) {
       message =
-        "Guest profile updated, but the birthday was not changed as it can only be set once.";
+        'Guest profile updated, but the birthday was not changed as it can only be set once.';
       delete guestData.birthday;
     }
 
-    console.log(
-      "asnjqndmkjwenfdjwendonwefnewjofnweonfownef",
-      JSON.stringify(guestData, null, 2)
-    );
+    console.log('asnjqndmkjwenfdjwendonwefnewjofnweonfownef', JSON.stringify(guestData, null, 2));
 
     Object.assign(guest, {
-        guestPhotos: guestData.guestPhotos,
-        phone: guestData.phone,
-        birthday: guestData.birthday,
-        country: guestData.country,
-        passaportPhoto: guestData.passaportPhoto,
-        interests: guestData.interests,
-        description: guestData.description,
-        languages: guestData.languages,
-        digitalNomad: guestData.digitalNomad,
-        smoker: guestData.smoker,
-        pets: guestData.pets,
-        instagram: guestData.instagram,
-        linkedin: guestData.linkedin,
-        twitter: guestData.twitter,
-        showProfileAuthorization: guestData.showProfileAuthorization,
-      });
+      guestPhotos: guestData.guestPhotos,
+      phone: guestData.phone,
+      birthday: guestData.birthday,
+      country: guestData.country,
+      passaportPhoto: guestData.passaportPhoto,
+      interests: guestData.interests,
+      description: guestData.description,
+      languages: guestData.languages,
+      digitalNomad: guestData.digitalNomad,
+      smoker: guestData.smoker,
+      pets: guestData.pets,
+      instagram: guestData.instagram,
+      linkedin: guestData.linkedin,
+      twitter: guestData.twitter,
+      showProfileAuthorization: guestData.showProfileAuthorization,
+    });
 
     await guest.save();
 
@@ -87,7 +85,7 @@ export const saveGuest = async (req, res) => {
     });
   } else {
     // Guest does not exist, create a new one
-    console.log("caindo aqui");
+    console.log('caindo aqui');
     const newGuest = new Guest({
       ...guestData,
       user: user._id,
@@ -100,7 +98,7 @@ export const saveGuest = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Guest profile created successfully!",
+      message: 'Guest profile created successfully!',
       data: {
         guestPhotos: newGuest.guestPhotos,
         phone: newGuest.phone,
@@ -128,13 +126,13 @@ export const getGuest = async (req, res) => {
 
   if (!guest) {
     return res.status(404).json({
-      message: "Guest not found!",
+      message: 'Guest not found!',
       success: false,
     });
   }
 
   return res.status(200).json({
-    message: "Guest retrieved successfully",
+    message: 'Guest retrieved successfully',
     success: true,
     data: {
       guestPhotos: guest.guestPhotos,
@@ -165,11 +163,11 @@ export const updateGuest = async (req, res) => {
   if (!guest) {
     return res.status(404).json({
       success: false,
-      message: "Guest not found",
+      message: 'Guest not found',
     });
   }
 
-  Object.keys(guestData).forEach((key) => {
+  Object.keys(guestData).forEach(key => {
     guest[key] = guestData[key];
   });
 
@@ -195,7 +193,7 @@ export const updateGuest = async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Guest updated successfully",
+    message: 'Guest updated successfully',
     data: {
       guestPhotos,
       phone,
@@ -221,14 +219,14 @@ export const searchGuest = async (req, res) => {
 
   // Find users by email (case-insensitive)
   const usersWithEmailMatch = await User.find({
-    email: { $regex: username, $options: "i" },
-    role: "guest",
+    email: { $regex: username, $options: 'i' },
+    role: 'guest',
   });
 
   // Find guests by username
   const guestsWithUsernameMatch = await Guest.find({
-    username: { $regex: username, $options: "i" },
-  }).populate("user"); // Populate user for access to name/email
+    username: { $regex: username, $options: 'i' },
+  }).populate('user'); // Populate user for access to name/email
 
   // Merge results
   const guests = [];
@@ -251,11 +249,7 @@ export const searchGuest = async (req, res) => {
   // Process guests matched by username
   for (const guest of guestsWithUsernameMatch) {
     // Avoid duplicates if already added via user email
-    if (
-      !guests.some(
-        (g) => g.user_id_guest.toString() === guest.user._id.toString()
-      )
-    ) {
+    if (!guests.some(g => g.user_id_guest.toString() === guest.user._id.toString())) {
       guests.push({
         user_id_guest: guest.user._id,
         name: guest.user.name,
@@ -269,14 +263,14 @@ export const searchGuest = async (req, res) => {
   if (guests.length === 0) {
     return res.status(200).json({
       success: true,
-      message: "No guest or user found with the given username.",
+      message: 'No guest or user found with the given username.',
       data: [],
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "Guest(s) found successfully.",
+    message: 'Guest(s) found successfully.',
     data: guests,
   });
 };
@@ -288,7 +282,7 @@ export const saveGuestProfileImages = async (req, res) => {
   const user = req.user;
   const guest = await Guest.findOne({ user: user._id });
 
-  console.log("Image path to save:", imagePath);
+  console.log('Image path to save:', imagePath);
   console.log(guest);
 
   if (guest) {
@@ -301,7 +295,7 @@ export const saveGuestProfileImages = async (req, res) => {
     await guest.save();
 
     return res.status(200).json({
-      message: "Guest images updated.",
+      message: 'Guest images updated.',
       success: true,
       data: {
         imagePath,
@@ -318,14 +312,14 @@ export const saveGuestProfileImages = async (req, res) => {
     await newGuest.save();
 
     return res.status(201).json({
-      message: "New guest created, and photos added.",
+      message: 'New guest created, and photos added.',
       success: true,
       data: {
         imagePath,
       },
     });
   } else {
-    return res.status(400).json({ error: "Error saving guest" });
+    return res.status(400).json({ error: 'Error saving guest' });
   }
 };
 
@@ -336,7 +330,7 @@ export const deleteGuestProfileImage = async (req, res) => {
 
   if (!guest) {
     return res.status(404).json({
-      message: "Guest not found!",
+      message: 'Guest not found!',
       success: false,
     });
   }
@@ -347,11 +341,11 @@ export const deleteGuestProfileImage = async (req, res) => {
     // Delete from files
     const fullImagePath = path.resolve(imagePath);
 
-    fs.unlink(fullImagePath, async (err) => {
+    fs.unlink(fullImagePath, async err => {
       if (err) {
-        console.error("Error deleting file: ", err);
+        console.error('Error deleting file: ', err);
         return res.status(500).json({
-          message: "Failed to delete the image file.",
+          message: 'Failed to delete the image file.',
           success: false,
         });
       }
@@ -364,7 +358,7 @@ export const deleteGuestProfileImage = async (req, res) => {
     await guest.save();
 
     return res.status(200).json({
-      message: "Image successfully deleted",
+      message: 'Image successfully deleted',
       success: true,
       data: {
         imageId,
@@ -372,7 +366,7 @@ export const deleteGuestProfileImage = async (req, res) => {
     });
   }
 
-  return res.status(404).json({ error: "Image not found." });
+  return res.status(404).json({ error: 'Image not found.' });
 };
 
 export const getHome = async (req, res) => {
@@ -381,18 +375,18 @@ export const getHome = async (req, res) => {
 
   if (!guest) {
     return res.status(404).json({
-      message: "Guest not found!",
+      message: 'Guest not found!',
       success: false,
     });
   }
 
   const reservations = await Reservation.find({
     user_id_guest: user._id,
-  }).populate("hostel_id");
+  }).populate('hostel_id');
 
   const now = new Date();
 
-  const currentReservation = reservations.find((reservation) => {
+  const currentReservation = reservations.find(reservation => {
     const checkinDate = new Date(reservation.checkin_date);
     checkinDate.setHours(0, 1, 0, 0);
 
@@ -407,19 +401,19 @@ export const getHome = async (req, res) => {
   if (!currentReservation) {
     return res.status(200).json({
       success: true,
-      message: "No current reservation",
+      message: 'No current reservation',
       data: null,
     });
   }
 
   return res.status(200).json({
     success: true,
-    message: "Current reservation found",
+    message: 'Current reservation found',
     data: {
       hostel: {
-        id: currentReservation.hostel_id?._id || "",
-        img: currentReservation.hostel_id?.logo || "",
-        name: currentReservation.hostel_id?.name || "",
+        id: currentReservation.hostel_id?._id || '',
+        img: currentReservation.hostel_id?.logo || '',
+        name: currentReservation.hostel_id?.name || '',
       },
       reservation: {
         id: currentReservation._id,
@@ -431,11 +425,11 @@ export const getHome = async (req, res) => {
       },
       otherGuests: [
         {
-          name: "",
-          img: "",
+          name: '',
+          img: '',
         },
       ],
-      hostelEvents: ["events"],
+      hostelEvents: ['events'],
     },
   });
 };
@@ -447,7 +441,7 @@ export const getCurrentStay = async (req, res) => {
 
     if (!guest) {
       return res.status(404).json({
-        message: "Guest not found!",
+        message: 'Guest not found!',
         success: false,
       });
     }
@@ -459,13 +453,13 @@ export const getCurrentStay = async (req, res) => {
       user_id_guest: user._id,
       checkin_date: { $lte: now },
       checkout_date: { $gt: now },
-      status: { $in: ["walking in", "in house"] },
-    }).populate("hostel_id");
+      status: { $in: ['walking in', 'in house'] },
+    }).populate('hostel_id');
 
     if (activeReservations.length === 0) {
       return res.status(200).json({
         success: true,
-        message: "Guest is not currently staying at any hostel",
+        message: 'Guest is not currently staying at any hostel',
         data: {
           isCurrentlyStaying: false,
           activeReservations: [],
@@ -473,7 +467,7 @@ export const getCurrentStay = async (req, res) => {
       });
     }
 
-    const formattedReservations = activeReservations.map((reservation) => ({
+    const formattedReservations = activeReservations.map(reservation => ({
       reservationId: reservation._id,
       hostel: {
         id: reservation.hostel_id?._id,
@@ -488,14 +482,12 @@ export const getCurrentStay = async (req, res) => {
       checkinDate: reservation.checkin_date,
       checkoutDate: reservation.checkout_date,
       status: reservation.status,
-      daysRemaining: Math.ceil(
-        (new Date(reservation.checkout_date) - now) / (1000 * 60 * 60 * 24)
-      ),
+      daysRemaining: Math.ceil((new Date(reservation.checkout_date) - now) / (1000 * 60 * 60 * 24)),
     }));
 
     return res.status(200).json({
       success: true,
-      message: "Guest is currently staying at hostel(s)",
+      message: 'Guest is currently staying at hostel(s)',
       data: {
         isCurrentlyStaying: true,
         activeReservations: formattedReservations,
@@ -503,10 +495,10 @@ export const getCurrentStay = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error checking current stay:", error);
+    console.error('Error checking current stay:', error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
       error: error.message,
     });
   }

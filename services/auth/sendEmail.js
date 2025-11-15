@@ -1,9 +1,9 @@
-import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer';
 
 // Minimal sendEmail util. In production configure SMTP env vars. In development, use Ethereal so
 // emails are inspectable via a preview URL.
 export default async function sendEmail({ to, subject, text, html }) {
-  let transporter
+  let transporter;
 
   if (process.env.SMTP_HOST) {
     transporter = nodemailer.createTransport({
@@ -13,10 +13,10 @@ export default async function sendEmail({ to, subject, text, html }) {
       auth: process.env.SMTP_USER
         ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
         : undefined,
-    })
+    });
   } else {
-    console.log('[sendEmail] SMTP not configured and environment is production')
-    return { success: false }
+    console.log('[sendEmail] SMTP not configured and environment is production');
+    return { success: false };
   }
 
   const info = await transporter.sendMail({
@@ -25,7 +25,7 @@ export default async function sendEmail({ to, subject, text, html }) {
     subject,
     text,
     html,
-  })
+  });
 
-  return info
+  return info;
 }

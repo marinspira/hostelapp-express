@@ -1,9 +1,19 @@
-import express from "express"
-import { googleLogin, appleLogin, logout, isAuthenticated, localhostLogin, sendEmailCode, verifyEmailCode, updateUser } from "../controllers/auth.controllers.js"
-import protectRoute from "../middleware/protectRoute.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import {
+  googleLogin,
+  appleLogin,
+  logout,
+  isAuthenticated,
+  localhostLogin,
+  sendEmailCode,
+  verifyEmailCode,
+  updateUser,
+} from '../controllers/auth.controllers.js';
+import protectRoute from '../middleware/protectRoute.js';
+import catchAsync from '../utils/catchAsync.js';
+
+const router = express.Router();
 
 /**
  * @swagger
@@ -11,7 +21,7 @@ const router = express.Router()
  *   post:
  *     summary: Check if user is authenticated via cookie
  *     description: >
- *       This endpoint checks if the request has a valid session cookie and whether the user exists in the database.  
+ *       This endpoint checks if the request has a valid session cookie and whether the user exists in the database.
  *       Requires the `jwt` cookie to be set.
  *     tags: [Auth]
  *     responses:
@@ -47,17 +57,17 @@ const router = express.Router()
  *             example:
  *               error: "Internal Server Error"
  */
-router.post("/is-authenticated", protectRoute, catchAsync(isAuthenticated))
+router.post('/is-authenticated', protectRoute, catchAsync(isAuthenticated));
 
-router.post('/login', catchAsync(localhostLogin))
+router.post('/login', catchAsync(localhostLogin));
 
-router.post("/google", catchAsync(googleLogin))
+router.post('/google', catchAsync(googleLogin));
 
-router.post("/apple", catchAsync(appleLogin))
+router.post('/apple', catchAsync(appleLogin));
 
-router.post('/send-code', catchAsync(sendEmailCode))
+router.post('/send-code', catchAsync(sendEmailCode));
 
-router.post('/verify-code', catchAsync(verifyEmailCode))
+router.post('/verify-code', catchAsync(verifyEmailCode));
 
 /**
  * @swagger
@@ -65,7 +75,7 @@ router.post('/verify-code', catchAsync(verifyEmailCode))
  *   post:
  *     summary: Log the user out and clear the authentication cookie
  *     description: >
- *       This endpoint logs out the current user by clearing the JWT cookie set during login.  
+ *       This endpoint logs out the current user by clearing the JWT cookie set during login.
  *       After calling this endpoint, the user will no longer be authenticated for protected routes.
  *     tags: [Auth]
  *     responses:
@@ -83,7 +93,7 @@ router.post('/verify-code', catchAsync(verifyEmailCode))
  *             example:
  *               error: "Internal Server Error"
  */
-router.post("/logout", catchAsync(logout))
+router.post('/logout', catchAsync(logout));
 
 /**
  * @swagger
@@ -125,6 +135,6 @@ router.post("/logout", catchAsync(logout))
  *       500:
  *         description: Internal server error
  */
-router.put("/update-user", protectRoute, catchAsync(updateUser))
+router.put('/update-user', protectRoute, catchAsync(updateUser));
 
-export default router
+export default router;

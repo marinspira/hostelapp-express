@@ -39,9 +39,10 @@
  *           example: 2025-07-05T11:00:00.000Z
  */
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema(
+  {
     name: {
       type: String,
     },
@@ -51,20 +52,21 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
       type: String,
-        enum: ['host', 'guest'],
-        required: true
+      enum: ['host', 'guest'],
+      required: true,
     },
     sessionToken: {
       type: String,
-      default: null
+      default: null,
     },
     isNewUser: {
       type: Boolean,
-      default: true
+      default: true,
     },
-}, { timestamps: true })
+  },
+  { timestamps: true }
+);
 
-
-const User = mongoose.model("User", UserSchema)
+const User = mongoose.model('User', UserSchema);
 
 export default User;

@@ -17,6 +17,7 @@
 
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+
 import connectToMongoDB from '../../db/connectToMongoDB.js';
 import Reservation from '../../models/reservation.model.js';
 import Room from '../../models/room.model.js';
@@ -42,7 +43,10 @@ async function processCheckout(reservation, session) {
   // 2) clear room bed reservation_id
   // We assume room documents have structure with name and beds array with bed_number and reservation_id
   await Room.updateOne(
-    { name: reservation.room_number, 'beds.bed_number': reservation.bed_number },
+    {
+      name: reservation.room_number,
+      'beds.bed_number': reservation.bed_number,
+    },
     { $set: { 'beds.$.reservation_id': null } },
     { session }
   );
@@ -81,7 +85,7 @@ async function main() {
   // Find reservations that should be checked out by now and are not yet checked out
   const reservationsToCheckout = await Reservation.find({
     checkout_date: { $lte: now },
-    status: { $ne: 'checked out' }
+    status: { $ne: 'checked out' },
   });
 
   console.log(`Found ${reservationsToCheckout.length} reservation(s) to checkout`);

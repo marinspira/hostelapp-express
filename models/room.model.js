@@ -64,42 +64,48 @@
  *           description: Timestamp when the room was last updated
  *           example: "2025-07-07T09:30:00.000Z"
  */
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const RoomSchema = new mongoose.Schema({
-    type: { 
-        type: String, 
-        required: true,
-        enum: ['Shared', 'Private', 'Staff'],
+const RoomSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: ['Shared', 'Private', 'Staff'],
     },
-    name: { 
-        type: String, 
-        required: true 
+    name: {
+      type: String,
+      required: true,
     },
     capacity: {
-        type: Number, 
-        required: true 
+      type: Number,
+      required: true,
     },
     organization_by: {
-        type: String, 
-        required: true 
+      type: String,
+      required: true,
     },
-    beds: [{
-        bed_number: { 
-            type: String, 
-            required: true 
+    beds: [
+      {
+        bed_number: {
+          type: String,
+          required: true,
         },
-        reservation_id: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "Reservation", 
-            default: null 
-        }
-    }],
+        reservation_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Reservation',
+          default: null,
+        },
+      },
+    ],
     hostel: {
-        type: mongoose.Schema.Types.ObjectId, ref: "Hostel"
-    }
-}, { timestamps: true });
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hostel',
+    },
+  },
+  { timestamps: true }
+);
 
-const Room = mongoose.model("Room", RoomSchema)
+const Room = mongoose.model('Room', RoomSchema);
 
-export default Room
+export default Room;

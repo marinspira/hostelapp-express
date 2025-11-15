@@ -1,9 +1,17 @@
-import express from "express"
-import { getHostelStats, getUsers, getUserStats, getHostels, getErrorLogs, saveFrontendLogs } from "../controllers/backoffice.controllers.js"
-import { authenticateToken } from "../middleware/bearerAuthentication.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import {
+  getHostelStats,
+  getUsers,
+  getUserStats,
+  getHostels,
+  getErrorLogs,
+  saveFrontendLogs,
+} from '../controllers/backoffice.controllers.js';
+import { authenticateToken } from '../middleware/bearerAuthentication.js';
+import catchAsync from '../utils/catchAsync.js';
+
+const router = express.Router();
 
 /**
  * @swagger
@@ -26,7 +34,7 @@ const router = express.Router()
  *       500:
  *         description: Internal Server Error
  */
-router.get("/users", authenticateToken, catchAsync(getUsers))
+router.get('/users', authenticateToken, catchAsync(getUsers));
 
 /**
  * @swagger
@@ -49,89 +57,89 @@ router.get("/users", authenticateToken, catchAsync(getUsers))
  *       500:
  *         description: Internal Server Error
  */
-router.get("/hostels", authenticateToken, catchAsync(getHostels))
+router.get('/hostels', authenticateToken, catchAsync(getHostels));
 
 /**
-* @swagger
-* /api/backoffice/hostels-stats:
-*   get:
-*     summary: Retrieve statistics about hostels
-*     tags: [Backoffice]
-*     security:
-*       - BearerAuth: []
-*     responses:
-*       200:
-*         description: Successfully retrieved hostel statistics
-*         content:
-*           application/json:
-*             schema:
-*               type: object
-*               properties:
-*                 success:
-*                   type: boolean
-*                   example: true
-*                 data:
-*                   type: object
-*                   properties:
-*                     totalHostels:
-*                       type: integer
-*                       example: 20
-*                     hostelsBySize:
-*                       type: object
-*                       properties:
-*                         small:
-*                           type: integer
-*                           description: Hostels with less than 5 rooms
-*                           example: 5
-*                         medium:
-*                           type: integer
-*                           description: Hostels with 5 to 15 rooms
-*                           example: 10
-*                         large:
-*                           type: integer
-*                           description: Hostels with more than 15 rooms
-*                           example: 5
-*                     hostelsByPopularity:
-*                       type: object
-*                       properties:
-*                         low:
-*                           type: integer
-*                           description: Hostels with 0 to 5 guests
-*                           example: 7
-*                         medium:
-*                           type: integer
-*                           description: Hostels with 6 to 15 guests
-*                           example: 8
-*                         high:
-*                           type: integer
-*                           description: Hostels with more than 15 guests
-*                           example: 5
-*                     hostelsByCountry:
-*                       type: object
-*                       additionalProperties:
-*                         type: integer
-*                       example: { "Brazil": 10, "USA": 5 }
-*                     hostelsByCity:
-*                       type: object
-*                       additionalProperties:
-*                         type: integer
-*                       example: { "Rio de Janeiro": 5, "New York": 3 }
-*                     averageRooms:
-*                       type: number
-*                       format: float
-*                       example: 8.3
-*                     hostelsWithVolunteers:
-*                       type: integer
-*                       example: 6
-*                     hostelsByStatus:
-*                       type: object
-*                       additionalProperties:
-*                         type: integer
-*                       example: { "pending": 15, "approved": 5 }
-*       500:
-*         description: Internal server error
-*/
-router.get("/hostels-stats", authenticateToken, catchAsync(getHostelStats))
+ * @swagger
+ * /api/backoffice/hostels-stats:
+ *   get:
+ *     summary: Retrieve statistics about hostels
+ *     tags: [Backoffice]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved hostel statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalHostels:
+ *                       type: integer
+ *                       example: 20
+ *                     hostelsBySize:
+ *                       type: object
+ *                       properties:
+ *                         small:
+ *                           type: integer
+ *                           description: Hostels with less than 5 rooms
+ *                           example: 5
+ *                         medium:
+ *                           type: integer
+ *                           description: Hostels with 5 to 15 rooms
+ *                           example: 10
+ *                         large:
+ *                           type: integer
+ *                           description: Hostels with more than 15 rooms
+ *                           example: 5
+ *                     hostelsByPopularity:
+ *                       type: object
+ *                       properties:
+ *                         low:
+ *                           type: integer
+ *                           description: Hostels with 0 to 5 guests
+ *                           example: 7
+ *                         medium:
+ *                           type: integer
+ *                           description: Hostels with 6 to 15 guests
+ *                           example: 8
+ *                         high:
+ *                           type: integer
+ *                           description: Hostels with more than 15 guests
+ *                           example: 5
+ *                     hostelsByCountry:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: integer
+ *                       example: { "Brazil": 10, "USA": 5 }
+ *                     hostelsByCity:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: integer
+ *                       example: { "Rio de Janeiro": 5, "New York": 3 }
+ *                     averageRooms:
+ *                       type: number
+ *                       format: float
+ *                       example: 8.3
+ *                     hostelsWithVolunteers:
+ *                       type: integer
+ *                       example: 6
+ *                     hostelsByStatus:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: integer
+ *                       example: { "pending": 15, "approved": 5 }
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/hostels-stats', authenticateToken, catchAsync(getHostelStats));
 
 /**
  * @swagger
@@ -191,7 +199,7 @@ router.get("/hostels-stats", authenticateToken, catchAsync(getHostelStats))
  *       500:
  *         description: Internal server error
  */
-router.get("/users-stats", authenticateToken, catchAsync(getUserStats))
+router.get('/users-stats', authenticateToken, catchAsync(getUserStats));
 
 /**
  * @swagger
@@ -237,8 +245,8 @@ router.get("/users-stats", authenticateToken, catchAsync(getUserStats))
  *       500:
  *         description: Internal server error
  */
-router.get("/error-logs", authenticateToken, catchAsync(getErrorLogs))
+router.get('/error-logs', authenticateToken, catchAsync(getErrorLogs));
 
-router.post("/frontend-logs", authenticateToken, catchAsync(saveFrontendLogs))
+router.post('/frontend-logs', authenticateToken, catchAsync(saveFrontendLogs));
 
-export default router
+export default router;

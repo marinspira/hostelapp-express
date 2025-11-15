@@ -38,25 +38,30 @@
  *           description: The timestamp when the chat was last updated.
  *           example: "2025-07-01T12:30:00.000Z"
  */
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const ChatSchema = new mongoose.Schema({
-    participants: [{
+const ChatSchema = new mongoose.Schema(
+  {
+    participants: [
+      {
         hostel: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Hostel",
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Hostel',
         },
         user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        }
-    }],
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      },
+    ],
     group: {
-        type: Boolean,
-        default: false
-    }
-}, { timestamps: true })
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
-const Chat = mongoose.model("Chat", ChatSchema)
+const Chat = mongoose.model('Chat', ChatSchema);
 
-export default Chat
+export default Chat;

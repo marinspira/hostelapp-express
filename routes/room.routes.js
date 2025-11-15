@@ -1,9 +1,10 @@
-import express from "express"
-import protectRoute from "../middleware/protectRoute.js"
-import { createRoom, getAllRooms, getBedsAvailable } from "../controllers/room.controllers.js"
-import catchAsync from "../utils/catchAsync.js"
+import express from 'express';
 
-const router = express.Router()
+import protectRoute from '../middleware/protectRoute.js';
+import { createRoom, getAllRooms, getBedsAvailable } from '../controllers/room.controllers.js';
+import catchAsync from '../utils/catchAsync.js';
+
+const router = express.Router();
 
 /**
  * @swagger
@@ -86,7 +87,7 @@ const router = express.Router()
  *             example:
  *               error: Internal Server Error
  */
-router.post("/create", protectRoute, catchAsync(createRoom))
+router.post('/create', protectRoute, catchAsync(createRoom));
 
 /**
  * @swagger
@@ -131,7 +132,7 @@ router.post("/create", protectRoute, catchAsync(createRoom))
  *             example:
  *               error: Internal Server Error
  */
-router.get("/", protectRoute, catchAsync(getAllRooms))
+router.get('/', protectRoute, catchAsync(getAllRooms));
 
 /**
  * @swagger
@@ -190,6 +191,6 @@ router.get("/", protectRoute, catchAsync(getAllRooms))
  *             example:
  *               error: Internal Server Error
  */
-router.get("/beds-available", protectRoute, catchAsync(getBedsAvailable))
+router.get('/beds-available', protectRoute, catchAsync(getBedsAvailable));
 
-export default router
+export default router;
