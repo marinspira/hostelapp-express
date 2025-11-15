@@ -1,7 +1,7 @@
 import express from 'express';
 
 import protectRoute from '../middleware/protectRoute.js';
-import { createEvent, getAllEvents } from '../controllers/events.controllers.js';
+import { createEvent, getAllEvents } from '../controllers/events.controllers.ts';
 import { upload } from '../middleware/saveUploads.js';
 import catchAsync from '../utils/catchAsync.js';
 

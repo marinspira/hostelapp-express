@@ -37,6 +37,12 @@
   "exclude": ["node_modules", "dist", "logs", "uploads"],
   "ts-node": {
     "esm": true,
-    "experimentalSpecifierResolution": "node"
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+      "module": "ESNext",
+      "target": "ES2020"
+    }
   }
 }

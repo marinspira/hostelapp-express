@@ -2,7 +2,7 @@ import { Response } from 'express';
 
 // @ts-ignore
 import Hostel from '../models/hostel.model.js';
-import Event, { IEventDocument } from '../models/event.model';
+import Event, { IEventDocument } from '../models/event.model.js';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import { AuthenticatedRequest } from '../types/index.js';
