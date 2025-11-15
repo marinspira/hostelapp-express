@@ -55,7 +55,11 @@ export const createEvent = async (
     name: event.name,
     description: event.description,
     hostel_location: event.hostel_location,
-    address: event.address,
+    address: {
+      street: event.address?.street,
+      city: event.address?.city,
+      zip: event.address?.zip,
+    },
     date: event.date,
     photos_last_event: imagePaths,
     unlimited_spots: event.unlimited_spots,
