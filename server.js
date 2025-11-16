@@ -35,8 +35,19 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Winston settings
-console.log = (...args) => logger.info(args.join(' '));
-console.error = (...args) => logger.error(args.join(' '));
+console.log = (...args) => {
+  const message = args.map(arg => 
+    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+  ).join(' ');
+  logger.info(message);
+};
+
+console.error = (...args) => {
+  const message = args.map(arg => 
+    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+  ).join(' ');
+  logger.error(message);
+};
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',

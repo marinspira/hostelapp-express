@@ -40,6 +40,25 @@ export const createEvent = async (
 
   const event: IEvent = req.body.event;
 
+  console.log('Raw req.body:', req.body);
+  console.log('Event:', event);
+  console.log('Event address:', event.address);
+  console.log('Event address type:', typeof event.address);
+
+  let parsedAddress;
+  if (typeof event.address === 'string') {
+    try {
+      parsedAddress = JSON.parse(event.address);
+    } catch (e) {
+      console.log('Failed to parse address string:', e);
+      parsedAddress = null;
+    }
+  } else {
+    parsedAddress = event.address;
+  }
+
+  console.log('Parsed address:', parsedAddress);
+
   const imagePaths: string[] = req.files
     ? req.files.map(file => getRelativeFilePath(req, file))
     : [];
@@ -56,11 +75,12 @@ export const createEvent = async (
     description: event.description,
     hostel_location: event.hostel_location,
     address: {
-      street: event.address?.street,
-      city: event.address?.city,
-      zip: event.address?.zip,
+      street: parsedAddress?.street,
+      city: parsedAddress?.city,
+      zip: parsedAddress?.zip,
     },
     date: event.date,
+    endDate: event.endDate,
     photos_last_event: imagePaths,
     unlimited_spots: event.unlimited_spots,
     spots_available: event.spots_available,
@@ -74,6 +94,8 @@ export const createEvent = async (
     hostel_id: hostel._id,
     status: hostel ? 'approved' : 'pending',
   });
+
+  console.log('New Event:', newEvent);
   await newEvent.save();
 
   return res.status(201).json({

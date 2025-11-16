@@ -10,6 +10,7 @@ export interface IEvent {
     zip?: string;
   };
   date: Date;
+  endDate: Date;
   photos_last_event: string[];
   unlimited_spots: boolean;
   spots_available?: number;
@@ -20,7 +21,7 @@ export interface IEvent {
   event_recurring: boolean;
   event_frequency?: Record<string, string>;
   attendees?: Types.ObjectId[];
-  payment_methods: string[];
+  payment_methods: Array<'Card' | 'Cash'>;
   hostel_id?: Types.ObjectId;
   suggested_by?: Types.ObjectId;
   status?: 'pending' | 'approved' | 'rejected';
