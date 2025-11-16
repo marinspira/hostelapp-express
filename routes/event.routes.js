@@ -1,13 +1,17 @@
 import express from 'express';
 
 import protectRoute from '../middleware/protectRoute.js';
-import { createEvent, getAllEvents } from '../controllers/events.controllers.ts';
+import { createEvent, getAllEvents, updateEvent, deleteEvent } from '../controllers/events.controllers.ts';
 import { upload } from '../middleware/saveUploads.js';
 import catchAsync from '../utils/catchAsync.js';
 
 const router = express.Router();
 
 router.post('/create', protectRoute, upload.array('images', 4), catchAsync(createEvent));
+
+router.put('/update/:id', protectRoute, upload.array('images', 4), catchAsync(updateEvent));
+
+router.delete('/delete/:id', protectRoute, catchAsync(deleteEvent));
 
 router.get('/:hostelId', protectRoute, catchAsync(getAllEvents));
 

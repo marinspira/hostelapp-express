@@ -1,10 +1,10 @@
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import Event from '../models/event.model.ts';
+import Event from '../models/event.model.js';
 import Guest from '../models/guest.model.js';
 import Hostel from '../models/hostel.model.js';
 import Room from '../models/room.model.js';
 import User from '../models/user.model.js';
-import { countryCurrencyMap } from '../utils/currencies.js';
+import countries from '../utils/coutries.js';
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 import { ensureHostelGroupChat } from '../services/chat/groupChatManager.js';
 
@@ -15,7 +15,8 @@ export const createHostel = async (req, res) => {
 
   const existingHostel = await Hostel.findOne({ user_id_owners: user._id });
 
-  const currency = countryCurrencyMap[hostel.country] || 'EUR';
+  const countryData = countries.find(c => c.country === hostel.country);
+  const currency = countryData ? countryData.currency : 'EUR';
 
   if (existingHostel) {
     return res.status(409).json({
