@@ -36,16 +36,16 @@ const PORT = process.env.PORT || 8000;
 
 // Winston settings
 console.log = (...args) => {
-  const message = args.map(arg => 
-    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-  ).join(' ');
+  const message = args
+    .map(arg => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)))
+    .join(' ');
   logger.info(message);
 };
 
 console.error = (...args) => {
-  const message = args.map(arg => 
-    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-  ).join(' ');
+  const message = args
+    .map(arg => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)))
+    .join(' ');
   logger.error(message);
 };
 

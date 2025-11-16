@@ -119,7 +119,7 @@ export const getAllEvents = async (
 
   const formattedEvents = events.map(event => ({
     ...event.toObject(),
-    price: formatPrice(event.price)
+    price: formatPrice(event.price),
   }));
 
   return res.status(200).json({
