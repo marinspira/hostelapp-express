@@ -19,11 +19,11 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import Reservation from '../../models/reservation.model.js';
-import Room from '../../models/room.model.js';
-import Guest from '../../models/guest.model.js';
-import Hostel from '../../models/hostel.model.js';
-import { removeGuestFromHostelGroup } from '../../services/chat/groupChatManager.js';
+import Reservation from '../../src/models/reservation.model.js';
+import Room from '../../src/models/room.model.js';
+import Guest from '../../src/models/guest.model.js';
+import Hostel from '../../src/models/hostel.model.js';
+import { removeGuestFromHostelGroup } from '../../src/services/chat/groupChatManager.js';
 
 dotenv.config();
 

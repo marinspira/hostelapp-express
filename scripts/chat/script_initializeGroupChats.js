@@ -12,7 +12,7 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
-import { initializeAllHostelGroupChats } from '../../services/chat/groupChatManager.js';
+import { initializeAllHostelGroupChats } from '../../src/services/chat/groupChatManager.js';
 import connectToMongoDB from '../../db/connectToMongoDB.js';
 
 dotenv.config();

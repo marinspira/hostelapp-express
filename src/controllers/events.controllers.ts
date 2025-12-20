@@ -8,7 +8,7 @@ import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import { AuthenticatedRequest } from '../interfaces/index.js';
 import { IEvent } from '../interfaces/event.js';
 import { IUser, IUserDocument } from '../interfaces/user.js';
-import { BackendResponse } from '../interfaces/response';
+import { BackendResponse } from '../interfaces/response.js';
 import { formatPrice } from '../utils/formatPrice.js';
 import HostelService from '../services/hostel/hostel.js';
 import { EventService } from '../services/event/event.service.js';
@@ -41,14 +41,9 @@ export const createEvent = async (
   res: Response<BackendResponse<IEventDocument>>
 ) => {
   try {
-    const imagePaths = req.files
-      ? req.files.map(file => getRelativeFilePath(req, file))
-      : [];
+    const imagePaths = req.files ? req.files.map(file => getRelativeFilePath(req, file)) : [];
 
-    const eventService = new EventService(
-      new EventRepository(),
-      new HostelRepository()
-    );
+    const eventService = new EventService(new EventRepository(), new HostelRepository());
 
     if (!req.user || !req.user._id) {
       return res.status(401).json({
@@ -58,11 +53,7 @@ export const createEvent = async (
     }
     const userId = req.user._id.toString();
 
-    const event = await eventService.createEvent(
-      userId,
-      req.body.event,
-      imagePaths
-    );
+    const event = await eventService.createEvent(userId, req.body.event, imagePaths);
 
     return res.status(201).json({
       success: true,
@@ -160,7 +151,7 @@ export const updateEvent = async (
       city: parsedAddress?.city,
       zip: parsedAddress?.zip,
     },
-    date: event.date,
+    startDate: event.startDate,
     endDate: event.endDate,
     // Only update photos if new ones were provided
     ...(imagePaths.length > 0 && { photos_last_event: imagePaths }),
