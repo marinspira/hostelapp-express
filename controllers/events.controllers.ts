@@ -5,10 +5,15 @@ import Hostel from '../models/hostel.model.js';
 import Event, { IEventDocument } from '../models/event.model.js';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import { AuthenticatedRequest } from '../types/index.js';
-import { IEvent } from '../interfaces/event';
+import { AuthenticatedRequest } from '../interfaces/index.js';
+import { IEvent } from '../interfaces/event.js';
+import { IUser, IUserDocument } from '../interfaces/user.js';
 import { BackendResponse } from '../interfaces/response';
 import { formatPrice } from '../utils/formatPrice.js';
+import HostelService from '../services/hostel/hostel.js';
+import { EventService } from '../services/event/event.service.js';
+import { EventRepository } from '../repositories/event.repository.js';
+import { HostelRepository } from '../repositories/hostel.repository.js';
 
 interface UploadedFile {
   fieldname: string;
@@ -28,75 +33,48 @@ interface CreateEventRequest extends AuthenticatedRequest {
   files: {
     map: (_callback: (_file: UploadedFile) => string) => string[];
   };
+  user: IUserDocument;
 }
 
 export const createEvent = async (
   req: CreateEventRequest,
   res: Response<BackendResponse<IEventDocument>>
-): Promise<Response<BackendResponse<IEventDocument>>> => {
-  const user = req.user;
-  const hostel = await Hostel.findOne({
-    user_id_owners: user._id,
-  });
+) => {
+  try {
+    const imagePaths = req.files
+      ? req.files.map(file => getRelativeFilePath(req, file))
+      : [];
 
-  const event: IEvent = req.body.event;
+    const eventService = new EventService(
+      new EventRepository(),
+      new HostelRepository()
+    );
 
-  let parsedAddress;
-  if (typeof event.address === 'string') {
-    try {
-      parsedAddress = JSON.parse(event.address);
-    } catch (e) {
-      console.log('Failed to parse address string:', e);
-      parsedAddress = null;
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated or missing user ID',
+      });
     }
-  } else {
-    parsedAddress = event.address;
-  }
+    const userId = req.user._id.toString();
 
-  const imagePaths: string[] = req.files
-    ? req.files.map(file => getRelativeFilePath(req, file))
-    : [];
+    const event = await eventService.createEvent(
+      userId,
+      req.body.event,
+      imagePaths
+    );
 
-  if (!hostel) {
+    return res.status(201).json({
+      success: true,
+      message: 'Event created successfully',
+      data: event,
+    });
+  } catch (error: any) {
     return res.status(400).json({
       success: false,
-      message: 'Hostel does not exist!',
+      message: error.message,
     });
   }
-
-  const newEvent: IEventDocument = new Event({
-    name: event.name,
-    description: event.description,
-    hostel_location: event.hostel_location,
-    address: {
-      street: parsedAddress?.street,
-      city: parsedAddress?.city,
-      zip: parsedAddress?.zip,
-    },
-    date: event.date,
-    endDate: event.endDate,
-    photos_last_event: imagePaths,
-    unlimited_spots: event.unlimited_spots,
-    spots_available: event.spots_available,
-    free_entry: event.free_entry,
-    price: event.price,
-    payment_to_hostel: event.payment_to_hostel,
-    receive_payment_online: event.receive_payment_online,
-    event_recurring: event.event_recurring,
-    event_frequency: event.event_frequency,
-    payment_methods: event.payment_methods,
-    hostel_id: hostel._id,
-    status: hostel ? 'approved' : 'pending',
-  });
-
-  console.log('New Event:', newEvent);
-  await newEvent.save();
-
-  return res.status(201).json({
-    success: true,
-    message: 'Event created successfully',
-    data: newEvent,
-  });
 };
 
 export const getAllEvents = async (

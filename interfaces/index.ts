@@ -1,5 +1,6 @@
 import { Document, Types } from 'mongoose';
 import { Request } from 'express';
+import { IUserDocument } from './user';
 
 export interface IUser {
   _id?: Types.ObjectId;
@@ -124,7 +125,7 @@ export interface IEvent {
 
 // Express Request with user
 export interface AuthenticatedRequest extends Request {
-  user: IUser;
+  user: IUserDocument;
 }
 
 // Mongoose Document types

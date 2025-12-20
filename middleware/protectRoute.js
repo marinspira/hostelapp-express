@@ -1,12 +1,11 @@
 import jwt from 'jsonwebtoken';
-
 import User from '../models/user.model.js';
 
 // Middleware function to protect routes
 const protectRoute = async (req, res, next) => {
   try {
     // Get the token from request cookies
-    const token = req.cookies.jwt;
+    const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
 
     // If no token is provided, respond with a 401 status
     if (!token) {

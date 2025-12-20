@@ -23,6 +23,10 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   address: {
+    type: Object,
+    required: function (this: IEventDocument) {
+      return !this.hostel_location;
+    },
     street: {
       type: String,
     },
@@ -33,7 +37,11 @@ const EventSchema = new Schema<IEventDocument>({
       type: String,
     },
   },
-  date: {
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
     type: Date,
     required: true,
   },
@@ -45,6 +53,9 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   spots_available: {
+    required: function (this: IEventDocument) {
+      return !this.unlimited_spots;
+    },
     type: Number,
   },
   free_entry: {
@@ -52,11 +63,16 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   price: {
+    required: function (this: IEventDocument) {
+      return !this.free_entry;
+    },
     type: Number,
   },
   payment_to_hostel: {
+    required: function (this: IEventDocument) {
+      return !this.free_entry;
+    },
     type: Boolean,
-    required: true,
   },
   receive_payment_online: {
     type: Boolean,
@@ -66,7 +82,11 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   event_frequency: {
-    type: mongoose.Schema.Types.Mixed,
+    required: function (this: IEventDocument) {
+      return this.event_recurring;
+    },
+    type: [String],
+    enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', Number],
   },
   attendees: [
     {
@@ -76,6 +96,8 @@ const EventSchema = new Schema<IEventDocument>({
   ],
   payment_methods: {
     type: [String],
+    enum: ['card', 'cash'],
+    required: true,
   },
   hostel_id: {
     type: mongoose.Schema.Types.ObjectId,

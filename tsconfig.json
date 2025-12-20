@@ -29,11 +29,11 @@
     "allowUnreachableCode": false,
     "exactOptionalPropertyTypes": false,
     "lib": ["ES2020"],
-    "types": ["node"],
+    "types": ["node", "jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "jest.config.mjs"],
   "exclude": ["node_modules", "dist", "logs", "uploads"],
   "ts-node": {
     "esm": true,

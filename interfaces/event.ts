@@ -9,7 +9,7 @@ export interface IEvent {
     city?: string;
     zip?: string;
   };
-  date: Date;
+  startDate: Date;
   endDate: Date;
   photos_last_event: string[];
   unlimited_spots: boolean;
@@ -19,7 +19,7 @@ export interface IEvent {
   payment_to_hostel: boolean;
   receive_payment_online?: boolean;
   event_recurring: boolean;
-  event_frequency?: Record<string, string>;
+  event_frequency?: Array<'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday' | number>;
   attendees?: Types.ObjectId[];
   payment_methods: Array<'Card' | 'Cash'>;
   hostel_id?: Types.ObjectId;
