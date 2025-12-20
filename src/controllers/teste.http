@@ -1,1 +1,0 @@
-GET https://nominatim.openstreetmap.org/search?q=08027&format=json&addressdetails=1

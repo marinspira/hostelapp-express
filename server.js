@@ -19,16 +19,16 @@ import Stripe from 'stripe';
 
 import logger from './logs.js';
 import connectToMongoDB from './db/connectToMongoDB.js';
-import authRoutes from './routes/auth.routes.js';
-import guestRoutes from './routes/guest.routes.js';
-import hostelRoutes from './routes/hostel.routes.js';
-import roomRoutes from './routes/room.routes.js';
-import reservationRoutes from './routes/reservation.routes.js';
-import chatRoutes from './routes/chat.routes.js';
-import stripeRoutes from './routes/stripe.routes.js';
-import eventRoutes from './routes/event.routes.js';
-import backofficeRoutes from './routes/backoffice.routes.js';
-import errorHandler from './middleware/errorHandler.js';
+import authRoutes from './src/routes/auth.routes.js';
+import guestRoutes from './src/routes/guest.routes.js';
+import hostelRoutes from './src/routes/hostel.routes.js';
+import roomRoutes from './src/routes/room.routes.js';
+import reservationRoutes from './src/routes/reservation.routes.js';
+import chatRoutes from './src/routes/chat.routes.js';
+import stripeRoutes from './src/routes/stripe.routes.js';
+import eventRoutes from './src/routes/event.routes.js';
+import backofficeRoutes from './src/routes/backoffice.routes.js';
+import errorHandler from './src/middleware/errorHandler.js';
 
 dotenv.config();
 

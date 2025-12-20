@@ -1,5 +1,5 @@
 import Hostel from '../models/hostel.model.js';
-import { stripe } from '../server.js';
+import { stripe } from '../../server.js';
 
 export const createHostelStripeAccount = async (req, res) => {
   const user = req.user;
