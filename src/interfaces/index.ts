@@ -1,6 +1,6 @@
 import { Document, Types } from 'mongoose';
-import { Request } from 'express';
-import { IUserDocument } from './user';
+import type { Request } from 'express';
+import type { IUserDocument } from './user.ts';
 
 export interface IUser {
   _id?: Types.ObjectId;

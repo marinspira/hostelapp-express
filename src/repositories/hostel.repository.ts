@@ -1,5 +1,5 @@
 // @ts-ignore
-import Hostel from '../models/hostel.model';
+import Hostel from '../models/hostel.model.js';
 
 export class HostelRepository {
   async findByOwner(ownerId: string) {

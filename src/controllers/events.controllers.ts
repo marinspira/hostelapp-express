@@ -1,19 +1,19 @@
-import { Response } from 'express';
+import type { Response } from 'express';
 
 // @ts-ignore
 import Hostel from '../models/hostel.model.js';
-import Event, { IEventDocument } from '../models/event.model.js';
+import Event from '../models/event.model.ts';
+import type { IEventDocument } from '../models/event.model.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import { AuthenticatedRequest } from '../interfaces/index.js';
-import { IEvent } from '../interfaces/event.js';
-import { IUser, IUserDocument } from '../interfaces/user.js';
-import { BackendResponse } from '../interfaces/response.js';
-import { formatPrice } from '../utils/formatPrice.js';
-import HostelService from '../services/hostel/hostel.js';
-import { EventService } from '../services/event/event.service.js';
-import { EventRepository } from '../repositories/event.repository.js';
-import { HostelRepository } from '../repositories/hostel.repository.js';
+import type { AuthenticatedRequest } from '../interfaces/index.ts';
+import type { IEvent } from '../interfaces/event.ts';
+import type { IUser, IUserDocument } from '../interfaces/user.ts';
+import type { BackendResponse } from '../interfaces/response.ts';
+import { formatPrice } from '../utils/formatPrice.ts';
+import { EventService } from '../services/event/event.service.ts';
+import { EventRepository } from '../repositories/event.repository.ts';
+import { HostelRepository } from '../repositories/hostel.repository.ts';
 
 interface UploadedFile {
   fieldname: string;
@@ -41,7 +41,10 @@ export const createEvent = async (
   res: Response<BackendResponse<IEventDocument>>
 ) => {
   try {
+    
     const imagePaths = req.files ? req.files.map(file => getRelativeFilePath(req, file)) : [];
+
+    console.log("Rreq", req);
 
     const eventService = new EventService(new EventRepository(), new HostelRepository());
 

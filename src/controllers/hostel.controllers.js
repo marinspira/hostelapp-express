@@ -1,5 +1,5 @@
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import Event from '../models/event.model.js';
+import Event from '../models/event.model.ts';
 import Guest from '../models/guest.model.js';
 import Hostel from '../models/hostel.model.js';
 import Room from '../models/room.model.js';

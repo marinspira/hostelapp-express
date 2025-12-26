@@ -1,16 +1,21 @@
-import { IEventDocument } from '../../models/event.model';
-import { EventRepository } from '../../repositories/event.repository';
-import { HostelRepository } from '../../repositories/hostel.repository';
-import { IEvent } from '../../interfaces/event';
+import type { IEventDocument } from '../../models/event.model.ts';
+import { EventRepository } from '../../repositories/event.repository.ts';
+import { HostelRepository } from '../../repositories/hostel.repository.ts';
+import type { IEvent } from '../../interfaces/event.ts';
 
 export class EventService {
-  constructor(
-    private readonly eventRepo: EventRepository,
-    private readonly hostelRepo: HostelRepository
-  ) {}
+  private readonly eventRepo: EventRepository;
+  private readonly hostelRepo: HostelRepository;
+
+  constructor(eventRepo: EventRepository, hostelRepo: HostelRepository) {
+    this.eventRepo = eventRepo;
+    this.hostelRepo = hostelRepo;
+  }
 
   async createEvent(userId: string, event: IEvent, imagePaths: string[]): Promise<IEventDocument> {
     const hostel = await this.hostelRepo.findByOwner(userId);
+
+    console.log("imagePaths:", imagePaths);
 
     if (!hostel) {
       throw new Error('Hostel does not exist');
