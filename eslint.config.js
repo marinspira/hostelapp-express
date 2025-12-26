@@ -3,6 +3,8 @@ import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import nodePlugin from 'eslint-plugin-node';
 import importPlugin from 'eslint-plugin-import';
+import globals from 'globals';
+import jestPlugin from 'eslint-plugin-jest';
 
 export default [
   js.configs.recommended,
@@ -70,6 +72,8 @@ export default [
       'logs/**',
       'uploads/**',
       '*.config.js',
+      '**/*.spec.ts',
+      '**/*.test.ts',
     ],
   },
 ];

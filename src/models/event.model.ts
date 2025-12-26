@@ -24,8 +24,8 @@ const EventSchema = new Schema<IEventDocument>({
   },
   address: {
     type: Object,
-    required: function (this: IEventDocument) {
-      return !this.hostel_location;
+    required: function (_this: IEventDocument) {
+      return !_this.hostel_location;
     },
     street: {
       type: String,
@@ -53,8 +53,8 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   spots_available: {
-    required: function (this: IEventDocument) {
-      return !this.unlimited_spots;
+    required: function (_this: IEventDocument) {
+      return !_this.unlimited_spots;
     },
     type: Number,
   },
@@ -63,13 +63,13 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   price: {
-    required: function (this: IEventDocument) {
-      return !this.free_entry;
+    required: function (_this: IEventDocument) {
+      return !_this.free_entry;
     },
     type: Number,
   },
   payment_to_hostel: {
-    required: function (this: IEventDocument) {
+    required: function () {
       return !this.free_entry;
     },
     type: Boolean,
@@ -82,8 +82,8 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
   },
   event_frequency: {
-    required: function (this: IEventDocument) {
-      return this.event_recurring;
+    required: function (_this: IEventDocument) {
+      return _this.event_recurring;
     },
     type: [String],
     enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', Number],

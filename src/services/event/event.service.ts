@@ -15,7 +15,7 @@ export class EventService {
   async createEvent(userId: string, event: IEvent, imagePaths: string[]): Promise<IEventDocument> {
     const hostel = await this.hostelRepo.findByOwner(userId);
 
-    console.log("imagePaths:", imagePaths);
+    console.log('imagePaths:', imagePaths);
 
     if (!hostel) {
       throw new Error('Hostel does not exist');
@@ -24,7 +24,9 @@ export class EventService {
     const parsedEvent = typeof event === 'string' ? JSON.parse(event) : event;
 
     const parsedAddress =
-      typeof parsedEvent.address === 'string' ? JSON.parse(parsedEvent.address) : parsedEvent.address;
+      typeof parsedEvent.address === 'string'
+        ? JSON.parse(parsedEvent.address)
+        : parsedEvent.address;
 
     if (
       parsedEvent.free_entry === false &&
@@ -36,12 +38,20 @@ export class EventService {
       throw new Error('Payment details are required');
     }
 
-    if (!parsedEvent.hostel_location && !parsedAddress || parsedEvent.hostel_location && parsedAddress) {
+    if (
+      (!parsedEvent.hostel_location && !parsedAddress) ||
+      (parsedEvent.hostel_location && parsedAddress)
+    ) {
       throw new Error('Address only is required when hostel_location is false');
     }
 
-    if (parsedEvent.unlimited_spots === false && (parsedEvent.spots_available === undefined || parsedEvent.spots_available < 0)) {
-      throw new Error('Spots available must be provided and non-negative when unlimited_spots is false');
+    if (
+      parsedEvent.unlimited_spots === false &&
+      (parsedEvent.spots_available === undefined || parsedEvent.spots_available < 0)
+    ) {
+      throw new Error(
+        'Spots available must be provided and non-negative when unlimited_spots is false'
+      );
     }
 
     return this.eventRepo.create({

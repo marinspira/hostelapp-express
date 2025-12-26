@@ -19,7 +19,9 @@ export interface IEvent {
   payment_to_hostel: boolean;
   receive_payment_online?: boolean;
   event_recurring: boolean;
-  event_frequency?: Array<'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday' | number>;
+  event_frequency?: Array<
+    'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday' | number
+  >;
   attendees?: Types.ObjectId[];
   payment_methods: Array<'Card' | 'Cash'>;
   hostel_id?: Types.ObjectId;

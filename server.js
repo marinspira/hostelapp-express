@@ -9,14 +9,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
-import swaggerJsdoc from 'swagger-jsdoc';
-import openApiSpec from './swagger/index.js';
 import rateLimit from 'express-rate-limit';
 import { logAnalyzer } from 'api-traffic-analyzer';
 import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
 import Stripe from 'stripe';
 
+import openApiSpec from './swagger/index.js';
 import logger from './logs.js';
 import connectToMongoDB from './db/connectToMongoDB.js';
 import authRoutes from './src/routes/auth.routes.js';

@@ -1,5 +1,6 @@
 import { Document, Types } from 'mongoose';
 import type { Request } from 'express';
+
 import type { IUserDocument } from './user.ts';
 
 export interface IUser {

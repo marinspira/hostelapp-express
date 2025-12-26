@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { EventService } from './event.service';
+
 import { EventRepository } from '../../repositories/event.repository';
 import { HostelRepository } from '../../repositories/hostel.repository';
 // @ts-ignore
 import Hostel from '../../models/hostel.model';
 import Event from '../../models/event.model';
+
+import { EventService } from './event.service';
 
 let mongoServer: MongoMemoryServer;
 let service: EventService;

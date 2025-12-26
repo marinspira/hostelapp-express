@@ -1,7 +1,7 @@
-import { IEvent } from '.';
-
 import { User } from './user';
 import { Room } from './room';
+
+import { IEvent } from '.';
 
 interface _Bed {
   bed_number: string;

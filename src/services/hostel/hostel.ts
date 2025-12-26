@@ -8,23 +8,23 @@ export default class HostelService {
   }
 
   public async findHostelsByOwner(user: IUser) {
-      const hostel = await Hostel.findOne({ user_id_owners: user._id });
-      return hostel;
+    const hostel = await Hostel.findOne({ user_id_owners: user._id });
+    return hostel;
   }
 
-  async createHostel(hostelData: any) {
+  async createHostel(_hostelData: any) {
     // Create hostel logic
   }
 
-  async getHostelDetails(hostelId: string) {
+  async getHostelDetails(_hostelId: string) {
     // Fetch hostel details logic
   }
 
-    async updateHostelInfo(hostelId: string, updateData: any) {
+  async updateHostelInfo(_hostelId: string, _updateData: any) {
     // Update hostel information logic
   }
 
-    async deleteHostel(hostelId: string) {
+  async deleteHostel(_hostelId: string) {
     // Delete hostel logic
   }
 }

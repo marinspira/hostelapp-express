@@ -8,7 +8,7 @@ import type { IEventDocument } from '../models/event.model.ts';
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import type { AuthenticatedRequest } from '../interfaces/index.ts';
 import type { IEvent } from '../interfaces/event.ts';
-import type { IUser, IUserDocument } from '../interfaces/user.ts';
+import type { IUserDocument } from '../interfaces/user.ts';
 import type { BackendResponse } from '../interfaces/response.ts';
 import { formatPrice } from '../utils/formatPrice.ts';
 import { EventService } from '../services/event/event.service.ts';
@@ -41,10 +41,9 @@ export const createEvent = async (
   res: Response<BackendResponse<IEventDocument>>
 ) => {
   try {
-    
     const imagePaths = req.files ? req.files.map(file => getRelativeFilePath(req, file)) : [];
 
-    console.log("Rreq", req);
+    console.log('Rreq', req);
 
     const eventService = new EventService(new EventRepository(), new HostelRepository());
 
