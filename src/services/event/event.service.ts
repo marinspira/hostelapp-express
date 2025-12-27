@@ -28,6 +28,34 @@ export class EventService {
         ? JSON.parse(parsedEvent.address)
         : parsedEvent.address;
 
+    if (parsedEvent.name === undefined || parsedEvent.name === null) {
+      throw new Error('Event name is required');
+    }
+
+    if (parsedEvent.description === undefined || parsedEvent.description === null) {
+      throw new Error('Event description is required');
+    }
+
+    if (parsedEvent.hostel_location === undefined || parsedEvent.hostel_location === null) {
+      throw new Error('Hostel location flag is required');
+    }
+
+    if (parsedEvent.unlimited_spots === undefined || parsedEvent.unlimited_spots === null) {
+      throw new Error('Unlimited spots flag is required');
+    }
+
+    if (parsedEvent.free_entry === undefined || parsedEvent.free_entry === null) {
+      throw new Error('Free entry flag is required');
+    }
+
+    if (parsedEvent.event_recurring === undefined || parsedEvent.event_recurring === null) {
+      throw new Error('Event recurring flag is required');
+    }
+
+    if (!parsedEvent.payment_methods || !Array.isArray(parsedEvent.payment_methods)) {
+      throw new Error('Payment methods are required');
+    }
+
     if (
       parsedEvent.free_entry === false &&
       !parsedEvent.payment_to_hostel &&
@@ -40,7 +68,7 @@ export class EventService {
 
     if (
       (!parsedEvent.hostel_location && !parsedAddress) ||
-      (parsedEvent.hostel_location && parsedAddress)
+      (parsedEvent.hostel_location === true && parsedAddress)
     ) {
       throw new Error('Address only is required when hostel_location is false');
     }
@@ -54,29 +82,51 @@ export class EventService {
       );
     }
 
-    return this.eventRepo.create({
+    const eventData: any = {
       name: parsedEvent.name,
       description: parsedEvent.description,
       hostel_location: parsedEvent.hostel_location,
-      address: {
-        street: parsedAddress?.street,
-        city: parsedAddress?.city,
-        zip: parsedAddress?.zip,
-      },
       startDate: parsedEvent.startDate,
       endDate: parsedEvent.endDate,
-      photos_last_event: imagePaths,
+      photos_last_event: imagePaths || [],
       unlimited_spots: parsedEvent.unlimited_spots,
-      spots_available: parsedEvent.spots_available,
       free_entry: parsedEvent.free_entry,
-      price: parsedEvent.price,
-      payment_to_hostel: parsedEvent.payment_to_hostel,
-      receive_payment_online: parsedEvent.receive_payment_online,
       event_recurring: parsedEvent.event_recurring,
-      event_frequency: parsedEvent.event_frequency,
       payment_methods: parsedEvent.payment_methods,
       hostel_id: hostel._id,
       status: 'approved',
-    });
+    };
+
+    // Only add address if hostel_location is false
+    if (!parsedEvent.hostel_location && parsedAddress) {
+      eventData.address = {
+        street: parsedAddress.street,
+        city: parsedAddress.city,
+        zip: parsedAddress.zip,
+      };
+    }
+
+    // Only add spots_available if unlimited_spots is false
+    if (!parsedEvent.unlimited_spots) {
+      eventData.spots_available = parsedEvent.spots_available;
+    }
+
+    // Only add price if free_entry is false
+    if (!parsedEvent.free_entry) {
+      eventData.price = parsedEvent.price;
+      eventData.payment_to_hostel = parsedEvent.payment_to_hostel;
+    }
+
+    // Only add receive_payment_online if provided
+    if (parsedEvent.receive_payment_online !== undefined) {
+      eventData.receive_payment_online = parsedEvent.receive_payment_online;
+    }
+
+    // Only add event_frequency if event_recurring is true
+    if (parsedEvent.event_recurring && parsedEvent.event_frequency) {
+      eventData.event_frequency = parsedEvent.event_frequency;
+    }
+
+    return this.eventRepo.create(eventData);
   }
 }

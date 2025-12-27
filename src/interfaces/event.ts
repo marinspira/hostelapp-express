@@ -23,7 +23,7 @@ export interface IEvent {
     'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday' | number
   >;
   attendees?: Types.ObjectId[];
-  payment_methods: Array<'Card' | 'Cash'>;
+  payment_methods: Array<'card' | 'cash'>;
   hostel_id?: Types.ObjectId;
   suggested_by?: Types.ObjectId;
   status?: 'pending' | 'approved' | 'rejected';

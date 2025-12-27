@@ -28,7 +28,7 @@ interface UploadedFile {
 
 interface CreateEventRequest extends AuthenticatedRequest {
   body: {
-    event: IEvent;
+    event: string;
   };
   files: {
     map: (_callback: (_file: UploadedFile) => string) => string[];
@@ -43,8 +43,6 @@ export const createEvent = async (
   try {
     const imagePaths = req.files ? req.files.map(file => getRelativeFilePath(req, file)) : [];
 
-    console.log('Rreq', req);
-
     const eventService = new EventService(new EventRepository(), new HostelRepository());
 
     if (!req.user || !req.user._id) {
@@ -55,7 +53,10 @@ export const createEvent = async (
     }
     const userId = req.user._id.toString();
 
-    const event = await eventService.createEvent(userId, req.body.event, imagePaths);
+    const eventObject: IEvent =
+      typeof req.body.event === 'string' ? JSON.parse(req.body.event) : req.body.event;
+
+    const event = await eventService.createEvent(userId, eventObject, imagePaths);
 
     return res.status(201).json({
       success: true,
@@ -110,7 +111,8 @@ export const updateEvent = async (
     user_id_owners: user._id,
   });
 
-  const event: IEvent = req.body.event;
+  const event: IEvent =
+    typeof req.body.event === 'string' ? JSON.parse(req.body.event) : req.body.event;
 
   let parsedAddress;
   if (typeof event.address === 'string') {
