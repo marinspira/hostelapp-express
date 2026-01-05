@@ -23,10 +23,18 @@ export class EventService {
 
     const parsedEvent = typeof event === 'string' ? JSON.parse(event) : event;
 
-    const parsedAddress =
+    let parsedAddress =
       typeof parsedEvent.address === 'string'
         ? JSON.parse(parsedEvent.address)
         : parsedEvent.address;
+
+    if (!parsedAddress && parsedEvent.street && parsedEvent.city && parsedEvent.zip) {
+      parsedAddress = {
+        street: parsedEvent.street,
+        city: parsedEvent.city,
+        zip: parsedEvent.zip,
+      };
+    }
 
     if (parsedEvent.name === undefined || parsedEvent.name === null) {
       throw new Error('Event name is required');
@@ -50,10 +58,6 @@ export class EventService {
 
     if (parsedEvent.event_recurring === undefined || parsedEvent.event_recurring === null) {
       throw new Error('Event recurring flag is required');
-    }
-
-    if (!parsedEvent.payment_methods || !Array.isArray(parsedEvent.payment_methods)) {
-      throw new Error('Payment methods are required');
     }
 
     if (
