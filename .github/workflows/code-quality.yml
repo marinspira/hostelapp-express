@@ -1,0 +1,51 @@
+name: Backend Lint and Format Check
+
+on:
+  push:
+    branches: [ main, stage, master, production ]
+    paths:
+      - '**'
+  pull_request:
+    branches: [ main, stage, master, production ]
+    paths:
+      - '**'
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './package-lock.json'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint with auto-fix
+        run: npm run lint:fix
+      
+      - name: Run Prettier with auto-fix
+        run: npm run prettier:fix
+      
+      - name: Check for changes after auto-fix
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Did you forget Prettier?:"
+            git status --porcelain
+            echo ""
+            echo "Run 'npm run lint:fix && npm run prettier:fix' locally and commit the changes."
+            exit 1
+          else
+            echo "✅ All files are properly formatted!"
+          fi
