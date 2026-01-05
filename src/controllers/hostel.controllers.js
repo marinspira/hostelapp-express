@@ -10,7 +10,16 @@ import { ensureHostelGroupChat } from '../services/chat/groupChatManager.js';
 
 export const createHostel = async (req, res) => {
   const user = req.user;
-  const hostel = req.body.hostel;
+  const hostel =
+    typeof req.body.hostel === 'string' ? JSON.parse(req.body.hostel) : req.body.hostel;
+
+  if (!hostel || !hostel.name || hostel.name.trim() === '') {
+    return res.status(400).json({
+      message: 'Hostel name is required',
+      success: false,
+    });
+  }
+
   const imagePath = getRelativeFilePath(req, req.file);
 
   const existingHostel = await Hostel.findOne({ user_id_owners: user._id });
