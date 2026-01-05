@@ -9,7 +9,6 @@ import Hostel from '../../models/hostel.model.js';
  * @returns {Object} - Chat de grupo do hostel
  */
 export const ensureHostelGroupChat = async hostelId => {
-  
   try {
     // Busca o hostel com todos os guests
     const hostel = await Hostel.findById(hostelId);

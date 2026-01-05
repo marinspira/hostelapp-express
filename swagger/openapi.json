@@ -20,9 +20,7 @@
   "paths": {
     "/api/events/create": {
       "post": {
-        "tags": [
-          "Events"
-        ],
+        "tags": ["Events"],
         "summary": "Create a new event",
         "description": "Allows authenticated users who own a hostel to create events.",
         "requestBody": {
@@ -287,11 +285,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "approved",
-              "rejected"
-            ]
+            "enum": ["pending", "approved", "rejected"]
           },
           "created_at": {
             "type": "string",

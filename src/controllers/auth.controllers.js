@@ -352,7 +352,10 @@ export const sendEmailCode = async (req, res) => {
   const emailLowercase = email.toLowerCase();
 
   // Special case for testing emails (test@hostelapp.io and test+hostel{timestamp}@hostelapp.io)
-  if (emailLowercase === 'test@hostelapp.io' || /^test\+hostel\d+@hostelapp\.io$/.test(emailLowercase)) {
+  if (
+    emailLowercase === 'test@hostelapp.io' ||
+    /^test\+hostel\d+@hostelapp\.io$/.test(emailLowercase)
+  ) {
     const code = '120567';
     const codeHash = await bcrypt.hash(code, 10);
 
