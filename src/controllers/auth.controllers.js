@@ -47,6 +47,16 @@ export const localhostLogin = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user) {
+    // Validate role for existing user
+    if (user.role !== role) {
+      const currentRoleName = user.role === 'guest' ? 'guest' : 'host';
+      const attemptedRoleName = role === 'guest' ? 'guest' : 'host';
+
+      return res.status(400).json({
+        error: `This email is already registered as a ${currentRoleName}. Please login as a ${currentRoleName} or use a different email to create a ${attemptedRoleName} account.`,
+      });
+    }
+
     const token = generateTokenAndSetCookie(user._id, res);
 
     user.sessionToken = token;
@@ -118,6 +128,16 @@ export const googleLogin = async (req, res) => {
 
   // Existing user logic
   if (user) {
+    // Validate role for existing user
+    if (user.role !== role) {
+      const currentRoleName = user.role === 'guest' ? 'guest' : 'host';
+      const attemptedRoleName = role === 'guest' ? 'guest' : 'host';
+
+      return res.status(400).json({
+        error: `This email is already registered as a ${currentRoleName}. Please login as a ${currentRoleName} or use a different email to create a ${attemptedRoleName} account.`,
+      });
+    }
+
     // Validate Google and Apple IDs
     if (user.googleId && user.googleId !== userInfo.id) {
       return res.status(400).json({ error: 'Invalid token' });
@@ -213,6 +233,16 @@ export const appleLogin = async (req, res) => {
 
   // Login if user already exists
   if (user) {
+    // Validate role for existing user
+    if (user.role !== role) {
+      const currentRoleName = user.role === 'guest' ? 'guest' : 'host';
+      const attemptedRoleName = role === 'guest' ? 'guest' : 'host';
+
+      return res.status(400).json({
+        error: `This email is already registered as a ${currentRoleName}. Please login as a ${currentRoleName} or use a different email to create a ${attemptedRoleName} account.`,
+      });
+    }
+
     // If the email exists but the appleId does not match
     if (user.appleId && user.appleId !== appleId) {
       return res.status(400).json({ error: 'Invalid token' });
@@ -346,10 +376,22 @@ export const logout = async (req, res) => {
 };
 
 export const sendEmailCode = async (req, res) => {
-  const { email } = req.body;
+  const { email, role } = req.body;
   if (!email) return res.status(400).json({ message: 'Missing email', success: false });
 
   const emailLowercase = email.toLowerCase();
+
+  // Check if user exists and validate role
+  const existingUser = await User.findOne({ email: emailLowercase });
+  if (existingUser && role && existingUser.role !== role) {
+    const currentRoleName = existingUser.role === 'guest' ? 'guest' : 'host';
+    const attemptedRoleName = role === 'guest' ? 'guest' : 'host';
+
+    return res.status(400).json({
+      success: false,
+      message: `This email is already registered as a ${currentRoleName}. Please login as a ${currentRoleName} or use a different email to create a ${attemptedRoleName} account.`,
+    });
+  }
 
   // Special case for testing emails (test@hostelapp.io and test+hostel{timestamp}@hostelapp.io)
   if (
@@ -441,6 +483,17 @@ export const verifyEmailCode = async (req, res) => {
       }
     } catch (error) {
       console.error('Error adding new user to HostelApp:', error);
+    }
+  } else {
+    // Validate role for existing user
+    if (user.role !== role) {
+      const currentRoleName = user.role === 'guest' ? 'guest' : 'host';
+      const attemptedRoleName = role === 'guest' ? 'guest' : 'host';
+
+      return res.status(400).json({
+        success: false,
+        message: `This email is already registered as a ${currentRoleName}. Please login as a ${currentRoleName} or use a different email to create a ${attemptedRoleName} account.`,
+      });
     }
   }
 
