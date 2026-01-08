@@ -1,5 +1,4 @@
 import type { Response } from 'express';
-
 // @ts-ignore
 import Hostel from '../models/hostel.model.js';
 import Event from '../models/event.model.ts';
@@ -15,7 +14,7 @@ import { EventService } from '../services/event/event.service.ts';
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 
-interface UploadedFile {
+export interface UploadedFile {
   fieldname: string;
   originalname: string;
   encoding: string;

@@ -1,18 +1,14 @@
-import { Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
 export interface IUser {
   role: string;
   name: string;
   email: string;
-  isNewUser: string;
+  isNewUser: boolean;
 }
 
-export interface IUserDocument {
-  _id?: Types.ObjectId;
-  role: string;
-  name: string;
-  email: string;
-  isNewUser: string;
+export interface IUserDocument extends IUser, Document {
+  _id: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
