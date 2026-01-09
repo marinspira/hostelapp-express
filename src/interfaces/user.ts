@@ -9,6 +9,7 @@ export interface IUser {
 
 export interface IUserDocument extends IUser, Document {
   _id: Types.ObjectId;
+  sessionToken: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Model } from 'mongoose';
+
 import type { IGuestDocument } from '../interfaces/guest';
 
 export type IGuestModel = Model<IGuestDocument>;

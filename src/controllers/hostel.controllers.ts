@@ -54,8 +54,8 @@ export const createHostel = async (req, res) => {
     });
     await newHostel.save();
 
-    user.isNewUser = false;
-    await user.save();
+    User.isNewUser = false;
+    await User.save();
 
     await ensureHostelGroupChat(newHostel._id);
 

@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
 export interface IEvent {
   name: string;
@@ -27,4 +27,9 @@ export interface IEvent {
   hostel_id?: Types.ObjectId;
   suggested_by?: Types.ObjectId;
   status?: 'pending' | 'approved' | 'rejected';
+}
+
+export interface IEventDocument extends IEvent, Document {
+  _id: mongoose.Types.ObjectId;
+  created_at: Date;
 }

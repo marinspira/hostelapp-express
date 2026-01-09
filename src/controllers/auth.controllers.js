@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+
 import User from '../models/user.model.js';
 import generateTokenAndSetCookie from '../utils/generateToken.js';
 import Hostel from '../models/hostel.model.js';

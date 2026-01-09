@@ -1,5 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+
+// @ts-ignore
+import type { Response } from 'express';
+
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 // @ts-ignore
@@ -9,13 +13,13 @@ import User from '../models/user.model.js';
 // @ts-ignore
 import Reservation from '../models/reservation.model.js';
 import { AuthenticatedRequest } from '../interfaces/index.js';
-import { UploadedFile } from './events.controllers.js';
 import { IUserDocument } from '../interfaces/user.js';
-import type { Response } from 'express';
 // @ts-ignore
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 import { BackendResponse } from '../interfaces/response.js';
 import { IGuestDocument } from '../interfaces/guest.js';
+
+import { UploadedFile } from './events.controllers.js';
 
 interface CreateGuestRequest extends AuthenticatedRequest {
   body: {
@@ -25,7 +29,10 @@ interface CreateGuestRequest extends AuthenticatedRequest {
   user: IUserDocument;
 }
 
-export const saveGuest = async (req: CreateGuestRequest, res: Response<BackendResponse<IGuestDocument>>) => {
+export const saveGuest = async (
+  req: CreateGuestRequest,
+  res: Response<BackendResponse<IGuestDocument>>
+) => {
   const user = req.user;
   const guest = typeof req.body.guest === 'string' ? JSON.parse(req.body.guest) : req.body.guest;
 
@@ -131,10 +138,24 @@ export const updateGuest = async (req: UpdateGuestRequest, res: Response<Backend
 
   // Type-safe property updates
   const allowedFields = [
-    'name', 'username', 'profile', 'guestPhotos', 'phone', 'birthday', 
-    'country', 'passaportPhoto', 'interests', 'description', 'languages', 
-    'digitalNomad', 'smoker', 'pets', 'instagram', 'linkedin', 'twitter', 
-    'showProfileAuthorization'
+    'name',
+    'username',
+    'profile',
+    'guestPhotos',
+    'phone',
+    'birthday',
+    'country',
+    'passaportPhoto',
+    'interests',
+    'description',
+    'languages',
+    'digitalNomad',
+    'smoker',
+    'pets',
+    'instagram',
+    'linkedin',
+    'twitter',
+    'showProfileAuthorization',
   ];
 
   Object.keys(guestData).forEach(key => {
@@ -258,7 +279,10 @@ interface SaveGuestProfileImagesRequest extends AuthenticatedRequest {
   file: UploadedFile;
 }
 
-export const saveGuestProfileImages = async (req: SaveGuestProfileImagesRequest, res: Response<BackendResponse<any>>) => {
+export const saveGuestProfileImages = async (
+  req: SaveGuestProfileImagesRequest,
+  res: Response<BackendResponse<any>>
+) => {
   const { imageId } = req.body;
   const imagePath = getRelativeFilePath(req, req.file);
 
@@ -302,9 +326,9 @@ export const saveGuestProfileImages = async (req: SaveGuestProfileImagesRequest,
       },
     });
   } else {
-    return res.status(400).json({ 
+    return res.status(400).json({
       message: 'Error saving guest',
-      success: false 
+      success: false,
     });
   }
 };
@@ -315,7 +339,10 @@ interface DeleteGuestProfileImageRequest extends AuthenticatedRequest {
   };
 }
 
-export const deleteGuestProfileImage = async (req: DeleteGuestProfileImageRequest, res: Response<BackendResponse<any>>) => {
+export const deleteGuestProfileImage = async (
+  req: DeleteGuestProfileImageRequest,
+  res: Response<BackendResponse<any>>
+) => {
   const { imageId } = req.body;
   const user = req.user;
   const guest = await Guest.findOne({ user: user._id });
@@ -358,9 +385,9 @@ export const deleteGuestProfileImage = async (req: DeleteGuestProfileImageReques
     });
   }
 
-  return res.status(404).json({ 
+  return res.status(404).json({
     message: 'Image not found.',
-    success: false 
+    success: false,
   });
 };
 
@@ -429,7 +456,10 @@ export const getHome = async (req: AuthenticatedRequest, res: Response<BackendRe
   });
 };
 
-export const getCurrentStay = async (req: AuthenticatedRequest, res: Response<BackendResponse<any>>) => {
+export const getCurrentStay = async (
+  req: AuthenticatedRequest,
+  res: Response<BackendResponse<any>>
+) => {
   try {
     const user = req.user;
     const guest = await Guest.findOne({ user: user._id });
@@ -477,7 +507,9 @@ export const getCurrentStay = async (req: AuthenticatedRequest, res: Response<Ba
       checkinDate: reservation.checkin_date,
       checkoutDate: reservation.checkout_date,
       status: reservation.status,
-      daysRemaining: Math.ceil((new Date(reservation.checkout_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+      daysRemaining: Math.ceil(
+        (new Date(reservation.checkout_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      ),
     }));
 
     return res.status(200).json({

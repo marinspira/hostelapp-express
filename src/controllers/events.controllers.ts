@@ -1,8 +1,9 @@
 import type { Response } from 'express';
+
 // @ts-ignore
 import Hostel from '../models/hostel.model.js';
 import Event from '../models/event.model.ts';
-import type { IEventDocument } from '../models/event.model.ts';
+import type { IEventDocument } from '../interfaces/event.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import type { AuthenticatedRequest } from '../interfaces/index.ts';

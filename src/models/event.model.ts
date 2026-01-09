@@ -1,11 +1,6 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 
-import type { IEvent } from '../interfaces/event';
-
-export interface IEventDocument extends IEvent, Document {
-  _id: mongoose.Types.ObjectId;
-  created_at: Date;
-}
+import type { IEventDocument } from '../interfaces/event';
 
 export type IEventModel = Model<IEventDocument>;
 

@@ -1,10 +1,11 @@
-import mongoose, { Document } from "mongoose";
-import { IUserDocument } from "./user";
+import mongoose, { Document } from 'mongoose';
+
+import { IUserDocument } from './user';
 
 export interface IGuest {
-  name: string,
-  username: string,
-  profile: string,
+  name: string;
+  username: string;
+  profile: string;
   guestPhotos: string[];
   phone: string;
   birthday: Date;
