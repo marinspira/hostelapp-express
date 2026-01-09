@@ -7,19 +7,19 @@ import type { Response } from 'express';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 // @ts-ignore
-import Guest from '../models/guest.model.js';
+import Guest from '../models/guest.model.ts';
 // @ts-ignore
-import User from '../models/user.model.js';
+import User from '../models/user.model.ts';
 // @ts-ignore
-import Reservation from '../models/reservation.model.js';
-import { AuthenticatedRequest } from '../interfaces/index.js';
-import { IUserDocument } from '../interfaces/user.js';
+import Reservation from '../models/reservation.model.ts';
+import { AuthenticatedRequest } from '../interfaces/index.ts';
+import { IUserDocument } from '../interfaces/user.ts';
 // @ts-ignore
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
-import { BackendResponse } from '../interfaces/response.js';
-import { IGuestDocument } from '../interfaces/guest.js';
+import { BackendResponse } from '../interfaces/response.ts';
+import { IGuestDocument } from '../interfaces/guest.ts';
 
-import { UploadedFile } from './events.controllers.js';
+import { UploadedFile } from './events.controllers.ts';
 
 interface CreateGuestRequest extends AuthenticatedRequest {
   body: {

@@ -1,7 +1,6 @@
-import type { IEventDocument } from '../../models/event.model.ts';
 import { EventRepository } from '../../repositories/event.repository.ts';
 import { HostelRepository } from '../../repositories/hostel.repository.ts';
-import type { IEvent } from '../../interfaces/event.ts';
+import type { IEvent, IEventDocument } from '../../interfaces/event.ts';
 
 export class EventService {
   private readonly eventRepo: EventRepository;

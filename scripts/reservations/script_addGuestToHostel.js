@@ -13,11 +13,11 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import User from '../../src/models/user.model.js';
-import Guest from '../../src/models/guest.model.js';
-import Hostel from '../../src/models/hostel.model.js';
-import Reservation from '../../src/models/reservation.model.js';
-import Room from '../../src/models/room.model.js';
+import User from '../../src/models/user.model.ts';
+import Guest from '../../src/models/guest.model.ts';
+import Hostel from '../../src/models/hostel.model.ts';
+import Reservation from '../../src/models/reservation.model.ts';
+import Room from '../../src/models/room.model.ts';
 import { addGuestToHostelGroup } from '../../services/chat/groupChatManager.js';
 
 dotenv.config();

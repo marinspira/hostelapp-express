@@ -1,6 +1,5 @@
 import mongoose, { Schema, Model } from 'mongoose';
-
-import { IUserDocument } from '../interfaces/user';
+import { IUserDocument } from '../interfaces/user.ts';
 
 export type IUserModel = Model<IUserDocument>;
 

@@ -4,6 +4,7 @@ import protectRoute from '../middleware/protectRoute.js';
 import {
   createEvent,
   getAllEvents,
+  getPublicEvents,
   updateEvent,
   deleteEvent,
 } from '../controllers/events.controllers.ts';
@@ -17,6 +18,8 @@ router.post('/create', protectRoute, upload.array('images', 4), catchAsync(creat
 router.put('/update/:id', protectRoute, upload.array('images', 4), catchAsync(updateEvent));
 
 router.delete('/delete/:id', protectRoute, catchAsync(deleteEvent));
+
+router.get('/public', protectRoute, catchAsync(getPublicEvents));
 
 router.get('/:hostelId', protectRoute, catchAsync(getAllEvents));
 

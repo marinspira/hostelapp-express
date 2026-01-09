@@ -19,7 +19,7 @@ import openApiSpec from './swagger/index.js';
 import logger from './logs.js';
 import connectToMongoDB from './db/connectToMongoDB.js';
 import authRoutes from './src/routes/auth.routes.js';
-import guestRoutes from './src/routes/guest.routes.js';
+import guestRoutes from './src/routes/guest.routes.ts';
 import hostelRoutes from './src/routes/hostel.routes.js';
 import roomRoutes from './src/routes/room.routes.js';
 import reservationRoutes from './src/routes/reservation.routes.js';

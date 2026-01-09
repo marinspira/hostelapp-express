@@ -1,7 +1,6 @@
 import type { Response } from 'express';
-
 // @ts-ignore
-import Hostel from '../models/hostel.model.js';
+import Hostel from '../models/hostel.model.ts';
 import Event from '../models/event.model.ts';
 import type { IEventDocument } from '../interfaces/event.ts';
 // @ts-ignore
@@ -224,4 +223,64 @@ export const deleteEvent = async (
     message: 'Event deleted successfully',
     data: null,
   });
+};
+
+export const getPublicEvents = async (
+  req: AuthenticatedRequest & { query: { latitude?: string; longitude?: string } },
+  res: Response<BackendResponse<IEventDocument[]>>
+): Promise<Response<BackendResponse<IEventDocument[]>>> => {
+  try {
+    const { latitude, longitude } = req.query;
+    let city = '';
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+      );
+
+      if (!response.ok) {
+        throw new Error('Geocoding service failed');
+      }
+
+      const data = (await response.json()) as {
+        address?: { city?: string; town?: string; village?: string; municipality?: string };
+      };
+
+      city =
+        (data.address?.city as string) ||
+        (data.address?.town as string) ||
+        (data.address?.village as string) ||
+        (data.address?.municipality as string);
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Error with geocoding service',
+      });
+    }
+
+    const query: any = {
+      $or: [
+        {
+          open_to_public: true,
+          'address.city': { $regex: new RegExp(city, 'i') },
+        },
+      ],
+    };
+    const events: IEventDocument[] = await Event.find(query);
+
+    const formattedEvents = events.map(event => ({
+      ...event.toObject(),
+      price: formatPrice(event.price),
+    }));
+
+    return res.status(200).json({
+      message: 'Public events retrieved successfully',
+      success: true,
+      data: formattedEvents,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error',
+    });
+  }
 };

@@ -13,6 +13,10 @@ const EventSchema = new Schema<IEventDocument>({
     type: String,
     required: true,
   },
+  open_to_public: {
+    type: Boolean,
+    required: true,
+  },
   hostel_location: {
     type: Boolean,
     required: true,

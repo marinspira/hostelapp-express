@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-import Hostel from '../models/hostel.model.js';
-import Reservation from '../models/reservation.model.js';
-import Room from '../models/room.model.js';
+import Hostel from '../models/hostel.model.ts';
+import Reservation from '../models/reservation.model.ts';
+import Room from '../models/room.model.ts';
 
 export const createRoom = async (req, res) => {
   const user = req.user;

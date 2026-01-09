@@ -69,7 +69,7 @@ import mongoose from 'mongoose';
 
 import { addGuestToHostelGroup } from '../services/chat/groupChatManager.js';
 
-import Guest from './guest.model.js';
+import Guest from './guest.model.ts';
 
 const ReservationSchema = new mongoose.Schema(
   {

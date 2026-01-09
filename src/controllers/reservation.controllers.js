@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-import Hostel from '../models/hostel.model.js';
-import Reservation from '../models/reservation.model.js';
-import Room from '../models/room.model.js';
-import Guest from '../models/guest.model.js';
+import Hostel from '../models/hostel.model.ts';
+import Reservation from '../models/reservation.model.ts';
+import Room from '../models/room.model.ts';
+import Guest from '../models/guest.model.ts';
 import { addGuestToHostelGroup } from '../services/chat/groupChatManager.js';
 
 export const createReservation = async (req, res) => {

@@ -1,9 +1,9 @@
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import Event from '../models/event.model.ts';
-import Guest from '../models/guest.model.js';
-import Hostel from '../models/hostel.model.js';
-import Room from '../models/room.model.js';
-import User from '../models/user.model.js';
+import Guest from '../models/guest.model.ts';
+import Hostel from '../models/hostel.model.ts';
+import Room from '../models/room.model.ts';
+import User from '../models/user.model.ts';
 import countries from '../utils/coutries.js';
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 import { ensureHostelGroupChat } from '../services/chat/groupChatManager.js';

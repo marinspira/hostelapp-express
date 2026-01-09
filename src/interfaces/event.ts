@@ -3,6 +3,7 @@ import mongoose, { Document, Types } from 'mongoose';
 export interface IEvent {
   name: string;
   description: string;
+  open_to_public: boolean;
   hostel_location: boolean;
   address?: {
     street?: string;

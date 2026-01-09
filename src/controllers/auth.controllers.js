@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 
-import User from '../models/user.model.js';
+import User from '../models/user.model.ts';
 import generateTokenAndSetCookie from '../utils/generateToken.js';
-import Hostel from '../models/hostel.model.js';
+import Hostel from '../models/hostel.model.ts';
 import Guest from '../models/guest.model.ts';
-import EmailCode from '../models/emailCode.model.js';
+import EmailCode from '../models/emailCode.model.ts';
 import sendEmail from '../services/auth/sendEmail.js';
 import { initiateHostelGuestChat } from '../services/chat/privateChatManager.js';
 

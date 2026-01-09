@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-import Chat from '../../models/chat.model.js';
-import Hostel from '../../models/hostel.model.js';
-import User from '../../models/user.model.js';
+import Chat from '../../models/chat.model.ts';
+import Hostel from '../../models/hostel.model.ts';
+import User from '../../models/user.model.ts';
 
 /**
  * Inicia uma conversa privada entre um hostel e um guest

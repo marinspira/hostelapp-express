@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 
-import { IUserDocument } from './user';
+import { IUserDocument } from './user.ts';
 
 export interface IGuest {
   name: string;

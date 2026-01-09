@@ -16,9 +16,9 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import User from '../../src/models/user.model.js';
-import Guest from '../../src/models/guest.model.js';
-import Reservation from '../../src/models/reservation.model.js';
+import User from '../../src/models/user.model.ts';
+import Guest from '../../src/models/guest.model.ts';
+import Reservation from '../../src/models/reservation.model.ts';
 
 // Carrega as variáveis de ambiente
 dotenv.config();

@@ -1,4 +1,4 @@
-import Hostel from '../models/hostel.model.js';
+import Hostel from '../models/hostel.model.ts';
 import Guest from '../models/guest.model.ts';
 
 const generateUniqueUsername = async name => {

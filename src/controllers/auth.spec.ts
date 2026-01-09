@@ -4,9 +4,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 // @ts-ignore
 import { sendEmailCode, verifyEmailCode } from './auth.controllers.js';
 // @ts-ignore
-import User from '../models/user.model.js';
+import User from '../models/user.model.ts';
 // @ts-ignore
-import EmailCode from '../models/emailCode.model.js';
+import EmailCode from '../models/emailCode.model.ts';
 // mocks
 jest.mock('../services/auth/sendEmail.js', () => jest.fn());
 jest.mock('../utils/generateToken.js', () => jest.fn(() => 'fake-session-token'));
