@@ -35,6 +35,9 @@ const EventSchema = new Schema<IEventDocument>({
     zip: {
       type: String,
     },
+    country: {
+      type: String,
+    },
   },
   startDate: {
     type: Date,

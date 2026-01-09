@@ -8,6 +8,7 @@ export interface IEvent {
   address?: {
     street?: string;
     city?: string;
+    country?: string;
     zip?: string;
   };
   startDate: Date;

@@ -226,46 +226,42 @@ export const deleteEvent = async (
 };
 
 export const getPublicEvents = async (
-  req: AuthenticatedRequest & { query: { latitude?: string; longitude?: string } },
+  req: AuthenticatedRequest & { query: { city?: string; country?: string } },
   res: Response<BackendResponse<IEventDocument[]>>
 ): Promise<Response<BackendResponse<IEventDocument[]>>> => {
   try {
-    const { latitude, longitude } = req.query;
-    let city = '';
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
-      );
-
-      if (!response.ok) {
-        throw new Error('Geocoding service failed');
-      }
-
-      const data = (await response.json()) as {
-        address?: { city?: string; town?: string; village?: string; municipality?: string };
-      };
-
-      city =
-        (data.address?.city as string) ||
-        (data.address?.town as string) ||
-        (data.address?.village as string) ||
-        (data.address?.municipality as string);
-    } catch (error) {
-      return res.status(500).json({
+    const { city, country } = req.query;
+    
+    if (!city || !country) {
+      return res.status(400).json({
         success: false,
-        message: 'Error with geocoding service',
+        message: 'City and country parameters are required',
       });
     }
 
+    const hostelsInLocation = await Hostel.find({
+      'address.city': { $regex: new RegExp(city, 'i') },
+      'address.country': { $regex: new RegExp(country, 'i') },
+    }).select('_id');
+
+    const hostelIds = hostelsInLocation.map(hostel => hostel._id);
+
     const query: any = {
+      open_to_public: true,
       $or: [
         {
-          open_to_public: true,
+          hostel_location: false,
           'address.city': { $regex: new RegExp(city, 'i') },
+          'address.country': { $regex: new RegExp(country, 'i') },
+        },
+        {
+          hostel_location: true,
+          hostel_id: { $in: hostelIds },
         },
       ],
     };
-    const events: IEventDocument[] = await Event.find(query);
+
+    const events: IEventDocument[] = await Event.find(query).populate('hostel_id', 'name address');
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),

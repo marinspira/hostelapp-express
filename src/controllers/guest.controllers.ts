@@ -404,7 +404,10 @@ export const getHome = async (req: AuthenticatedRequest, res: Response<BackendRe
 
   const reservations = await Reservation.find({
     user_id_guest: user._id,
-  }).populate('hostel_id');
+  }).populate({
+    path: 'hostel_id',
+    select: 'name logo _id',
+  });
 
   const now = new Date();
 
@@ -430,12 +433,12 @@ export const getHome = async (req: AuthenticatedRequest, res: Response<BackendRe
 
   return res.status(200).json({
     success: true,
-    message: 'Current reservation found',
+    message: 'Current reservation retrieved successfully',
     data: {
       hostel: {
-        id: currentReservation.hostel_id?._id || '',
-        img: currentReservation.hostel_id?.logo || '',
-        name: currentReservation.hostel_id?.name || '',
+        id: (currentReservation.hostel_id as any)?._id,
+        img: (currentReservation.hostel_id as any)?.logo || '',
+        name: (currentReservation.hostel_id as any)?.name || '',
       },
       reservation: {
         id: currentReservation._id,
@@ -460,6 +463,7 @@ export const getCurrentStay = async (
   req: AuthenticatedRequest,
   res: Response<BackendResponse<any>>
 ) => {
+  console.log('Getting current stay for guest...');
   try {
     const user = req.user;
     const guest = await Guest.findOne({ user: user._id });
@@ -480,6 +484,8 @@ export const getCurrentStay = async (
       checkout_date: { $gt: now },
       status: { $in: ['walking in', 'in house'] },
     }).populate('hostel_id');
+
+    console.log('Active reservations found:', activeReservations);
 
     if (activeReservations.length === 0) {
       return res.status(200).json({
