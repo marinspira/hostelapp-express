@@ -96,6 +96,7 @@ export class EventService {
       free_entry: parsedEvent.free_entry,
       event_recurring: parsedEvent.event_recurring,
       payment_methods: parsedEvent.payment_methods,
+      open_to_public: parsedEvent.open_to_public,
       hostel_id: hostel._id,
       status: 'approved',
     };
