@@ -106,8 +106,8 @@ export const verifyEmailCode = async (req, res) => {
       const hostelAppId = process.env.HOSTELAPP_OBJECT_ID;
       const hostel = await Hostel.findById(hostelAppId);
 
-      // Add to HostelApp as guets
-      if (!hostel.user_id_guests.includes(user._id)) {
+      // Add to HostelApp as guests
+      if (hostel && !hostel.user_id_guests.includes(user._id)) {
         hostel.user_id_guests.push(user._id);
         await hostel.save();
 

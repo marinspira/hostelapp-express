@@ -3,9 +3,7 @@ import bcrypt from 'bcrypt';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 // @ts-ignore
 import { sendEmailCode, verifyEmailCode } from './auth.controllers.js';
-// @ts-ignore
 import User from '../models/user.model.ts';
-// @ts-ignore
 import EmailCode from '../models/emailCode.model.ts';
 // mocks
 jest.mock('../services/auth/sendEmail.js', () => jest.fn());

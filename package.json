@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "start:ts": "node --import=\"data:text/javascript,import { register } from 'node:module'; import { pathToFileURL } from 'node:url'; register('ts-node/esm', pathToFileURL('./'));\" server.js",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest  --passWithNoTests",
+    "test": "npx jest",
     "dev": "nodemon server.js",
     "dev:ts": "nodemon --exec \"node --import='data:text/javascript,import { register } from \\\"node:module\\\"; import { pathToFileURL } from \\\"node:url\\\"; register(\\\"ts-node/esm\\\", pathToFileURL(\\\"./\\\"));'\" server.js",
     "analyzer": "node ./node_modules/api-traffic-analyzer/dist/cli.js logs/users.log",

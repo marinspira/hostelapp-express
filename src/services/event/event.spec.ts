@@ -1,13 +1,11 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-
 import { EventRepository } from '../../repositories/event.repository';
 import { HostelRepository } from '../../repositories/hostel.repository';
-// @ts-ignore
 import Hostel from '../../models/hostel.model';
 import Event from '../../models/event.model';
-
 import { EventService } from './event.service';
+import { open } from 'fs';
 
 let mongoServer: MongoMemoryServer;
 let service: EventService;
@@ -45,6 +43,7 @@ beforeEach(async () => {
     },
     email: 'test@hostel.com',
     user_id_owners: [userId],
+    user_id_guests: [],
     username: 'testhostel',
   });
   hostel = newHostel;
@@ -68,6 +67,7 @@ describe('EventService createEvent', () => {
         name: 'Party',
         description: 'Fun party',
         hostel_location: true,
+        open_to_public: false,
         unlimited_spots: true,
         free_entry: true,
         event_recurring: false,
@@ -89,6 +89,7 @@ describe('EventService createEvent', () => {
         description: 'Live concert',
         hostel_location: false,
         address: { street: 'Main', city: 'Lisbon', zip: '1000' },
+        open_to_public: true,
         unlimited_spots: false,
         spots_available: 50,
         free_entry: true,
@@ -116,6 +117,7 @@ describe('EventService createEvent', () => {
         street: 'Code St',
         city: 'Tech City',
         zip: '2000',
+        open_to_public: true,
         unlimited_spots: false,
         spots_available: 30,
         free_entry: false,

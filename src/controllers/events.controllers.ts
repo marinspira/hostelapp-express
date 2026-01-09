@@ -1,4 +1,5 @@
 import type { Response } from 'express';
+
 // @ts-ignore
 import Hostel from '../models/hostel.model.ts';
 import Event from '../models/event.model.ts';
@@ -231,7 +232,7 @@ export const getPublicEvents = async (
 ): Promise<Response<BackendResponse<IEventDocument[]>>> => {
   try {
     const { city, country } = req.query;
-    
+
     if (!city || !country) {
       return res.status(400).json({
         success: false,
