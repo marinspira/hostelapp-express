@@ -2,6 +2,7 @@ import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import Event from '../models/event.model.ts';
 import Guest from '../models/guest.model.ts';
 import Hostel from '../models/hostel.model.ts';
+import Reservation from '../models/reservation.model.ts';
 import Room from '../models/room.model.ts';
 import User from '../models/user.model.ts';
 import countries from '../utils/coutries.js';
@@ -96,28 +97,49 @@ export const getAllGuests = async (req, res) => {
     });
   }
 
-  const user_id_guests = existingHostel.user_id_guests || [];
+  // Get current reservations (in house status)
+  const currentReservations = await Reservation.find({
+    hostel_id: existingHostel._id,
+    status: 'in house'
+  }).populate({
+    path: 'user_id_guest',
+    select: 'email'
+  });
 
-  if (!user_id_guests.length) {
+  if (!currentReservations.length) {
     return res.status(200).json({
-      message: 'No guests found',
+      message: 'No current guests found',
       success: true,
       data: [],
     });
   }
 
-  const filteredGuestsData = await Guest.find({ user: { $in: user_id_guests } })
-    .select('guestPhotos user')
+  // Get guest details for current reservations
+  const guestUserIds = currentReservations.map(reservation => reservation.user_id_guest._id);
+  
+  const guestsData = await Guest.find({ user: { $in: guestUserIds } })
     .populate({
       path: 'user',
-      select: 'name',
+      select: 'email'
     });
 
-  const guests = filteredGuestsData.map(guest => ({
-    userId: guest.user._id,
-    name: guest.user.name,
-    firstPhoto: guest.guestPhotos?.[0] || null,
-  }));
+  const guests = currentReservations.map(reservation => {
+    const guestData = guestsData.find(guest => 
+      guest.user._id.toString() === reservation.user_id_guest._id.toString()
+    );
+    
+    return {
+      userId: reservation.user_id_guest._id,
+      name: guestData?.name || 'Unknown',
+      email: reservation.user_id_guest.email,
+      firstPhoto: guestData?.guestPhotos?.[0] || null,
+      roomNumber: reservation.room_number,
+      bedNumber: reservation.bed_number,
+      checkinDate: reservation.checkin_date,
+      checkoutDate: reservation.checkout_date,
+      reservationId: reservation._id
+    };
+  });
 
   return res.status(200).json({
     message: 'Guests',

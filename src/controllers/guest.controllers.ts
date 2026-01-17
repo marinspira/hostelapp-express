@@ -20,6 +20,7 @@ import { BackendResponse } from '../interfaces/response.ts';
 import { IGuestDocument } from '../interfaces/guest.ts';
 
 import { UploadedFile } from './events.controllers.ts';
+import Hostel from '../models/hostel.model.ts';
 
 interface CreateGuestRequest extends AuthenticatedRequest {
   body: {
@@ -209,6 +210,16 @@ interface SearchGuestRequest extends AuthenticatedRequest {
 
 export const searchGuest = async (req: SearchGuestRequest, res: Response<BackendResponse<any>>) => {
   const { username } = req.params;
+  const user = req.user;
+  const currentHostel = await Hostel.findOne({ user_id_owners: user._id });
+  
+  if (!currentHostel) {
+    return res.status(400).json({
+      success: false,
+      message: 'Hostel not found for this user',
+      data: [],
+    });
+  }
 
   // Find users by email (case-insensitive)
   const usersWithEmailMatch = await User.find({
@@ -229,12 +240,20 @@ export const searchGuest = async (req: SearchGuestRequest, res: Response<Backend
     const guest = await Guest.findOne({ user: user._id });
 
     if (guest) {
+      // Verificar se o guest está hospedado no hostel atual
+      const currentReservation = await Reservation.findOne({
+        user_id_guest: user._id,
+        hostel_id: currentHostel._id,
+        status: 'in house'
+      });
+
       guests.push({
         user_id_guest: user._id,
         name: guest.name,
         email: user.email,
         image: guest.guestPhotos?.[0] || null,
         username: guest.username,
+        isInHouse: !!currentReservation,
       });
     }
   }
@@ -246,12 +265,19 @@ export const searchGuest = async (req: SearchGuestRequest, res: Response<Backend
       const populatedUser = guest.user as unknown as IUserDocument;
       // Avoid duplicates if already added via user email
       if (!guests.some(g => g.user_id_guest.toString() === populatedUser._id.toString())) {
+        const currentReservation = await Reservation.findOne({
+          user_id_guest: populatedUser._id,
+          hostel_id: currentHostel._id,
+          status: 'in house'
+        });
+
         guests.push({
           user_id_guest: populatedUser._id,
           name: guest.name,
           email: populatedUser.email,
           image: guest.guestPhotos?.[0] || null,
           username: guest.username,
+          isInHouse: !!currentReservation,
         });
       }
     }
