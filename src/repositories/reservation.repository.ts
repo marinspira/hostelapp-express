@@ -27,9 +27,9 @@ export class ReservationRepository {
   }
 
   findActiveByGuestId(guestId: string): Promise<IReservationDocument | null> {
-    return Reservation.findOne({ 
-      user_id_guest: guestId, 
-      status: 'in house' 
+    return Reservation.findOne({
+      user_id_guest: guestId,
+      status: 'in house',
     });
   }
 }

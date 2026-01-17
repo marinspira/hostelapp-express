@@ -18,9 +18,9 @@ import { IUserDocument } from '../interfaces/user.ts';
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 import { BackendResponse } from '../interfaces/response.ts';
 import { IGuestDocument } from '../interfaces/guest.ts';
+import Hostel from '../models/hostel.model.ts';
 
 import { UploadedFile } from './events.controllers.ts';
-import Hostel from '../models/hostel.model.ts';
 
 interface CreateGuestRequest extends AuthenticatedRequest {
   body: {
@@ -212,7 +212,7 @@ export const searchGuest = async (req: SearchGuestRequest, res: Response<Backend
   const { username } = req.params;
   const user = req.user;
   const currentHostel = await Hostel.findOne({ user_id_owners: user._id });
-  
+
   if (!currentHostel) {
     return res.status(400).json({
       success: false,
@@ -244,7 +244,7 @@ export const searchGuest = async (req: SearchGuestRequest, res: Response<Backend
       const currentReservation = await Reservation.findOne({
         user_id_guest: user._id,
         hostel_id: currentHostel._id,
-        status: 'in house'
+        status: 'in house',
       });
 
       guests.push({
@@ -268,7 +268,7 @@ export const searchGuest = async (req: SearchGuestRequest, res: Response<Backend
         const currentReservation = await Reservation.findOne({
           user_id_guest: populatedUser._id,
           hostel_id: currentHostel._id,
-          status: 'in house'
+          status: 'in house',
         });
 
         guests.push({

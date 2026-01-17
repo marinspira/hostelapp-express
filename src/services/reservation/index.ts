@@ -1,18 +1,18 @@
-import type { IReservationDocument } from "../../interfaces/reservation.ts";
-import IReservation from "../../interfaces/reservation.ts";
-import { ReservationRepository } from "../../repositories/reservation.repository.ts";
-import { HostelRepository } from "../../repositories/hostel.repository.ts";
+import type { IReservationDocument } from '../../interfaces/reservation.ts';
+import IReservation from '../../interfaces/reservation.ts';
+import { ReservationRepository } from '../../repositories/reservation.repository.ts';
+import { HostelRepository } from '../../repositories/hostel.repository.ts';
 // @ts-ignore
-import { addGuestToHostelGroup } from "../chat/groupChatManager.js";
+import { addGuestToHostelGroup } from '../chat/groupChatManager.js';
 
 export class ReservationService {
   constructor(
-    private readonly reservationRepo: ReservationRepository,
-    private readonly hostelRepo: HostelRepository
+    private readonly _reservationRepo: ReservationRepository,
+    private readonly _hostelRepo: HostelRepository
   ) {}
 
   async create(data: IReservation, ownerId: string): Promise<IReservationDocument> {
-    const hostel = await this.hostelRepo.findByOwner(ownerId);
+    const hostel = await this._hostelRepo.findByOwner(ownerId);
     if (!hostel) {
       throw new Error('Hostel not found for this user');
     }
@@ -21,7 +21,9 @@ export class ReservationService {
       throw new Error('User ID (Guest) is required');
     }
 
-    const existingReservation = await this.reservationRepo.findActiveByGuestId(data.user_id_guest.toString());
+    const existingReservation = await this._reservationRepo.findActiveByGuestId(
+      data.user_id_guest.toString()
+    );
     if (existingReservation) {
       throw new Error('Guest already has an active reservation');
     }
@@ -40,10 +42,10 @@ export class ReservationService {
 
     const reservationData = {
       ...data,
-      hostel_id: hostel._id
+      hostel_id: hostel._id,
     };
 
-    const reservation = await this.reservationRepo.create(reservationData);
+    const reservation = await this._reservationRepo.create(reservationData);
 
     try {
       await addGuestToHostelGroup(hostel._id, data.user_id_guest);
@@ -55,18 +57,18 @@ export class ReservationService {
   }
 
   getReservations() {
-    return this.reservationRepo.findAll();
+    return this._reservationRepo.findAll();
   }
 
   getReservationById(id: string) {
-    return this.reservationRepo.findById(id);
+    return this._reservationRepo.findById(id);
   }
 
   updateReservation(id: string, data: Partial<IReservation>) {
-    return this.reservationRepo.update(id, data);
+    return this._reservationRepo.update(id, data);
   }
 
   deleteReservation(id: string) {
-    return this.reservationRepo.delete(id);
+    return this._reservationRepo.delete(id);
   }
 }

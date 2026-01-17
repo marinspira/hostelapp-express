@@ -100,10 +100,10 @@ export const getAllGuests = async (req, res) => {
   // Get current reservations (in house status)
   const currentReservations = await Reservation.find({
     hostel_id: existingHostel._id,
-    status: 'in house'
+    status: 'in house',
   }).populate({
     path: 'user_id_guest',
-    select: 'email'
+    select: 'email',
   });
 
   if (!currentReservations.length) {
@@ -116,18 +116,17 @@ export const getAllGuests = async (req, res) => {
 
   // Get guest details for current reservations
   const guestUserIds = currentReservations.map(reservation => reservation.user_id_guest._id);
-  
-  const guestsData = await Guest.find({ user: { $in: guestUserIds } })
-    .populate({
-      path: 'user',
-      select: 'email'
-    });
+
+  const guestsData = await Guest.find({ user: { $in: guestUserIds } }).populate({
+    path: 'user',
+    select: 'email',
+  });
 
   const guests = currentReservations.map(reservation => {
-    const guestData = guestsData.find(guest => 
-      guest.user._id.toString() === reservation.user_id_guest._id.toString()
+    const guestData = guestsData.find(
+      guest => guest.user._id.toString() === reservation.user_id_guest._id.toString()
     );
-    
+
     return {
       userId: reservation.user_id_guest._id,
       name: guestData?.name || 'Unknown',
@@ -137,7 +136,7 @@ export const getAllGuests = async (req, res) => {
       bedNumber: reservation.bed_number,
       checkinDate: reservation.checkin_date,
       checkoutDate: reservation.checkout_date,
-      reservationId: reservation._id
+      reservationId: reservation._id,
     };
   });
 
