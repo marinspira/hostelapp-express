@@ -9,8 +9,6 @@ export class ReservationController {
   create = async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = req.user;
-      // TODO:
-      // - fazer um job que remova o guest do grupo quando o checkout_date passar
       const data = req.body;
       const reservation = await this._service.create(data.reservation, user._id.toString());
       return res.status(201).json(reservation);
@@ -52,5 +50,23 @@ export class ReservationController {
     }
 
     return res.status(204).send();
+  };
+
+  checkout = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const reservationId = req.params.id;
+      const checkedOut = await this._service.checkoutReservation(reservationId);
+
+      if (!checkedOut) {
+        return res.status(404).json({ message: 'Reservation not found or already checked out' });
+      }
+
+      return res.json({ 
+        message: 'Checkout completed successfully',
+        reservation: checkedOut 
+      });
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
   };
 }

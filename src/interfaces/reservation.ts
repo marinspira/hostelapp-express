@@ -4,10 +4,11 @@ interface IReservation {
   status: 'in house' | 'checked out';
   hostel_id: Types.ObjectId;
   user_id_guest: Types.ObjectId;
-  room_number: string;
-  bed_number?: string;
+  room: string;
+  bed?: string;
   checkin_date: Date;
   checkout_date: Date;
+  checkout_processed_at?: Date;
 }
 
 export default IReservation;

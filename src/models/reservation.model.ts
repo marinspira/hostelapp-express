@@ -33,17 +33,21 @@ const ReservationSchema = new mongoose.Schema(
         message: 'Checkout date must be after checkin date',
       },
     },
-    room_number: {
+    room: {
       type: String,
       required: true,
     },
-    bed_number: {
+    bed: {
       type: String,
       required: true,
     },
     created_at: {
       type: Date,
       default: Date.now,
+    },
+    checkout_processed_at: {
+      type: Date,
+      required: false,
     },
   },
   { timestamps: true }

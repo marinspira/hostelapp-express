@@ -41,11 +41,11 @@ async function processCheckout(reservation, session) {
   );
 
   // 2) clear room bed reservation_id
-  // We assume room documents have structure with name and beds array with bed_number and reservation_id
+  // We assume room documents have structure with name and beds array with bed and reservation_id
   await Room.updateOne(
     {
-      name: reservation.room_number,
-      'beds.bed_number': reservation.bed_number,
+      name: reservation.room,
+      'beds.bed': reservation.bed,
     },
     { $set: { 'beds.$.reservation_id': null } },
     { session }

@@ -48,7 +48,7 @@ export const createRoom = async (req, res) => {
     }
 
     beds.push({
-      bed_number: bedNumber,
+      bed: bedNumber,
       reservation_id: null,
     });
   }
@@ -101,15 +101,15 @@ export const getAllRooms = async (req, res) => {
         from: 'reservations',
         let: {
           roomName: '$name',
-          bedNumber: '$beds.bed_number',
+          bedNumber: '$beds.bed',
         },
         pipeline: [
           {
             $match: {
               $expr: {
                 $and: [
-                  { $eq: ['$room_number', '$$roomName'] },
-                  { $eq: ['$bed_number', '$$bedNumber'] },
+                  { $eq: ['$room', '$$roomName'] },
+                  { $eq: ['$bed', '$$bedNumber'] },
                   { $lte: ['$checkin_date', today] },
                   { $gte: ['$checkout_date', today] },
                 ],
@@ -150,7 +150,7 @@ export const getAllRooms = async (req, res) => {
         hostel: { $first: '$hostel' },
         beds: {
           $push: {
-            bed_number: '$beds.bed_number',
+            bed: '$beds.bed',
             reservation_id: '$beds.reservation_id',
             guestPhoto: { $arrayElemAt: ['$guest.guestPhotos', 0] },
           },
@@ -210,20 +210,20 @@ export const getBedsAvailable = async (req, res) => {
   const rooms = await Room.find({ hostel: hostel._id });
 
   const occupiedBeds = reservations.map(res => ({
-    room_number: res.room_number,
-    bed_number: res.bed_number,
+    room: res.room,
+    bed: res.bed,
   }));
 
   const bedsAvailable = rooms.map(room => {
     const availableBeds = room.beds.filter(bed => {
       return !occupiedBeds.some(
-        occ => occ.room_number === room.name && occ.bed_number === bed.bed_number
+        occ => occ.room === room.name && occ.bed === bed.bed
       );
     });
 
     return {
-      room_number: room.name,
-      beds: availableBeds.map(b => b.bed_number),
+      room: room.name,
+      beds: availableBeds.map(b => b.bed),
     };
   });
 

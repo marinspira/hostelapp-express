@@ -16,5 +16,6 @@ const reservationService = new ReservationService(reservationRepository, hostelR
 const reservationController = new ReservationController(reservationService);
 
 router.post('/create', protectRoute, catchAsync(reservationController.create));
+router.patch('/:id/checkout', protectRoute, catchAsync(reservationController.checkout));
 
 export default router;

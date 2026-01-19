@@ -6,7 +6,7 @@ import { Room } from './room';
 import { IEvent } from '.';
 
 interface _Bed {
-  bed_number: string;
+  bed: string;
   reservation_id: string | null;
 }
 

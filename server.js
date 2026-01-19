@@ -17,7 +17,7 @@ import Stripe from 'stripe';
 
 import openApiSpec from './swagger/index.js';
 import logger from './logs.js';
-import connectToMongoDB from './db/connectToMongoDB.js';
+import connectToMongoDB from './src/db/connectToMongoDB.js';
 import authRoutes from './src/routes/auth.routes.js';
 import guestRoutes from './src/routes/guest.routes.ts';
 import hostelRoutes from './src/routes/hostel.routes.js';
@@ -28,6 +28,7 @@ import stripeRoutes from './src/routes/stripe.routes.js';
 import eventRoutes from './src/routes/event.routes.js';
 import backofficeRoutes from './src/routes/backoffice.routes.js';
 import errorHandler from './src/middleware/errorHandler.js';
+import { startAutomaticCheckoutJob } from './src/jobs/automaticCheckout.job.ts';
 
 dotenv.config();
 
@@ -176,5 +177,6 @@ io.on('connection', socket => {
 
 server.listen(PORT, () => {
   connectToMongoDB();
+  startAutomaticCheckoutJob();
   console.log(`Server running on port ${PORT}`);
 });
