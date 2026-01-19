@@ -5,6 +5,9 @@ export interface IUser {
   name: string;
   email: string;
   isNewUser: boolean;
+  isPremium?: boolean;
+  premiumPlan?: 'basic' | 'premium' | 'enterprise';
+  subscriptionActive?: boolean;
 }
 
 export interface IUserDocument extends IUser, Document {

@@ -26,6 +26,19 @@ const UserSchema = new Schema<IUserDocument>(
       type: Boolean,
       default: true,
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    premiumPlan: {
+      type: String,
+      enum: ['basic', 'premium', 'enterprise'],
+      default: null,
+    },
+    subscriptionActive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

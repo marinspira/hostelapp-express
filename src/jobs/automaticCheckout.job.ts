@@ -1,7 +1,10 @@
 import cron from 'node-cron';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+
 // @ts-ignore
+import type { ClientSession } from 'mongoose';
+
 import connectToMongoDB from '../db/connectToMongoDB.js';
 import Reservation from '../models/reservation.model.ts';
 import Room from '../models/room.model.ts';
@@ -13,73 +16,71 @@ import { removeGuestFromHostelGroup } from '../services/chat/groupChatManager.js
 dotenv.config();
 
 interface IReservation {
-    _id: mongoose.Types.ObjectId;
-    user_id_guest: mongoose.Types.ObjectId;
-    hostel_id: mongoose.Types.ObjectId;
-    room: string;
-    bed: string;
+  _id: mongoose.Types.ObjectId;
+  user_id_guest: mongoose.Types.ObjectId;
+  hostel_id: mongoose.Types.ObjectId;
+  room: string;
+  bed: string;
 }
 
-import type { ClientSession } from 'mongoose';
-
 async function processAutomaticCheckout(
-    reservation: IReservation,
-    session: ClientSession
+  reservation: IReservation,
+  session: ClientSession
 ): Promise<void> {
-    const reservationId = reservation._id;
-    const guestUserId = reservation.user_id_guest;
-    const hostelId = reservation.hostel_id;
+  const reservationId = reservation._id;
+  const guestUserId = reservation.user_id_guest;
+  const hostelId = reservation.hostel_id;
 
-    console.log(`Processing automatic checkout for reservation ${reservationId}`);
+  console.log(`Processing automatic checkout for reservation ${reservationId}`);
 
+  try {
+    // 1) Atualiza status da reserva para 'checked out'
+    await Reservation.updateOne(
+      { _id: reservationId },
+      {
+        $set: {
+          status: 'checked out',
+          checkout_processed_at: new Date(),
+        },
+      },
+      { session }
+    );
+
+    // 2) Limpa reservation_id da cama no quarto
+    await Room.updateOne(
+      {
+        name: reservation.room,
+        'beds.bed': reservation.bed,
+      },
+      { $set: { 'beds.$.reservation_id': null } },
+      { session }
+    );
+
+    // 3) Remove reservation_id da lista de reservas do guest
+    await Guest.updateOne(
+      { user: guestUserId },
+      { $pull: { reservations: reservationId } },
+      { session }
+    );
+
+    // 4) Remove guest do grupo do hostel e da lista de guests
     try {
-        // 1) Atualiza status da reserva para 'checked out'
-        await Reservation.updateOne(
-            { _id: reservationId },
-            {
-                $set: {
-                    status: 'checked out',
-                    checkout_processed_at: new Date(),
-                },
-            },
-            { session }
-        );
+      await removeGuestFromHostelGroup(hostelId, guestUserId);
 
-        // 2) Limpa reservation_id da cama no quarto
-        await Room.updateOne(
-            {
-                name: reservation.room,
-                'beds.bed': reservation.bed,
-            },
-            { $set: { 'beds.$.reservation_id': null } },
-            { session }
-        );
-
-        // 3) Remove reservation_id da lista de reservas do guest
-        await Guest.updateOne(
-            { user: guestUserId },
-            { $pull: { reservations: reservationId } },
-            { session }
-        );
-
-        // 4) Remove guest do grupo do hostel e da lista de guests
-        try {
-            await removeGuestFromHostelGroup(hostelId, guestUserId);
-
-            await Hostel.updateOne(
-                { _id: hostelId },
-                { $pull: { user_id_guests: guestUserId } },
-                { session }
-            );
-        } catch (err) {
-            console.error('Warning: failed to remove guest from hostel group or guest list', err);
-        }
-
-        console.log(`Successfully processed automatic checkout for reservation ${reservationId}`);
-    } catch (error) {
-        console.error(`Error processing checkout for reservation ${reservationId}:`, error);
-        throw error;
+      await Hostel.updateOne(
+        { _id: hostelId },
+        { $pull: { user_id_guests: guestUserId } },
+        { session }
+      );
+    } catch (err) {
+      console.error('Warning: failed to remove guest from hostel group or guest list', err);
     }
+
+    console.log(`Successfully processed automatic checkout for reservation ${reservationId}`);
+  } catch (error) {
+    console.error(`Error processing checkout for reservation ${reservationId}:`, error);
+    throw error;
+  }
 }
 
 async function runAutomaticCheckout() {
@@ -98,7 +99,9 @@ async function runAutomaticCheckout() {
       status: 'in house',
     }).populate('hostel_id', 'name');
 
-    console.log(`📋 Found ${reservationsToCheckout.length} reservation(s) to automatically checkout`);
+    console.log(
+      `📋 Found ${reservationsToCheckout.length} reservation(s) to automatically checkout`
+    );
 
     if (reservationsToCheckout.length === 0) {
       console.log('✅ No reservations to process.');

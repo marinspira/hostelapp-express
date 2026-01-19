@@ -216,9 +216,7 @@ export const getBedsAvailable = async (req, res) => {
 
   const bedsAvailable = rooms.map(room => {
     const availableBeds = room.beds.filter(bed => {
-      return !occupiedBeds.some(
-        occ => occ.room === room.name && occ.bed === bed.bed
-      );
+      return !occupiedBeds.some(occ => occ.room === room.name && occ.bed === bed.bed);
     });
 
     return {

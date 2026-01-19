@@ -27,6 +27,7 @@ import chatRoutes from './src/routes/chat.routes.js';
 import stripeRoutes from './src/routes/stripe.routes.js';
 import eventRoutes from './src/routes/event.routes.js';
 import backofficeRoutes from './src/routes/backoffice.routes.js';
+import premiumRoutes from './src/routes/premium.routes.ts';
 import errorHandler from './src/middleware/errorHandler.js';
 import { startAutomaticCheckoutJob } from './src/jobs/automaticCheckout.job.ts';
 
@@ -84,6 +85,7 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/backoffice', backofficeRoutes);
+app.use('/api/premium', premiumRoutes);
 
 // Static files
 const uploadsPath = path.join(__dirname, 'uploads');

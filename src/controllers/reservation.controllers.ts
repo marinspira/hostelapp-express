@@ -61,9 +61,9 @@ export class ReservationController {
         return res.status(404).json({ message: 'Reservation not found or already checked out' });
       }
 
-      return res.json({ 
+      return res.json({
         message: 'Checkout completed successfully',
-        reservation: checkedOut 
+        reservation: checkedOut,
       });
     } catch (error: any) {
       return res.status(400).json({ message: error.message });

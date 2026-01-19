@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 import type { IReservationDocument } from '../../interfaces/reservation.ts';
 import IReservation from '../../interfaces/reservation.ts';
 import { ReservationRepository } from '../../repositories/reservation.repository.ts';
@@ -10,7 +12,6 @@ import Room from '../../models/room.model.ts';
 import Guest from '../../models/guest.model.ts';
 // @ts-ignore
 import Hostel from '../../models/hostel.model.ts';
-import mongoose from 'mongoose';
 
 export class ReservationService {
   constructor(
@@ -81,10 +82,10 @@ export class ReservationService {
 
   async checkoutReservation(reservationId: string): Promise<IReservationDocument | null> {
     const session = await mongoose.startSession();
-    
+
     try {
       let result: IReservationDocument | null = null;
-      
+
       await session.withTransaction(async () => {
         // Busca a reserva
         const reservation = await this._reservationRepo.findById(reservationId);
@@ -96,9 +97,9 @@ export class ReservationService {
         const hostelId = reservation.hostel_id;
 
         // 1) Atualiza status da reserva
-        await this._reservationRepo.update(reservationId, { 
+        await this._reservationRepo.update(reservationId, {
           status: 'checked out',
-          checkout_processed_at: new Date()
+          checkout_processed_at: new Date(),
         });
 
         // 2) Limpa reservation_id da cama
@@ -121,7 +122,7 @@ export class ReservationService {
         // 4) Remove guest do grupo e da lista do hostel
         try {
           await removeGuestFromHostelGroup(hostelId, guestUserId);
-          
+
           await Hostel.updateOne(
             { _id: hostelId },
             { $pull: { user_id_guests: guestUserId } },
