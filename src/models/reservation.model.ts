@@ -4,8 +4,8 @@ const ReservationSchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ['in house', 'checked out'],
-      default: 'in house',
+      enum: ['walking in', 'in house', 'checked out'],
+      default: 'walking in',
       required: true,
     },
     hostel_id: {

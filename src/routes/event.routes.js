@@ -5,6 +5,7 @@ import {
   createEvent,
   getAllEvents,
   getPublicEvents,
+  getCurrentStayEvents,
   updateEvent,
   deleteEvent,
 } from '../controllers/events.controllers.ts';
@@ -20,6 +21,8 @@ router.put('/update/:id', protectRoute, upload.array('images', 4), catchAsync(up
 router.delete('/delete/:id', protectRoute, catchAsync(deleteEvent));
 
 router.get('/public', protectRoute, catchAsync(getPublicEvents));
+
+router.get('/current-stay', protectRoute, catchAsync(getCurrentStayEvents));
 
 router.get('/:hostelId', protectRoute, catchAsync(getAllEvents));
 

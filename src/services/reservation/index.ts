@@ -4,6 +4,8 @@ import type { IReservationDocument } from '../../interfaces/reservation.ts';
 import IReservation from '../../interfaces/reservation.ts';
 import { ReservationRepository } from '../../repositories/reservation.repository.ts';
 import { HostelRepository } from '../../repositories/hostel.repository.ts';
+import { NotificationService } from '../notification/index.ts';
+import { NotificationRepository } from '../../repositories/notification.repository.ts';
 // @ts-ignore
 import { addGuestToHostelGroup, removeGuestFromHostelGroup } from '../chat/groupChatManager.js';
 // @ts-ignore
@@ -14,10 +16,16 @@ import Guest from '../../models/guest.model.ts';
 import Hostel from '../../models/hostel.model.ts';
 
 export class ReservationService {
+  private readonly _notificationService: NotificationService;
+
   constructor(
     private readonly _reservationRepo: ReservationRepository,
     private readonly _hostelRepo: HostelRepository
-  ) {}
+  ) {
+    // Initialize notification service
+    const notificationRepository = new NotificationRepository();
+    this._notificationService = new NotificationService(notificationRepository);
+  }
 
   async create(data: IReservation, ownerId: string): Promise<IReservationDocument> {
     const hostel = await this._hostelRepo.findByOwner(ownerId);
@@ -59,6 +67,21 @@ export class ReservationService {
       await addGuestToHostelGroup(hostel._id, data.user_id_guest);
     } catch (error) {
       console.error('Error adding guest to hostel group:', error);
+    }
+
+    // Create notification for new reservation
+    try {
+      await this._notificationService.createReservationNotification(
+        reservation._id.toString(),
+        hostel._id.toString(),
+        data.user_id_guest.toString(),
+        data.room,
+        data.bed,
+        data.checkin_date,
+        data.checkout_date
+      );
+    } catch (error) {
+      console.error('Error creating reservation notification:', error);
     }
 
     return reservation;
@@ -133,6 +156,22 @@ export class ReservationService {
         }
 
         result = await this._reservationRepo.findById(reservationId);
+
+        // Create checkout notification
+        try {
+          if (!reservation.room || !reservation.bed) {
+            throw new Error('Reservation room or bed is missing');
+          }
+          await this._notificationService.createCheckoutNotification(
+            reservationId,
+            hostelId.toString(),
+            guestUserId.toString(),
+            reservation.room,
+            reservation.bed
+          );
+        } catch (error) {
+          console.error('Error creating checkout notification:', error);
+        }
       });
 
       return result;

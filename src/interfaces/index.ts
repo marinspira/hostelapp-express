@@ -2,6 +2,8 @@ import { Document, Types } from 'mongoose';
 import type { Request } from 'express';
 
 import type { IUserDocument } from './user.ts';
+export type { INotificationDocument } from './notification.ts';
+export type { default as INotification } from './notification.ts';
 
 export interface IUser {
   _id?: Types.ObjectId;

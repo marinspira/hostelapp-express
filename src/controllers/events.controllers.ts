@@ -3,6 +3,7 @@ import type { Response } from 'express';
 // @ts-ignore
 import Hostel from '../models/hostel.model.ts';
 import Event from '../models/event.model.ts';
+import Reservation from '../models/reservation.model.ts';
 import type { IEventDocument } from '../interfaces/event.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
@@ -72,33 +73,39 @@ export const createEvent = async (
 };
 
 export const getAllEvents = async (
-  req: AuthenticatedRequest,
+  req: AuthenticatedRequest & { params: { hostelId: string } },
   res: Response<BackendResponse<IEventDocument[]>>
 ): Promise<Response<BackendResponse<IEventDocument[]>>> => {
-  const user = req.user;
-  const hostel = await Hostel.findOne({
-    user_id_owners: user._id,
-  });
+  try {
+    const { hostelId } = req.params;
 
-  if (!hostel) {
-    return res.status(400).json({
+    const hostel = await Hostel.findById(hostelId);
+
+    if (!hostel) {
+      return res.status(404).json({
+        success: false,
+        message: 'Hostel not found',
+      });
+    }
+
+    const events: IEventDocument[] = await Event.find({ hostel_id: hostel._id });
+
+    const formattedEvents = events.map(event => ({
+      ...event.toObject(),
+      price: formatPrice(event.price),
+    }));
+
+    return res.status(200).json({
+      message: 'Events found successfully',
+      success: true,
+      data: formattedEvents,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
       success: false,
-      message: 'Hostel does not exist!',
+      message: error.message || 'Internal server error',
     });
   }
-
-  const events: IEventDocument[] = await Event.find({ hostel_id: hostel._id });
-
-  const formattedEvents = events.map(event => ({
-    ...event.toObject(),
-    price: formatPrice(event.price),
-  }));
-
-  return res.status(200).json({
-    message: 'Event found successfully',
-    success: true,
-    data: formattedEvents,
-  });
 };
 
 export const updateEvent = async (
@@ -271,6 +278,51 @@ export const getPublicEvents = async (
 
     return res.status(200).json({
       message: 'Public events retrieved successfully',
+      success: true,
+      data: formattedEvents,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error',
+    });
+  }
+};
+
+export const getCurrentStayEvents = async (
+  req: AuthenticatedRequest,
+  res: Response<BackendResponse<IEventDocument[]>>
+): Promise<Response<BackendResponse<IEventDocument[]>>> => {
+  try {
+    const userId = req.user._id;
+
+    // Find guest's current active reservation
+    const activeReservation = await Reservation.findOne({
+      user_id_guest: userId,
+      checkin_date: { $lte: new Date() },
+      checkout_date: { $gte: new Date() }
+    }).populate('hostel_id');
+
+    if (!activeReservation) {
+      return res.status(404).json({
+        success: false,
+        message: 'No active stay found',
+      });
+    }
+
+    const events: IEventDocument[] = await Event.find({ 
+      hostel_id: activeReservation.hostel_id,
+      // Only show current and future events
+      endDate: { $gte: new Date() }
+    }).sort({ startDate: 1 });
+
+    const formattedEvents = events.map(event => ({
+      ...event.toObject(),
+      price: formatPrice(event.price),
+    }));
+
+    return res.status(200).json({
+      message: 'Current stay events retrieved successfully',
       success: true,
       data: formattedEvents,
     });
