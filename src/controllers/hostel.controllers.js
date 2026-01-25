@@ -166,7 +166,8 @@ export const getHomeScreen = async (req, res) => {
   const events = await Event.find({ hostel_id: existingHostel._id })
     .sort({ date: -1 })
     .limit(3)
-    .select('_id img name date price photos_last_event attendees');
+    .select('_id img name date price photos_last_event attendees')
+    .populate('attendees', 'name email profileImage');
 
   return res.status(200).json({
     message: 'Home content',

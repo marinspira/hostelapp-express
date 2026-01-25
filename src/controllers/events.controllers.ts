@@ -88,7 +88,8 @@ export const getAllEvents = async (
       });
     }
 
-    const events: IEventDocument[] = await Event.find({ hostel_id: hostel._id });
+    const events: IEventDocument[] = await Event.find({ hostel_id: hostel._id })
+      .populate('attendees', 'name email profileImage');
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),
@@ -269,7 +270,9 @@ export const getPublicEvents = async (
       ],
     };
 
-    const events: IEventDocument[] = await Event.find(query).populate('hostel_id', 'name address');
+    const events: IEventDocument[] = await Event.find(query)
+      .populate('hostel_id', 'name address')
+      .populate('attendees', 'name email profileImage');
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),
@@ -314,7 +317,9 @@ export const getCurrentStayEvents = async (
       hostel_id: activeReservation.hostel_id,
       // Only show current and future events
       endDate: { $gte: new Date() }
-    }).sort({ startDate: 1 });
+    })
+    .sort({ startDate: 1 })
+    .populate('attendees', 'name email profileImage');
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),
@@ -325,6 +330,123 @@ export const getCurrentStayEvents = async (
       message: 'Current stay events retrieved successfully',
       success: true,
       data: formattedEvents,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error',
+    });
+  }
+};
+
+export const joinEvent = async (
+  req: AuthenticatedRequest & { params: { id: string } },
+  res: Response<BackendResponse<IEventDocument>>
+): Promise<Response<BackendResponse<IEventDocument>>> => {
+  try {
+    const userId = req.user._id;
+    const eventId = req.params.id;
+
+    const event = await Event.findById(eventId);
+    
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found',
+      });
+    }
+
+    // Check if user is already attending
+    if (event.attendees && event.attendees.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already attending this event',
+      });
+    }
+
+    // Check if event has unlimited spots or if there are available spots
+    if (!event.unlimited_spots && event.spots_available && event.attendees) {
+      if (event.attendees.length >= event.spots_available) {
+        return res.status(400).json({
+          success: false,
+          message: 'Event is full',
+        });
+      }
+    }
+
+    // Add user to attendees
+    if (!event.attendees) {
+      event.attendees = [];
+    }
+    event.attendees.push(userId);
+    
+    await event.save();
+
+    const updatedEvent = await Event.findById(eventId).populate('attendees', 'name email');
+
+    if (!updatedEvent) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve updated event',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Successfully joined event',
+      data: updatedEvent,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error',
+    });
+  }
+};
+
+export const leaveEvent = async (
+  req: AuthenticatedRequest & { params: { id: string } },
+  res: Response<BackendResponse<IEventDocument>>
+): Promise<Response<BackendResponse<IEventDocument>>> => {
+  try {
+    const userId = req.user._id;
+    const eventId = req.params.id;
+
+    const event = await Event.findById(eventId);
+    
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found',
+      });
+    }
+
+    // Check if user is attending
+    if (!event.attendees || !event.attendees.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is not attending this event',
+      });
+    }
+
+    // Remove user from attendees
+    event.attendees = event.attendees.filter(attendeeId => !attendeeId.equals(userId));
+    
+    await event.save();
+
+    const updatedEvent = await Event.findById(eventId).populate('attendees', 'name email');
+
+    if (!updatedEvent) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve updated event',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Successfully left event',
+      data: updatedEvent,
     });
   } catch (error: any) {
     return res.status(500).json({
