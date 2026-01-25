@@ -489,7 +489,6 @@ export const getCurrentStay = async (
   req: AuthenticatedRequest,
   res: Response<BackendResponse<any>>
 ) => {
-  console.log('Getting current stay for guest...');
   try {
     const user = req.user;
     const guest = await Guest.findOne({ user: user._id });
@@ -510,8 +509,6 @@ export const getCurrentStay = async (
       checkout_date: { $gt: now },
       status: { $in: ['walking in', 'in house'] },
     }).populate('hostel_id');
-
-    console.log('Active reservations found:', activeReservations);
 
     if (activeReservations.length === 0) {
       return res.status(200).json({

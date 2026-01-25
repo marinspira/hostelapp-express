@@ -3,7 +3,7 @@ import type IReservation from '../interfaces/reservation.ts';
 import type { IReservationDocument } from '../interfaces/reservation.ts';
 
 export class ReservationRepository {
-  create(data: IReservation): Promise<IReservationDocument> {
+  create(data: IReservation): Promise<any> {
     return Reservation.create(data);
   }
 
@@ -30,6 +30,14 @@ export class ReservationRepository {
     return Reservation.findOne({
       user_id_guest: guestId,
       status: 'in house',
+    });
+  }
+
+  findCurrentStayByGuestId(guestId: string): Promise<IReservationDocument | null> {
+    return Reservation.findOne({
+      user_id_guest: guestId,
+      checkin_date: { $lte: new Date() },
+      checkout_date: { $gte: new Date() }
     });
   }
 }

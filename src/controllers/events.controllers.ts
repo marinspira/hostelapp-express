@@ -1,9 +1,5 @@
 import type { Response } from 'express';
 
-// @ts-ignore
-import Hostel from '../models/hostel.model.ts';
-import Event from '../models/event.model.ts';
-import Reservation from '../models/reservation.model.ts';
 import type { IEventDocument } from '../interfaces/event.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
@@ -15,6 +11,10 @@ import { formatPrice } from '../utils/formatPrice.ts';
 import { EventService } from '../services/event/event.service.ts';
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
+import { ReservationRepository } from '../repositories/reservation.repository.ts';
+// Only import Event model for some specific operations that haven't been fully moved to repository yet
+// @ts-ignore
+import Event from '../models/event.model.ts';
 
 export interface UploadedFile {
   fieldname: string;
@@ -79,7 +79,10 @@ export const getAllEvents = async (
   try {
     const { hostelId } = req.params;
 
-    const hostel = await Hostel.findById(hostelId);
+    const hostelRepository = new HostelRepository();
+    const eventRepository = new EventRepository();
+
+    const hostel = await hostelRepository.findById(hostelId);
 
     if (!hostel) {
       return res.status(404).json({
@@ -88,8 +91,7 @@ export const getAllEvents = async (
       });
     }
 
-    const events: IEventDocument[] = await Event.find({ hostel_id: hostel._id })
-      .populate('attendees', 'name email profileImage');
+    const events = await eventRepository.findUpcomingByHostelId(hostel._id.toString());
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),
@@ -97,7 +99,7 @@ export const getAllEvents = async (
     }));
 
     return res.status(200).json({
-      message: 'Events found successfully',
+      message: 'Upcoming events found successfully',
       success: true,
       data: formattedEvents,
     });
@@ -115,9 +117,11 @@ export const updateEvent = async (
 ): Promise<Response<BackendResponse<IEventDocument>>> => {
   const user = req.user;
   const eventId = req.params.id;
-  const hostel = await Hostel.findOne({
-    user_id_owners: user._id,
-  });
+  
+  const hostelRepository = new HostelRepository();
+  const eventRepository = new EventRepository();
+  
+  const hostel = await hostelRepository.findByOwner(user._id.toString());
 
   const event: IEvent =
     typeof req.body.event === 'string' ? JSON.parse(req.body.event) : req.body.event;
@@ -178,10 +182,7 @@ export const updateEvent = async (
     payment_methods: event.payment_methods,
   };
 
-  const updatedEvent = await Event.findByIdAndUpdate(eventId, updateData, {
-    new: true,
-    runValidators: true,
-  });
+  const updatedEvent = await eventRepository.update(eventId, updateData);
 
   if (!updatedEvent) {
     return res.status(404).json({
@@ -204,9 +205,10 @@ export const deleteEvent = async (
   const user = req.user;
   const eventId = req.params.id;
 
-  const hostel = await Hostel.findOne({
-    user_id_owners: user._id,
-  });
+  const hostelRepository = new HostelRepository();
+  const eventRepository = new EventRepository();
+  
+  const hostel = await hostelRepository.findByOwner(user._id.toString());
 
   if (!hostel) {
     return res.status(400).json({
@@ -215,10 +217,7 @@ export const deleteEvent = async (
     });
   }
 
-  const deletedEvent = await Event.findOneAndDelete({
-    _id: eventId,
-    hostel_id: hostel._id,
-  });
+  const deletedEvent = await eventRepository.deleteByIdAndHostel(eventId, hostel._id.toString());
 
   if (!deletedEvent) {
     return res.status(404).json({
@@ -248,31 +247,13 @@ export const getPublicEvents = async (
       });
     }
 
-    const hostelsInLocation = await Hostel.find({
-      'address.city': { $regex: new RegExp(city, 'i') },
-      'address.country': { $regex: new RegExp(country, 'i') },
-    }).select('_id');
+    const hostelRepository = new HostelRepository();
+    const eventRepository = new EventRepository();
 
-    const hostelIds = hostelsInLocation.map(hostel => hostel._id);
+    const hostelsInLocation = await hostelRepository.findByLocation(city, country);
+    const hostelIds = hostelsInLocation.map(hostel => hostel._id.toString());
 
-    const query: any = {
-      open_to_public: true,
-      $or: [
-        {
-          hostel_location: false,
-          'address.city': { $regex: new RegExp(city, 'i') },
-          'address.country': { $regex: new RegExp(country, 'i') },
-        },
-        {
-          hostel_location: true,
-          hostel_id: { $in: hostelIds },
-        },
-      ],
-    };
-
-    const events: IEventDocument[] = await Event.find(query)
-      .populate('hostel_id', 'name address')
-      .populate('attendees', 'name email profileImage');
+    const events = await eventRepository.findPublicUpcomingEvents(city, country, hostelIds);
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),
@@ -299,12 +280,10 @@ export const getCurrentStayEvents = async (
   try {
     const userId = req.user._id;
 
-    // Find guest's current active reservation
-    const activeReservation = await Reservation.findOne({
-      user_id_guest: userId,
-      checkin_date: { $lte: new Date() },
-      checkout_date: { $gte: new Date() }
-    }).populate('hostel_id');
+    const reservationRepository = new ReservationRepository();
+    const eventRepository = new EventRepository();
+
+    const activeReservation = await reservationRepository.findCurrentStayByGuestId(userId.toString());
 
     if (!activeReservation) {
       return res.status(404).json({
@@ -313,13 +292,7 @@ export const getCurrentStayEvents = async (
       });
     }
 
-    const events: IEventDocument[] = await Event.find({ 
-      hostel_id: activeReservation.hostel_id,
-      // Only show current and future events
-      endDate: { $gte: new Date() }
-    })
-    .sort({ startDate: 1 })
-    .populate('attendees', 'name email profileImage');
+    const events = await eventRepository.findUpcomingByHostelId(activeReservation.hostel_id.toString());
 
     const formattedEvents = events.map(event => ({
       ...event.toObject(),
@@ -347,7 +320,8 @@ export const joinEvent = async (
     const userId = req.user._id;
     const eventId = req.params.id;
 
-    const event = await Event.findById(eventId);
+    const eventRepository = new EventRepository();
+    const event = await eventRepository.findById(eventId);
     
     if (!event) {
       return res.status(404).json({
@@ -412,7 +386,8 @@ export const leaveEvent = async (
     const userId = req.user._id;
     const eventId = req.params.id;
 
-    const event = await Event.findById(eventId);
+    const eventRepository = new EventRepository();
+    const event = await eventRepository.findById(eventId);
     
     if (!event) {
       return res.status(404).json({
