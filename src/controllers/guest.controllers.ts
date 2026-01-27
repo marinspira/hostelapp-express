@@ -18,6 +18,7 @@ import { IUserDocument } from '../interfaces/user.ts';
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 import { BackendResponse } from '../interfaces/response.ts';
 import { IGuestDocument } from '../interfaces/guest.ts';
+import { IHostelDocument } from '../interfaces/hostel.ts';
 import Hostel from '../models/hostel.model.ts';
 
 import { UploadedFile } from './events.controllers.ts';
@@ -502,36 +503,36 @@ export const getCurrentStay = async (
 
     const now = new Date();
 
-    const activeReservation = await Reservation.find({
+    const reservation = await Reservation.findOne({
       user_id_guest: user._id,
       checkin_date: { $lte: now },
       checkout_date: { $gt: now },
       status: { $in: ['walking in', 'in house'] },
     }).populate('hostel_id');
 
-    if (activeReservation.length === 0) {
-      return res.status(400).json({
-        success: true,
+    if (!reservation) {
+      return res.status(404).json({
+        success: false,
         message: 'Guest is not currently staying at any hostel',
       });
     }
 
-    if (activeReservation.length > 1) {
-      console.error(
-        'Data inconsistency: Guest has multiple active reservations:',
-        activeReservation
-      );
-    }
+    const populatedHostel = reservation.hostel_id as unknown as IHostelDocument;
 
-    const formattedReservations = activeReservation.map((reservation: any) => ({
+    const formattedReservations = {
       reservationId: reservation._id,
       hostel: {
-        id: reservation.hostel_id?._id,
-        name: reservation.hostel_id?.name,
-        logo: reservation.hostel_id?.logo,
-        address: reservation.hostel_id?.address,
-        phone: reservation.hostel_id?.phone,
-        email: reservation.hostel_id?.email,
+        id: populatedHostel?._id,
+        name: populatedHostel?.name,
+        logo: populatedHostel?.logo,
+        address: {
+          street: populatedHostel?.address?.street,
+          city: populatedHostel?.address?.city,
+          country: populatedHostel?.address?.country,
+          zip: populatedHostel?.address?.zip,
+        },
+        phone: populatedHostel?.phone,
+        email: populatedHostel?.email,
       },
       room: reservation.room,
       bed: reservation.bed,
@@ -541,7 +542,7 @@ export const getCurrentStay = async (
       daysRemaining: Math.ceil(
         (new Date(reservation.checkout_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       ),
-    }));
+    };
 
     return res.status(200).json({
       success: true,

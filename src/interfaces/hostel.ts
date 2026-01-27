@@ -17,10 +17,12 @@ export interface IHostel {
   stripeAccountId?: string;
   logo?: string;
   name: string;
-  street: string;
-  city: string;
-  country: string;
-  zip?: string;
+  address: {
+    street: string;
+    city: string;
+    country: string;
+    zip?: string;
+  };
   phone?: string;
   email: string;
   website?: string;
