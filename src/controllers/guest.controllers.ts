@@ -502,26 +502,28 @@ export const getCurrentStay = async (
 
     const now = new Date();
 
-    // Busca reservas ativas
-    const activeReservations = await Reservation.find({
+    const activeReservation = await Reservation.find({
       user_id_guest: user._id,
       checkin_date: { $lte: now },
       checkout_date: { $gt: now },
       status: { $in: ['walking in', 'in house'] },
     }).populate('hostel_id');
 
-    if (activeReservations.length === 0) {
-      return res.status(200).json({
+    if (activeReservation.length === 0) {
+      return res.status(400).json({
         success: true,
         message: 'Guest is not currently staying at any hostel',
-        data: {
-          isCurrentlyStaying: false,
-          activeReservations: [],
-        },
       });
     }
 
-    const formattedReservations = activeReservations.map((reservation: any) => ({
+    if (activeReservation.length > 1) {
+      console.error(
+        'Data inconsistency: Guest has multiple active reservations:',
+        activeReservation
+      );
+    }
+
+    const formattedReservations = activeReservation.map((reservation: any) => ({
       reservationId: reservation._id,
       hostel: {
         id: reservation.hostel_id?._id,
@@ -545,9 +547,7 @@ export const getCurrentStay = async (
       success: true,
       message: 'Guest is currently staying at hostel(s)',
       data: {
-        isCurrentlyStaying: true,
-        activeReservations: formattedReservations,
-        totalActiveStays: formattedReservations.length,
+        activeReservation: formattedReservations,
       },
     });
   } catch (error) {

@@ -137,7 +137,7 @@ export const verifyEmailCode = async (req, res) => {
   return res.status(200).json({
     success: true,
     message: 'Logged in',
-    data: { name: user.name, isNewUser: true, role: user.role, sessionToken },
+    data: { name: user.name, isNewUser: true, role: user.role, email: user.email, id: user._id },
   });
 };
 
@@ -152,6 +152,8 @@ export const isAuthenticated = async (req, res) => {
         name: user.name,
         isNewUser: false,
         role: user.role,
+        email: user.email,
+        id: user._id,
       },
       success: true,
       message: 'User authenticated successfully',
@@ -162,6 +164,8 @@ export const isAuthenticated = async (req, res) => {
         name: user.name,
         isNewUser: true,
         role: user.role,
+        email: user.email,
+        id: user._id,
       },
       success: true,
       message: 'New user authenticated successfully',
