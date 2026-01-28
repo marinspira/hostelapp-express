@@ -71,8 +71,8 @@ describe('EventService createEvent', () => {
         unlimited_spots: true,
         free_entry: true,
         event_recurring: false,
-        startDate: new Date(),
-        endDate: new Date(),
+        start_date: new Date(),
+        end_date: new Date(),
       } as any,
       ['img1.jpg']
     );
@@ -93,8 +93,8 @@ describe('EventService createEvent', () => {
         unlimited_spots: false,
         spots_available: 50,
         free_entry: true,
-        startDate: new Date(),
-        endDate: new Date(),
+        start_date: new Date(),
+        end_date: new Date(),
         event_recurring: false,
       } as any,
       []
@@ -124,8 +124,8 @@ describe('EventService createEvent', () => {
         price: 15,
         payment_to_hostel: true,
         receive_payment_online: false,
-        startDate: new Date(),
-        endDate: new Date(),
+        start_date: new Date(),
+        end_date: new Date(),
         event_recurring: false,
       } as any,
       []

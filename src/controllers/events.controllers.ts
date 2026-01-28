@@ -1,6 +1,6 @@
 import type { Response } from 'express';
 
-import type { IEventDocument } from '../interfaces/event.ts';
+import type { IEventDocument, IEventListItemDTO } from '../interfaces/event.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import type { AuthenticatedRequest } from '../interfaces/index.ts';
@@ -15,6 +15,7 @@ import { ReservationRepository } from '../repositories/reservation.repository.ts
 // Only import Event model for some specific operations that haven't been fully moved to repository yet
 // @ts-ignore
 import Event from '../models/event.model.ts';
+import Guest from '../models/guest.model.ts';
 
 export interface UploadedFile {
   fieldname: string;
@@ -74,8 +75,8 @@ export const createEvent = async (
 
 export const getAllEvents = async (
   req: AuthenticatedRequest & { params: { hostelId: string } },
-  res: Response<BackendResponse<IEventDocument[]>>
-): Promise<Response<BackendResponse<IEventDocument[]>>> => {
+  res: Response<BackendResponse<IEventListItemDTO[]>>
+): Promise<Response<BackendResponse<IEventListItemDTO[]>>> => {
   try {
     const { hostelId } = req.params;
 
@@ -93,15 +94,10 @@ export const getAllEvents = async (
 
     const events = await eventRepository.findUpcomingByHostelId(hostel._id.toString());
 
-    const formattedEvents = events.map(event => ({
-      ...event.toObject(),
-      price: formatPrice(event.price),
-    }));
-
     return res.status(200).json({
       message: 'Upcoming events found successfully',
       success: true,
-      data: formattedEvents,
+      data: events,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -167,8 +163,8 @@ export const updateEvent = async (
       city: parsedAddress?.city,
       zip: parsedAddress?.zip,
     },
-    startDate: event.startDate,
-    endDate: event.endDate,
+    start_date: event.start_date,
+    end_date: event.end_date,
     // Only update photos if new ones were provided
     ...(imagePaths.length > 0 && { photos_last_event: imagePaths }),
     unlimited_spots: event.unlimited_spots,
@@ -235,8 +231,8 @@ export const deleteEvent = async (
 
 export const getPublicEvents = async (
   req: AuthenticatedRequest & { query: { city?: string; country?: string } },
-  res: Response<BackendResponse<IEventDocument[]>>
-): Promise<Response<BackendResponse<IEventDocument[]>>> => {
+  res: Response<BackendResponse<IEventListItemDTO[]>>
+): Promise<Response<BackendResponse<IEventListItemDTO[]>>> => {
   try {
     const { city, country } = req.query;
 
@@ -255,15 +251,10 @@ export const getPublicEvents = async (
 
     const events = await eventRepository.findPublicUpcomingEvents(city, country, hostelIds);
 
-    const formattedEvents = events.map(event => ({
-      ...event.toObject(),
-      price: formatPrice(event.price),
-    }));
-
     return res.status(200).json({
       message: 'Public events retrieved successfully',
       success: true,
-      data: formattedEvents,
+      data: events,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -275,8 +266,8 @@ export const getPublicEvents = async (
 
 export const getCurrentStayEvents = async (
   req: AuthenticatedRequest,
-  res: Response<BackendResponse<IEventDocument[]>>
-): Promise<Response<BackendResponse<IEventDocument[]>>> => {
+  res: Response<BackendResponse<IEventListItemDTO[]>>
+): Promise<Response<BackendResponse<IEventListItemDTO[]>>> => {
   try {
     const userId = req.user._id;
 
@@ -294,15 +285,10 @@ export const getCurrentStayEvents = async (
 
     const events = await eventRepository.findUpcomingByHostelId(activeReservation.hostel_id.toString());
 
-    const formattedEvents = events.map(event => ({
-      ...event.toObject(),
-      price: formatPrice(event.price),
-    }));
-
     return res.status(200).json({
       message: 'Current stay events retrieved successfully',
       success: true,
-      data: formattedEvents,
+      data: events,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -319,6 +305,7 @@ export const joinEvent = async (
   try {
     const userId = req.user._id;
     const eventId = req.params.id;
+    const guest = await Guest.findById(userId);
 
     const eventRepository = new EventRepository();
     const event = await eventRepository.findById(eventId);
@@ -330,8 +317,15 @@ export const joinEvent = async (
       });
     }
 
+    if (!guest) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guest not found',
+      });
+    }
+
     // Check if user is already attending
-    if (event.attendees && event.attendees.includes(userId)) {
+    if (event.attendees && event.attendees.includes(guest._id)) {
       return res.status(400).json({
         success: false,
         message: 'User is already attending this event',
@@ -352,7 +346,7 @@ export const joinEvent = async (
     if (!event.attendees) {
       event.attendees = [];
     }
-    event.attendees.push(userId);
+    event.attendees.push(guest._id);
     
     await event.save();
 
@@ -422,6 +416,36 @@ export const leaveEvent = async (
       success: true,
       message: 'Successfully left event',
       data: updatedEvent,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error',
+    });
+  }
+};
+
+export const getEventById = async (
+  req: AuthenticatedRequest & { params: { id: string } },
+  res: Response<BackendResponse<IEventDocument>>
+): Promise<Response<BackendResponse<IEventDocument>>> => {
+  try {
+    const eventId = req.params.id;
+
+    const eventRepository = new EventRepository();
+    const event = await eventRepository.findById(eventId);
+    
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Event retrieved successfully',
+      data: event,
     });
   } catch (error: any) {
     return res.status(500).json({

@@ -10,6 +10,7 @@ import {
   deleteEvent,
   joinEvent,
   leaveEvent,
+  getEventById,
 } from '../controllers/events.controllers.ts';
 import { upload } from '../middleware/saveUploads.js';
 import catchAsync from '../utils/catchAsync.js';
@@ -30,6 +31,8 @@ router.get('/public', protectRoute, catchAsync(getPublicEvents));
 
 router.get('/current-stay', protectRoute, catchAsync(getCurrentStayEvents));
 
-router.get('/:hostelId', protectRoute, catchAsync(getAllEvents));
+router.get('/hostel/:hostelId', protectRoute, catchAsync(getAllEvents));
+
+router.get('/:id', protectRoute, catchAsync(getEventById));
 
 export default router;

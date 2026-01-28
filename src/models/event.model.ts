@@ -39,11 +39,11 @@ const EventSchema = new Schema<IEventDocument>({
       type: String,
     },
   },
-  startDate: {
+  start_date: {
     type: Date,
     required: true,
   },
-  endDate: {
+  end_date: {
     type: Date,
     required: true,
   },

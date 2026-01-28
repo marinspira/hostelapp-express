@@ -11,8 +11,8 @@ export interface IEvent {
     country?: string;
     zip?: string;
   };
-  startDate: Date;
-  endDate: Date;
+  start_date: Date;
+  end_date: Date;
   photos_last_event: string[];
   unlimited_spots: boolean;
   spots_available?: number;
@@ -34,4 +34,20 @@ export interface IEvent {
 export interface IEventDocument extends IEvent, Document {
   _id: mongoose.Types.ObjectId;
   created_at: Date;
+}
+
+export interface IEventListItemDTO {
+  id: string;
+  name: string;
+  start_date: Date;
+  photos_last_event: string[];
+  attendees?: EventAttendee[];
+  free_entry: boolean;
+  price?: number;
+  currency?: string;
+}
+
+export interface EventAttendee {
+  id: string;
+  profileImage?: string;
 }
