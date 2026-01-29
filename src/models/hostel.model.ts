@@ -1,7 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
+import { IHostelDocument } from '../interfaces/hostel';
 
-const HostelSchema = new mongoose.Schema(
-  {
+export type IHostelModel = Model<IHostelDocument>;
+
+const HostelSchema = new Schema<IHostelDocument>({
     status: {
       type: String,
       enum: ['pending', 'approved', 'rejected', 'suspended'],
@@ -87,6 +89,6 @@ const HostelSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Hostel = mongoose.model('Hostel', HostelSchema);
+const Hostel = mongoose.model<IHostelDocument>('Hostel', HostelSchema);
 
 export default Hostel;

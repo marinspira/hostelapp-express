@@ -1,5 +1,5 @@
 import Event from '../models/event.model.ts';
-import type { EventAttendee, IEventDocument, IEventListItemDTO } from '../interfaces/event.ts';
+import type { IEventDocument, IEventListItemDTO } from '../interfaces/event.ts';
 
 export class EventRepository {
   async create(event: Partial<IEventDocument>): Promise<IEventDocument> {

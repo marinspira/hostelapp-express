@@ -1,15 +1,5 @@
 import { Document, Types } from 'mongoose';
 
-import { IUser } from './user';
-import { Room } from './room';
-
-import { IEvent } from '.';
-
-interface _Bed {
-  bed: string;
-  reservation_id: string | null;
-}
-
 export type HostelStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
 export interface IHostel {
@@ -17,6 +7,7 @@ export interface IHostel {
   stripeAccountId?: string;
   logo?: string;
   name: string;
+  username: string;
   address: {
     street: string;
     city: string;
@@ -28,18 +19,16 @@ export interface IHostel {
   website?: string;
   experience_with_volunteers?: boolean;
   currency: string;
-  rooms?: Room[];
-  owners?: IUser[];
-  user_id_guests?: IUser[];
-  user_id_staffs?: IUser[];
-  events?: IEvent[];
-  // volunteer_opportunities?: Position[];
-  created_at?: Date;
+  rooms?: Types.ObjectId[];
+  user_id_owners?: Types.ObjectId[];
+  user_id_guests?: Types.ObjectId[];
+  user_id_staffs?: Types.ObjectId[];
+  events?: Types.ObjectId[];
+  volunteer_opportunities?: Types.ObjectId[];
   policies: boolean;
 }
 
 export interface IHostelDocument extends IHostel, Document {
   _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
 }

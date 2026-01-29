@@ -16,9 +16,3 @@ export interface IUserDocument extends IUser, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface UserState {
-  data: IUser | null;
-  loading: boolean;
-  error: string | null;
-}

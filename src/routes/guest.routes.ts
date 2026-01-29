@@ -10,7 +10,7 @@ import {
   saveGuestProfileImages,
   searchGuest,
   updateGuest,
-} from '../controllers/guest.controllers.ts';
+} from '../controllers/guest.controller.ts';
 // @ts-ignore
 import protectRoute from '../middleware/protectRoute.js';
 // @ts-ignore

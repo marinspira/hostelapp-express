@@ -1,0 +1,29 @@
+import { IUserDocument } from '../interfaces/user.ts';
+import Hostel from '../models/hostel.model.ts';
+
+export default class HostelService {
+  constructor() {
+    // Initialization code
+  }
+
+  public async findHostelsByOwner(user: IUserDocument) {
+    const hostel = await Hostel.findOne({ user_id_owners: user._id });
+    return hostel;
+  }
+
+  async createHostel(_hostelData: any) {
+    // Create hostel logic
+  }
+
+  async getHostelDetails(_hostelId: string) {
+    // Fetch hostel details logic
+  }
+
+  async updateHostelInfo(_hostelId: string, _updateData: any) {
+    // Update hostel information logic
+  }
+
+  async deleteHostel(_hostelId: string) {
+    // Delete hostel logic
+  }
+}

@@ -42,13 +42,13 @@ export interface IEventListItemDTO {
   name: string;
   start_date: Date;
   photos_last_event: string[];
-  attendees?: EventAttendee[];
+  attendees?: IEventAttendee[];
   free_entry: boolean;
   price?: number;
   currency?: string;
 }
 
-export interface EventAttendee {
+export interface IEventAttendee {
   id: Types.ObjectId | string;
   profileImage?: string;
 }
