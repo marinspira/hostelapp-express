@@ -38,7 +38,7 @@
  *           items:
  *             type: object
  *             properties:
- *               bed_number:
+ *               bed:
  *                 type: string
  *                 description: Unique identifier of the bed (within the room)
  *                 example: "A"
@@ -87,7 +87,7 @@ const RoomSchema = new mongoose.Schema(
     },
     beds: [
       {
-        bed_number: {
+        bed: {
           type: String,
           required: true,
         },

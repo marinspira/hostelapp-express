@@ -1,11 +1,6 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 
-import type { IEvent } from '../interfaces/event';
-
-export interface IEventDocument extends IEvent, Document {
-  _id: mongoose.Types.ObjectId;
-  created_at: Date;
-}
+import type { IEventDocument } from '../interfaces/event';
 
 export type IEventModel = Model<IEventDocument>;
 
@@ -16,6 +11,10 @@ const EventSchema = new Schema<IEventDocument>({
   },
   description: {
     type: String,
+    required: true,
+  },
+  open_to_public: {
+    type: Boolean,
     required: true,
   },
   hostel_location: {
@@ -36,12 +35,15 @@ const EventSchema = new Schema<IEventDocument>({
     zip: {
       type: String,
     },
+    country: {
+      type: String,
+    },
   },
-  startDate: {
+  start_date: {
     type: Date,
     required: true,
   },
-  endDate: {
+  end_date: {
     type: Date,
     required: true,
   },
@@ -91,7 +93,7 @@ const EventSchema = new Schema<IEventDocument>({
   attendees: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Guest',
     },
   ],
   payment_methods: {

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-import User from '../models/user.model.js';
+import User from '../models/user.model.ts';
 
 // Middleware function to protect routes
 const protectRoute = async (req, res, next) => {
@@ -31,8 +31,6 @@ const protectRoute = async (req, res, next) => {
 
     // Attach the user object to the request for use in the next middleware/route handler
     req.user = user;
-
-    console.log(user);
 
     // Call the next middleware or route handler
     next();

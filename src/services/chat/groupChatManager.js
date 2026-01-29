@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-import Chat from '../../models/chat.model.js';
-import Hostel from '../../models/hostel.model.js';
+import Chat from '../../models/chat.model.ts';
+import Hostel from '../../models/hostel.model.ts';
 
 /**
  * Garante que existe um chat de grupo para o hostel e adiciona todos os guests associados

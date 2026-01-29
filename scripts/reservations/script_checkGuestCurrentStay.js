@@ -16,9 +16,9 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import User from '../../src/models/user.model.js';
-import Guest from '../../src/models/guest.model.js';
-import Reservation from '../../src/models/reservation.model.js';
+import User from '../../src/models/user.model.ts';
+import Guest from '../../src/models/guest.model.ts';
+import Reservation from '../../src/models/reservation.model.ts';
 
 // Carrega as variáveis de ambiente
 dotenv.config();
@@ -130,8 +130,8 @@ async function displayResults(user, guest, activeReservations) {
 
     console.log(`\n🏨 Reserva ${i + 1}:`);
     console.log(`   🏢 Hostel: ${hostel?.name || 'Nome não disponível'}`);
-    console.log(`   🏠 Quarto: ${reservation.room_number}`);
-    console.log(`   🛏️  Cama: ${reservation.bed_number}`);
+    console.log(`   🏠 Quarto: ${reservation.room}`);
+    console.log(`   🛏️  Cama: ${reservation.bed}`);
     console.log(`   📅 Check-in: ${reservation.checkin_date.toLocaleDateString('pt-BR')}`);
     console.log(`   📅 Check-out: ${reservation.checkout_date.toLocaleDateString('pt-BR')}`);
     console.log(`   📊 Status: ${reservation.status}`);

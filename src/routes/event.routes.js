@@ -4,8 +4,13 @@ import protectRoute from '../middleware/protectRoute.js';
 import {
   createEvent,
   getAllEvents,
+  getPublicEvents,
+  getCurrentStayEvents,
   updateEvent,
   deleteEvent,
+  joinEvent,
+  leaveEvent,
+  getEventById,
 } from '../controllers/events.controllers.ts';
 import { upload } from '../middleware/saveUploads.js';
 import catchAsync from '../utils/catchAsync.js';
@@ -18,6 +23,16 @@ router.put('/update/:id', protectRoute, upload.array('images', 4), catchAsync(up
 
 router.delete('/delete/:id', protectRoute, catchAsync(deleteEvent));
 
-router.get('/:hostelId', protectRoute, catchAsync(getAllEvents));
+router.post('/join/:id', protectRoute, catchAsync(joinEvent));
+
+router.delete('/leave/:id', protectRoute, catchAsync(leaveEvent));
+
+router.get('/public', protectRoute, catchAsync(getPublicEvents));
+
+router.get('/current-stay', protectRoute, catchAsync(getCurrentStayEvents));
+
+router.get('/hostel/:hostelId', protectRoute, catchAsync(getAllEvents));
+
+router.get('/:id', protectRoute, catchAsync(getEventById));
 
 export default router;

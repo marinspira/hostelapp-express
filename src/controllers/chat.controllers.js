@@ -1,8 +1,8 @@
-import Chat from '../models/chat.model.js';
-import Hostel from '../models/hostel.model.js';
-import User from '../models/user.model.js';
-import Message from '../models/messages.model.js';
-import Guest from '../models/guest.model.js';
+import Chat from '../models/chat.model.ts';
+import Hostel from '../models/hostel.model.ts';
+import User from '../models/user.model.ts';
+import Message from '../models/messages.model.ts';
+import Guest from '../models/guest.model.ts';
 
 // Helper to get sender name/photo for a message
 const getSenderName = async msg => {

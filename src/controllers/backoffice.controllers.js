@@ -1,6 +1,6 @@
-import ErrorLog from '../models/logs.model.js';
-import Hostel from '../models/hostel.model.js';
-import User from '../models/user.model.js';
+import ErrorLog from '../models/logs.model.ts';
+import Hostel from '../models/hostel.model.ts';
+import User from '../models/user.model.ts';
 
 export const getUsers = async (req, res) => {
   const users = await User.find();

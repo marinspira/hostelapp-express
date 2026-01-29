@@ -13,11 +13,11 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import User from '../../src/models/user.model.js';
-import Guest from '../../src/models/guest.model.js';
-import Hostel from '../../src/models/hostel.model.js';
-import Reservation from '../../src/models/reservation.model.js';
-import Room from '../../src/models/room.model.js';
+import User from '../../src/models/user.model.ts';
+import Guest from '../../src/models/guest.model.ts';
+import Hostel from '../../src/models/hostel.model.ts';
+import Reservation from '../../src/models/reservation.model.ts';
+import Room from '../../src/models/room.model.ts';
 import { addGuestToHostelGroup } from '../../services/chat/groupChatManager.js';
 
 dotenv.config();
@@ -101,8 +101,8 @@ async function main() {
     // Insert reservation directly to avoid triggering any potentially broken post-save middleware
     const reservationDoc = {
       user_id_guest: user._id,
-      room_number: room.name,
-      bed_number: availableBed.bed_number,
+      room: room.name,
+      bed: availableBed.bed,
       checkin_date: checkin,
       checkout_date: checkout,
       hostel_id: new mongoose.Types.ObjectId(TARGET_HOSTEL_ID),
@@ -115,7 +115,7 @@ async function main() {
 
     // Update the room bed to point to this reservation
     await Room.updateOne(
-      { name: room.name, 'beds.bed_number': availableBed.bed_number },
+      { name: room.name, 'beds.bed': availableBed.bed },
       { $set: { 'beds.$.reservation_id': reservationId } }
     );
 

@@ -17,17 +17,20 @@ import Stripe from 'stripe';
 
 import openApiSpec from './swagger/index.js';
 import logger from './logs.js';
-import connectToMongoDB from './db/connectToMongoDB.js';
+import connectToMongoDB from './src/db/connectToMongoDB.js';
 import authRoutes from './src/routes/auth.routes.js';
-import guestRoutes from './src/routes/guest.routes.js';
+import guestRoutes from './src/routes/guest.routes.ts';
 import hostelRoutes from './src/routes/hostel.routes.js';
 import roomRoutes from './src/routes/room.routes.js';
 import reservationRoutes from './src/routes/reservation.routes.js';
 import chatRoutes from './src/routes/chat.routes.js';
+import notificationRoutes from './src/routes/notification.routes.js';
 import stripeRoutes from './src/routes/stripe.routes.js';
 import eventRoutes from './src/routes/event.routes.js';
 import backofficeRoutes from './src/routes/backoffice.routes.js';
+import premiumRoutes from './src/routes/premium.routes.ts';
 import errorHandler from './src/middleware/errorHandler.js';
+import { startAutomaticCheckoutJob } from './src/jobs/automaticCheckout.job.ts';
 
 dotenv.config();
 
@@ -80,9 +83,11 @@ app.use('/api/hostels', hostelRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/backoffice', backofficeRoutes);
+app.use('/api/premium', premiumRoutes);
 
 // Static files
 const uploadsPath = path.join(__dirname, 'uploads');
@@ -176,5 +181,6 @@ io.on('connection', socket => {
 
 server.listen(PORT, () => {
   connectToMongoDB();
+  startAutomaticCheckoutJob();
   console.log(`Server running on port ${PORT}`);
 });

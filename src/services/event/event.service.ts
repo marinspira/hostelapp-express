@@ -1,7 +1,6 @@
-import type { IEventDocument } from '../../models/event.model.ts';
 import { EventRepository } from '../../repositories/event.repository.ts';
 import { HostelRepository } from '../../repositories/hostel.repository.ts';
-import type { IEvent } from '../../interfaces/event.ts';
+import type { IEvent, IEventDocument } from '../../interfaces/event.ts';
 
 export class EventService {
   private readonly eventRepo: EventRepository;
@@ -90,13 +89,14 @@ export class EventService {
       name: parsedEvent.name,
       description: parsedEvent.description,
       hostel_location: parsedEvent.hostel_location,
-      startDate: parsedEvent.startDate,
-      endDate: parsedEvent.endDate,
+      start_date: parsedEvent.start_date,
+      end_date: parsedEvent.end_date,
       photos_last_event: imagePaths || [],
       unlimited_spots: parsedEvent.unlimited_spots,
       free_entry: parsedEvent.free_entry,
       event_recurring: parsedEvent.event_recurring,
       payment_methods: parsedEvent.payment_methods,
+      open_to_public: parsedEvent.open_to_public,
       hostel_id: hostel._id,
       status: 'approved',
     };

@@ -56,9 +56,9 @@ const router = express.Router();
  *                 capacity: 4
  *                 organization_by: "Letter"
  *                 beds:
- *                   - bed_number: "A"
+ *                   - bed: "A"
  *                     reservation_id: null
- *                   - bed_number: "B"
+ *                   - bed: "B"
  *                     reservation_id: null
  *       400:
  *         description: Validation or duplication error
@@ -112,10 +112,10 @@ router.post('/create', protectRoute, catchAsync(createRoom));
  *                   organization_by: "Por letras"
  *                   hostel: "64f999defabc1234567890gh"
  *                   beds:
- *                     - bed_number: "A"
+ *                     - bed: "A"
  *                       reservation_id: null
  *                       guestPhoto: "https://example.com/guest1.jpg"
- *                     - bed_number: "B"
+ *                     - bed: "B"
  *                       reservation_id: "64fabc1234567890abcdef12"
  *                       guestPhoto: "https://example.com/guest2.jpg"
  *       400:
@@ -165,9 +165,9 @@ router.get('/', protectRoute, catchAsync(getAllRooms));
  *               message: Available beds retrieved successfully!
  *               success: true
  *               data:
- *                 - room_number: "Room A1"
+ *                 - room: "Room A1"
  *                   beds: ["A", "B"]
- *                 - room_number: "Room B1"
+ *                 - room: "Room B1"
  *                   beds: ["1", "2"]
  *       400:
  *         description: Missing dates or hostel not found

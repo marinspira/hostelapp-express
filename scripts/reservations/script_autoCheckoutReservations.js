@@ -19,10 +19,10 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import Reservation from '../../src/models/reservation.model.js';
-import Room from '../../src/models/room.model.js';
-import Guest from '../../src/models/guest.model.js';
-import Hostel from '../../src/models/hostel.model.js';
+import Reservation from '../../src/models/reservation.model.ts';
+import Room from '../../src/models/room.model.ts';
+import Guest from '../../src/models/guest.model.ts';
+import Hostel from '../../src/models/hostel.model.ts';
 import { removeGuestFromHostelGroup } from '../../src/services/chat/groupChatManager.js';
 
 dotenv.config();
@@ -41,11 +41,11 @@ async function processCheckout(reservation, session) {
   );
 
   // 2) clear room bed reservation_id
-  // We assume room documents have structure with name and beds array with bed_number and reservation_id
+  // We assume room documents have structure with name and beds array with bed and reservation_id
   await Room.updateOne(
     {
-      name: reservation.room_number,
-      'beds.bed_number': reservation.bed_number,
+      name: reservation.room,
+      'beds.bed': reservation.bed,
     },
     { $set: { 'beds.$.reservation_id': null } },
     { session }

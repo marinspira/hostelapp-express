@@ -1,21 +1,24 @@
-import { Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
 export interface IEvent {
   name: string;
   description: string;
+  open_to_public: boolean;
   hostel_location: boolean;
   address?: {
     street?: string;
     city?: string;
+    country?: string;
     zip?: string;
   };
-  startDate: Date;
-  endDate: Date;
+  start_date: Date;
+  end_date: Date;
   photos_last_event: string[];
   unlimited_spots: boolean;
   spots_available?: number;
   free_entry: boolean;
   price?: number;
+  currency?: string;
   payment_to_hostel: boolean;
   receive_payment_online?: boolean;
   event_recurring: boolean;
@@ -27,4 +30,25 @@ export interface IEvent {
   hostel_id?: Types.ObjectId;
   suggested_by?: Types.ObjectId;
   status?: 'pending' | 'approved' | 'rejected';
+}
+
+export interface IEventDocument extends IEvent, Document {
+  _id: mongoose.Types.ObjectId;
+  created_at: Date;
+}
+
+export interface IEventListItemDTO {
+  id: string;
+  name: string;
+  start_date: Date;
+  photos_last_event: string[];
+  attendees?: EventAttendee[];
+  free_entry: boolean;
+  price?: number;
+  currency?: string;
+}
+
+export interface EventAttendee {
+  id: Types.ObjectId | string;
+  profileImage?: string;
 }

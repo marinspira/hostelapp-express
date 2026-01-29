@@ -11,8 +11,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import connectToMongoDB from '../../db/connectToMongoDB.js';
-import Reservation from '../../src/models/reservation.model.js';
-import Guest from '../../src/models/guest.model.js';
+import Reservation from '../../src/models/reservation.model.ts';
+import Guest from '../../src/models/guest.model.ts';
 
 dotenv.config();
 

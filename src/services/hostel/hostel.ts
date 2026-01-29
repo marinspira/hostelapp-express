@@ -1,5 +1,5 @@
 // @ts-ignore
-import Hostel from '../../models/hostel.model.js';
+import Hostel from '../../models/hostel.model.ts';
 import { IUser } from '../../interfaces/index.js';
 
 export default class HostelService {
