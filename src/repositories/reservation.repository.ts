@@ -37,7 +37,7 @@ export class ReservationRepository {
     return Reservation.findOne({
       user_id_guest: guestId,
       checkin_date: { $lte: new Date() },
-      checkout_date: { $gte: new Date() }
+      checkout_date: { $gte: new Date() },
     });
   }
 }

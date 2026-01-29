@@ -113,10 +113,10 @@ export const updateEvent = async (
 ): Promise<Response<BackendResponse<IEventDocument>>> => {
   const user = req.user;
   const eventId = req.params.id;
-  
+
   const hostelRepository = new HostelRepository();
   const eventRepository = new EventRepository();
-  
+
   const hostel = await hostelRepository.findByOwner(user._id.toString());
 
   const event: IEvent =
@@ -203,7 +203,7 @@ export const deleteEvent = async (
 
   const hostelRepository = new HostelRepository();
   const eventRepository = new EventRepository();
-  
+
   const hostel = await hostelRepository.findByOwner(user._id.toString());
 
   if (!hostel) {
@@ -274,7 +274,9 @@ export const getCurrentStayEvents = async (
     const reservationRepository = new ReservationRepository();
     const eventRepository = new EventRepository();
 
-    const activeReservation = await reservationRepository.findCurrentStayByGuestId(userId.toString());
+    const activeReservation = await reservationRepository.findCurrentStayByGuestId(
+      userId.toString()
+    );
 
     if (!activeReservation) {
       return res.status(404).json({
@@ -283,7 +285,9 @@ export const getCurrentStayEvents = async (
       });
     }
 
-    const events = await eventRepository.findUpcomingByHostelId(activeReservation.hostel_id.toString());
+    const events = await eventRepository.findUpcomingByHostelId(
+      activeReservation.hostel_id.toString()
+    );
 
     return res.status(200).json({
       message: 'Current stay events retrieved successfully',
@@ -309,7 +313,7 @@ export const joinEvent = async (
 
     const eventRepository = new EventRepository();
     const event = await eventRepository.findById(eventId);
-    
+
     if (!event) {
       return res.status(404).json({
         success: false,
@@ -347,7 +351,7 @@ export const joinEvent = async (
       event.attendees = [];
     }
     event.attendees.push(guest._id);
-    
+
     await event.save();
 
     const updatedEvent = await Event.findById(eventId).populate('attendees', 'name email');
@@ -382,7 +386,7 @@ export const leaveEvent = async (
 
     const eventRepository = new EventRepository();
     const event = await eventRepository.findById(eventId);
-    
+
     if (!event) {
       return res.status(404).json({
         success: false,
@@ -407,7 +411,7 @@ export const leaveEvent = async (
 
     // Remove user from attendees
     event.attendees = event.attendees.filter(attendeeId => !attendeeId.equals(guest._id));
-    
+
     await event.save();
 
     const updatedEvent = await Event.findById(eventId).populate('attendees', 'name email');
@@ -440,7 +444,7 @@ export const getEventById = async (
 
     const eventRepository = new EventRepository();
     const event = await eventRepository.findByIdWithAttendeeProfiles(eventId);
-    
+
     if (!event) {
       return res.status(404).json({
         success: false,

@@ -18,7 +18,13 @@ const NotificationSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['reservation_created', 'reservation_cancelled', 'guest_checkedout', 'event_created', 'message_received'],
+      enum: [
+        'reservation_created',
+        'reservation_cancelled',
+        'guest_checkedout',
+        'event_created',
+        'message_received',
+      ],
     },
     title: {
       type: String,

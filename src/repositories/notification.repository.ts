@@ -1,7 +1,8 @@
+import { Query, Types } from 'mongoose';
+
 import Notification from '../models/notification.model';
 import type INotification from '../interfaces/notification.ts';
 import type { INotificationDocument } from '../interfaces/notification.ts';
-import { Query, Types } from 'mongoose';
 
 export class NotificationRepository {
   create(data: INotification): Promise<INotificationDocument> {
@@ -28,24 +29,18 @@ export class NotificationRepository {
 
   markAsRead(id: string): Promise<INotificationDocument | null> {
     return Notification.findByIdAndUpdate(
-      id, 
-      { read: true }, 
+      id,
+      { read: true },
       { new: true }
     ).exec() as Promise<INotificationDocument | null>;
   }
 
   markAllAsReadForUser(userId: string): Promise<any> {
-    return Notification.updateMany(
-      { 'recipient.user': userId, read: false },
-      { read: true }
-    );
+    return Notification.updateMany({ 'recipient.user': userId, read: false }, { read: true });
   }
 
   markAllAsReadForHostel(hostelId: string): Promise<any> {
-    return Notification.updateMany(
-      { 'recipient.hostel': hostelId, read: false },
-      { read: true }
-    );
+    return Notification.updateMany({ 'recipient.hostel': hostelId, read: false }, { read: true });
   }
 
   delete(id: string): Promise<INotificationDocument | null> {
@@ -70,7 +65,7 @@ export class NotificationRepository {
   deleteOldNotifications(): Promise<any> {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     return Notification.deleteMany({
       createdAt: { $lt: thirtyDaysAgo },
       read: true,

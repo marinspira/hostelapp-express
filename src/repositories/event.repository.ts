@@ -11,9 +11,15 @@ export class EventRepository {
     return Event.findById(eventId);
   }
 
-  async findByIdWithAttendeeProfiles(eventId: string): Promise<(Omit<IEventDocument, 'attendees'> & { attendees: { id: string; profileImage?: string }[] }) | null> {
+  async findByIdWithAttendeeProfiles(
+    eventId: string
+  ): Promise<
+    | (Omit<IEventDocument, 'attendees'> & { attendees: { id: string; profileImage?: string }[] })
+    | null
+  > {
     const event = await Event.findById(eventId)
       .populate('attendees', 'profileImage')
+      .populate({ path: 'hostel_id', select: 'currency' })
       .lean();
 
     if (!event) return null;
@@ -24,6 +30,7 @@ export class EventRepository {
         id: guest._id?.toString(),
         profileImage: guest.profile,
       })),
+      currency: (event.hostel_id as any)?.currency,
     };
   }
 

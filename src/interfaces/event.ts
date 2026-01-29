@@ -18,6 +18,7 @@ export interface IEvent {
   spots_available?: number;
   free_entry: boolean;
   price?: number;
+  currency?: string;
   payment_to_hostel: boolean;
   receive_payment_online?: boolean;
   event_recurring: boolean;

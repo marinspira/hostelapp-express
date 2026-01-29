@@ -1,7 +1,8 @@
-import type { INotificationDocument } from '../../interfaces/notification.ts';
-import INotification from "../../interfaces/notification.ts"
-import { NotificationRepository } from '../../repositories/notification.repository.ts';
 import { Types } from 'mongoose';
+
+import type { INotificationDocument } from '../../interfaces/notification.ts';
+import INotification from '../../interfaces/notification.ts';
+import { NotificationRepository } from '../../repositories/notification.repository.ts';
 // @ts-ignore
 import Hostel from '../../models/hostel.model.ts';
 // @ts-ignore
@@ -64,8 +65,8 @@ export class NotificationService {
       const hostel = await Hostel.findById(hostelId);
       const hostelOwners = await Hostel.findById(hostelId).populate('user_id_owners');
       if (hostelOwners && hostelOwners.user_id_owners) {
-        const owners = Array.isArray(hostelOwners.user_id_owners) 
-          ? hostelOwners.user_id_owners 
+        const owners = Array.isArray(hostelOwners.user_id_owners)
+          ? hostelOwners.user_id_owners
           : [hostelOwners.user_id_owners];
 
         for (const owner of owners) {
@@ -82,7 +83,7 @@ export class NotificationService {
               guestName,
               hostelId,
               checkinDate,
-              checkoutDate
+              checkoutDate,
             },
           });
         }
@@ -100,7 +101,7 @@ export class NotificationService {
           hostelId,
           hostelName: hostel?.name,
           checkinDate,
-          checkoutDate
+          checkoutDate,
         },
       });
     } catch (error) {
@@ -122,8 +123,8 @@ export class NotificationService {
 
       const hostelOwners = await Hostel.findById(hostelId).populate('user_id_owners');
       if (hostelOwners && hostelOwners.user_id_owners) {
-        const owners = Array.isArray(hostelOwners.user_id_owners) 
-          ? hostelOwners.user_id_owners 
+        const owners = Array.isArray(hostelOwners.user_id_owners)
+          ? hostelOwners.user_id_owners
           : [hostelOwners.user_id_owners];
 
         for (const owner of owners) {

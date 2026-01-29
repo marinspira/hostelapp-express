@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { NotificationController } from '../controllers/notification.controllers.ts';
 import { NotificationService } from '../services/notification/index.ts';
 import { NotificationRepository } from '../repositories/notification.repository.ts';

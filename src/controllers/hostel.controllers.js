@@ -97,14 +97,16 @@ export const getAllGuests = async (req, res) => {
     });
   }
 
-  // Get current reservations (in house status)
+  // Get current reservations (in house and walking in status)
   const currentReservations = await Reservation.find({
     hostel_id: existingHostel._id,
-    status: 'in house',
-  }).populate({
-    path: 'user_id_guest',
-    select: 'email',
-  });
+    status: { $in: ['in house', 'walking in'] },
+  })
+    .populate({
+      path: 'user_id_guest',
+      select: 'email',
+    })
+    .sort({ checkin_date: -1 }); // Sort by most recent checkin date
 
   if (!currentReservations.length) {
     return res.status(200).json({
@@ -114,15 +116,39 @@ export const getAllGuests = async (req, res) => {
     });
   }
 
-  // Get guest details for current reservations
-  const guestUserIds = currentReservations.map(reservation => reservation.user_id_guest._id);
+  // Group reservations by guest and keep only the most recent one for each guest
+  const guestReservationsMap = new Map();
+  const currentDate = new Date();
+
+  currentReservations.forEach(reservation => {
+    const guestId = reservation.user_id_guest._id.toString();
+    const existingReservation = guestReservationsMap.get(guestId);
+
+    if (!existingReservation) {
+      guestReservationsMap.set(guestId, reservation);
+    } else {
+      // Compare dates to find the reservation closest to current date
+      const currentReservationDate = new Date(reservation.checkin_date);
+      const existingReservationDate = new Date(existingReservation.checkin_date);
+
+      // Keep the reservation that is closest to current date (most recent checkin)
+      if (currentReservationDate > existingReservationDate) {
+        guestReservationsMap.set(guestId, reservation);
+      }
+    }
+  });
+
+  const uniqueReservations = Array.from(guestReservationsMap.values());
+
+  // Get guest details for unique reservations
+  const guestUserIds = uniqueReservations.map(reservation => reservation.user_id_guest._id);
 
   const guestsData = await Guest.find({ user: { $in: guestUserIds } }).populate({
     path: 'user',
     select: 'email',
   });
 
-  const guests = currentReservations.map(reservation => {
+  const guests = uniqueReservations.map(reservation => {
     const guestData = guestsData.find(
       guest => guest.user._id.toString() === reservation.user_id_guest._id.toString()
     );

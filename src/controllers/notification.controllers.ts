@@ -1,4 +1,5 @@
 import { Response } from 'express';
+
 import { NotificationService } from '../services/notification/index.ts';
 import { AuthenticatedRequest } from '../interfaces/index.ts';
 // @ts-ignore
@@ -16,7 +17,7 @@ export class NotificationController {
 
       // Check if user is a hostel owner
       const hostel = await Hostel.findOne({ user_id_owners: user._id });
-      
+
       let notifications;
       if (hostel) {
         notifications = await this._service.getNotificationsForHostel(hostel._id.toString());
@@ -29,10 +30,10 @@ export class NotificationController {
         data: notifications,
       });
     } catch (error: any) {
-      return res.status(500).json({ 
-        message: 'Error fetching notifications', 
+      return res.status(500).json({
+        message: 'Error fetching notifications',
         error: error.message,
-        success: false 
+        success: false,
       });
     }
   };
@@ -48,9 +49,9 @@ export class NotificationController {
       const notification = await this._service.markAsRead(id);
 
       if (!notification) {
-        return res.status(404).json({ 
-          message: 'Notification not found', 
-          success: false 
+        return res.status(404).json({
+          message: 'Notification not found',
+          success: false,
         });
       }
 
@@ -59,10 +60,10 @@ export class NotificationController {
         data: notification,
       });
     } catch (error: any) {
-      return res.status(500).json({ 
-        message: 'Error marking notification as read', 
+      return res.status(500).json({
+        message: 'Error marking notification as read',
         error: error.message,
-        success: false 
+        success: false,
       });
     }
   };
@@ -76,7 +77,7 @@ export class NotificationController {
 
       // Check if user is a hostel owner
       const hostel = await Hostel.findOne({ user_id_owners: user._id });
-      
+
       if (hostel) {
         await this._service.markAllAsReadForHostel(hostel._id.toString());
       } else {
@@ -88,10 +89,10 @@ export class NotificationController {
         message: 'All notifications marked as read',
       });
     } catch (error: any) {
-      return res.status(500).json({ 
-        message: 'Error marking all notifications as read', 
+      return res.status(500).json({
+        message: 'Error marking all notifications as read',
         error: error.message,
-        success: false 
+        success: false,
       });
     }
   };
@@ -105,7 +106,7 @@ export class NotificationController {
 
       // Check if user is a hostel owner
       const hostel = await Hostel.findOne({ user_id_owners: user._id });
-      
+
       let count;
       if (hostel) {
         count = await this._service.getUnreadCount(undefined, hostel._id.toString());
@@ -118,10 +119,10 @@ export class NotificationController {
         data: { unreadCount: count },
       });
     } catch (error: any) {
-      return res.status(500).json({ 
-        message: 'Error getting unread count', 
+      return res.status(500).json({
+        message: 'Error getting unread count',
         error: error.message,
-        success: false 
+        success: false,
       });
     }
   };
@@ -137,9 +138,9 @@ export class NotificationController {
       const notification = await this._service.deleteNotification(id);
 
       if (!notification) {
-        return res.status(404).json({ 
-          message: 'Notification not found', 
-          success: false 
+        return res.status(404).json({
+          message: 'Notification not found',
+          success: false,
         });
       }
 
@@ -148,10 +149,10 @@ export class NotificationController {
         message: 'Notification deleted successfully',
       });
     } catch (error: any) {
-      return res.status(500).json({ 
-        message: 'Error deleting notification', 
+      return res.status(500).json({
+        message: 'Error deleting notification',
         error: error.message,
-        success: false 
+        success: false,
       });
     }
   };
