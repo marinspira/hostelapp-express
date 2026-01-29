@@ -48,6 +48,6 @@ export interface IEventListItemDTO {
 }
 
 export interface EventAttendee {
-  id: string;
+  id: Types.ObjectId | string;
   profileImage?: string;
 }

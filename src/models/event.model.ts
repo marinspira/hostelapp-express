@@ -93,7 +93,7 @@ const EventSchema = new Schema<IEventDocument>({
   attendees: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Guest',
     },
   ],
   payment_methods: {

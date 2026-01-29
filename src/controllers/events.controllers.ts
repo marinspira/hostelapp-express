@@ -300,12 +300,12 @@ export const getCurrentStayEvents = async (
 
 export const joinEvent = async (
   req: AuthenticatedRequest & { params: { id: string } },
-  res: Response<BackendResponse<IEventDocument>>
-): Promise<Response<BackendResponse<IEventDocument>>> => {
+  res: Response<BackendResponse<void>>
+): Promise<Response<BackendResponse<void>>> => {
   try {
     const userId = req.user._id;
     const eventId = req.params.id;
-    const guest = await Guest.findById(userId);
+    const guest = await Guest.findOne({ user: userId });
 
     const eventRepository = new EventRepository();
     const event = await eventRepository.findById(eventId);
@@ -362,7 +362,6 @@ export const joinEvent = async (
     return res.status(200).json({
       success: true,
       message: 'Successfully joined event',
-      data: updatedEvent,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -374,11 +373,12 @@ export const joinEvent = async (
 
 export const leaveEvent = async (
   req: AuthenticatedRequest & { params: { id: string } },
-  res: Response<BackendResponse<IEventDocument>>
-): Promise<Response<BackendResponse<IEventDocument>>> => {
+  res: Response<BackendResponse<void>>
+): Promise<Response<BackendResponse<void>>> => {
   try {
     const userId = req.user._id;
     const eventId = req.params.id;
+    const guest = await Guest.findOne({ user: userId });
 
     const eventRepository = new EventRepository();
     const event = await eventRepository.findById(eventId);
@@ -390,8 +390,15 @@ export const leaveEvent = async (
       });
     }
 
+    if (!guest) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guest not found',
+      });
+    }
+
     // Check if user is attending
-    if (!event.attendees || !event.attendees.includes(userId)) {
+    if (!event.attendees || !event.attendees.includes(guest._id)) {
       return res.status(400).json({
         success: false,
         message: 'User is not attending this event',
@@ -399,7 +406,7 @@ export const leaveEvent = async (
     }
 
     // Remove user from attendees
-    event.attendees = event.attendees.filter(attendeeId => !attendeeId.equals(userId));
+    event.attendees = event.attendees.filter(attendeeId => !attendeeId.equals(guest._id));
     
     await event.save();
 
@@ -415,7 +422,6 @@ export const leaveEvent = async (
     return res.status(200).json({
       success: true,
       message: 'Successfully left event',
-      data: updatedEvent,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -427,13 +433,13 @@ export const leaveEvent = async (
 
 export const getEventById = async (
   req: AuthenticatedRequest & { params: { id: string } },
-  res: Response<BackendResponse<IEventDocument>>
-): Promise<Response<BackendResponse<IEventDocument>>> => {
+  res: Response<BackendResponse<any>>
+): Promise<Response<BackendResponse<any>>> => {
   try {
     const eventId = req.params.id;
 
     const eventRepository = new EventRepository();
-    const event = await eventRepository.findById(eventId);
+    const event = await eventRepository.findByIdWithAttendeeProfiles(eventId);
     
     if (!event) {
       return res.status(404).json({

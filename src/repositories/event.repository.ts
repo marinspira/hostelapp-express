@@ -7,8 +7,24 @@ export class EventRepository {
     return newEvent.save();
   }
 
-  async findById(id: string): Promise<IEventDocument | null> {
-    return Event.findById(id);
+  async findById(eventId: string): Promise<IEventDocument | null> {
+    return Event.findById(eventId);
+  }
+
+  async findByIdWithAttendeeProfiles(eventId: string): Promise<(Omit<IEventDocument, 'attendees'> & { attendees: { id: string; profileImage?: string }[] }) | null> {
+    const event = await Event.findById(eventId)
+      .populate('attendees', 'profileImage')
+      .lean();
+
+    if (!event) return null;
+
+    return {
+      ...event,
+      attendees: (event.attendees as any[]).map((guest: any) => ({
+        id: guest._id?.toString(),
+        profileImage: guest.profile,
+      })),
+    };
   }
 
   async findByHostelId(hostelId: string): Promise<IEventDocument[]> {
