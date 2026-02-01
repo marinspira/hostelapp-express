@@ -1,8 +1,9 @@
 // @ts-ignore
+import { Types } from 'mongoose';
 import Hostel from '../models/hostel.model.ts';
 
 export class HostelRepository {
-  async findByOwner(ownerId: string) {
+  async findByOwner(ownerId: Types.ObjectId | string) {
     return Hostel.findOne({ user_id_owners: ownerId });
   }
 

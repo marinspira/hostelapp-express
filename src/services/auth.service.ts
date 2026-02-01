@@ -16,8 +16,8 @@ import {
 import { BackendResponse } from '../interfaces/index.ts';
 import {
   IsAuthenticatedResponse,
-  SendCodeResponse,
-  VerifyCodeResponse,
+  ISendCodeResponse,
+  IVerifyCodeResponse,
 } from '../interfaces/auth.interface.ts';
 import type { Response } from 'express';
 
@@ -38,7 +38,7 @@ interface SendEmailParams {
 export class AuthService {
   constructor(private readonly _authRepository: AuthRepository) {}
 
-  async sendEmailCode(email: string, role: 'guest' | 'host'): Promise<SendCodeResponse> {
+  async sendEmailCode(email: string, role: 'guest' | 'host'): Promise<ISendCodeResponse> {
     if (!email) throw new BadRequestError('Missing email');
 
     const emailLowercase = email.toLowerCase();
@@ -88,7 +88,7 @@ export class AuthService {
     email: string,
     code: string,
     role: 'guest' | 'host'
-  ): Promise<VerifyCodeResponse> {
+  ): Promise<IVerifyCodeResponse> {
     if (!email || !code) throw new BadRequestError('Missing email or code');
 
     const emailLowercase = email.toLowerCase();
@@ -118,7 +118,7 @@ export class AuthService {
 
     return {
       data: {
-        id: (user._id as Types.ObjectId).toString() as string,
+        _id: (user._id as Types.ObjectId).toString() as string,
         name: user.name as string,
         isNewUser: false,
         role: user.role,
@@ -138,7 +138,7 @@ export class AuthService {
 
     return {
       data: {
-        id: (user._id as Types.ObjectId).toString() as string,
+        _id: (user._id as Types.ObjectId).toString() as string,
         name: user.name,
         role: user.role,
         email: user.email,

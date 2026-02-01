@@ -9,3 +9,14 @@ export interface BackendResponse<T = Record<string, unknown>> {
 export interface AuthenticatedRequest extends Request {
   user: any;
 }
+
+export interface UploadedFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+}

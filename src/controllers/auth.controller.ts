@@ -4,18 +4,18 @@ import type { AuthenticatedRequest } from '../interfaces/index.ts';
 import { Route, Post, Body, Request, SuccessResponse, Security } from 'tsoa';
 import type {
   IsAuthenticatedResponse,
-  LogoutResponse,
-  SendCodeResponse,
-  SendEmailCodeDTO,
-  VerifyCodeResponse,
-  VerifyEmailCodeDTO,
+  ILogoutResponse,
+  ISendCodeResponse,
+  ISendEmailCodeDTO,
+  IVerifyCodeResponse,
+  IVerifyEmailCodeDTO,
 } from '../interfaces/auth.interface.ts';
 
 interface IAuthController {
-  sendEmailCode(body: SendEmailCodeDTO): Promise<SendCodeResponse>;
-  verifyEmailCode(body: VerifyEmailCodeDTO): Promise<VerifyCodeResponse>;
+  sendEmailCode(body: ISendEmailCodeDTO): Promise<ISendCodeResponse>;
+  verifyEmailCode(body: IVerifyEmailCodeDTO): Promise<IVerifyCodeResponse>;
   isAuthenticated(req: AuthenticatedRequest): Promise<IsAuthenticatedResponse>;
-  logout(req: AuthenticatedRequest): Promise<LogoutResponse>;
+  logout(req: AuthenticatedRequest): Promise<ILogoutResponse>;
 }
 
 @Route('/api/auth')
@@ -29,13 +29,13 @@ export class AuthController implements IAuthController {
 
   @SuccessResponse(200, 'Code sent successfully')
   @Post('send-code')
-  async sendEmailCode(@Body() body: SendEmailCodeDTO): Promise<SendCodeResponse> {
+  async sendEmailCode(@Body() body: ISendEmailCodeDTO): Promise<ISendCodeResponse> {
     return this.authService.sendEmailCode(body.email, body.role);
   }
 
   @SuccessResponse(200, 'Code verified successfully')
   @Post('verify-code')
-  async verifyEmailCode(@Body() body: VerifyEmailCodeDTO): Promise<VerifyCodeResponse> {
+  async verifyEmailCode(@Body() body: IVerifyEmailCodeDTO): Promise<IVerifyCodeResponse> {
     return this.authService.verifyEmailCode(body.email, body.code, body.role);
   }
 
@@ -49,7 +49,7 @@ export class AuthController implements IAuthController {
 
   @SuccessResponse(200, 'Logged out successfully')
   @Post('logout')
-  async logout(@Request() req: AuthenticatedRequest): Promise<LogoutResponse> {
+  async logout(@Request() req: AuthenticatedRequest): Promise<ILogoutResponse> {
     return this.authService.logout(req.user._id);
   }
 }

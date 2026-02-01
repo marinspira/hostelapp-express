@@ -1,5 +1,6 @@
 import Event from '../models/event.model.ts';
-import type { IEventDocument, IEventListItemDTO } from '../interfaces/event.ts';
+import type { IEventAttendee, IEventDocument, IEventListItem } from '../interfaces/event.interface.ts';
+import { Types } from 'mongoose';
 
 export class EventRepository {
   async create(event: Partial<IEventDocument>): Promise<IEventDocument> {
@@ -13,12 +14,9 @@ export class EventRepository {
 
   async findByIdWithAttendeeProfiles(
     eventId: string
-  ): Promise<
-    | (Omit<IEventDocument, 'attendees'> & { attendees: { id: string; profileImage?: string }[] })
-    | null
-  > {
+  ): Promise<IEventDocument | null> {
     const event = await Event.findById(eventId)
-      .populate('attendees', 'profileImage')
+      .populate('attendees', 'profile_image')
       .populate({ path: 'hostel_id', select: 'currency' })
       .lean();
 
@@ -26,33 +24,29 @@ export class EventRepository {
 
     return {
       ...event,
-      attendees: (event.attendees as any[]).map((guest: any) => ({
-        id: guest._id?.toString(),
-        profileImage: guest.profile,
+      attendees: (event.attendees as IEventAttendee[]).map((guest: any) => ({
+        _id: guest._id?.toString(),
+        profile_image: guest.profile_image,
       })),
       currency: (event.hostel_id as any)?.currency,
     };
   }
 
-  async findByHostelId(hostelId: string): Promise<IEventDocument[]> {
-    return Event.find({ hostel_id: hostelId }).populate('attendees', 'name email profileImage');
-  }
-
-  async findUpcomingByHostelId(hostelId: string): Promise<IEventListItemDTO[]> {
+  async findUpcomingByHostelId(hostelId: Types.ObjectId): Promise<IEventListItem[]> {
     const events = await Event.find({ hostel_id: hostelId, end_date: { $gte: new Date() } })
       .sort({ start_date: 1 })
       .populate({ path: 'attendees', select: 'profile_image' })
       .populate({ path: 'hostel_id', select: 'currency' })
       .lean();
     return events.map(event => ({
-      id: event._id.toString(),
+      _id: event._id.toString(),
       name: event.name,
       photos_last_event: event.photos_last_event,
       start_date: event.start_date,
       attendees:
-        (event.attendees as any[])?.map(a => ({
-          profile_image: a.profile_image ?? null,
-          id: a._id.toString(),
+        (event.attendees as IEventAttendee[])?.map(guest => ({
+          profile_image: guest.profile_image,
+          _id: guest._id.toString(),
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
       currency: (event.hostel_id as any)?.currency ?? null,
@@ -82,7 +76,7 @@ export class EventRepository {
     city: string,
     country: string,
     hostelIds: string[]
-  ): Promise<IEventListItemDTO[]> {
+  ): Promise<IEventListItem[]> {
     const query = {
       open_to_public: true,
       end_date: { $gte: new Date() },
@@ -110,14 +104,14 @@ export class EventRepository {
       .populate({ path: 'hostel_id', select: 'currency' })
       .lean();
     return events.map(event => ({
-      id: event._id.toString(),
+      _id: event._id.toString(),
       name: event.name,
       photos_last_event: event.photos_last_event,
       start_date: event.start_date,
       attendees:
-        (event.attendees as any[])?.map(a => ({
-          profile_image: a.profile_image ?? null,
-          id: a._id.toString(),
+        (event.attendees as IEventAttendee[])?.map(guest => ({
+          _id: guest._id.toString(),
+          profile_image: guest.profile_image,
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
       currency: (event.hostel_id as any)?.currency ?? null,

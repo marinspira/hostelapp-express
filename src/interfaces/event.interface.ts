@@ -1,4 +1,39 @@
 import mongoose, { Document, Types } from 'mongoose';
+import { AuthenticatedRequest, BackendResponse } from '.';
+import { IUserDocument } from './auth.interface';
+
+export interface ICreateEventResponse extends BackendResponse<IEventDocument> {
+  success: true;
+  message: string;
+  data: IEventDocument;
+}
+
+export interface IEventListItemResponse extends BackendResponse<IEventListItem[]> {
+  data: IEventListItem[];
+}
+
+export interface ICreateEventRequest extends AuthenticatedRequest {
+  body: {
+    event: string;
+  };
+  files: Express.Multer.File[];
+  user: IUserDocument;
+}
+
+export interface GetEventByIdResponse extends BackendResponse<IEventDocument> {
+  data: IEventDocument;
+}
+
+export interface IEventListItem {
+  _id: string;
+  name: string;
+  start_date: Date;
+  photos_last_event: string[];
+  attendees?: IEventAttendee[];
+  free_entry: boolean;
+  price?: number;
+  currency?: string;
+}
 
 export interface IEvent {
   name: string;
@@ -25,7 +60,7 @@ export interface IEvent {
   event_frequency?: Array<
     'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday' | number
   >;
-  attendees?: Types.ObjectId[];
+  attendees?: IEventAttendee[];
   payment_methods: Array<'card' | 'cash'>;
   hostel_id?: Types.ObjectId;
   suggested_by?: Types.ObjectId;
@@ -37,18 +72,7 @@ export interface IEventDocument extends IEvent, Document {
   created_at: Date;
 }
 
-export interface IEventListItemDTO {
-  id: string;
-  name: string;
-  start_date: Date;
-  photos_last_event: string[];
-  attendees?: IEventAttendee[];
-  free_entry: boolean;
-  price?: number;
-  currency?: string;
-}
-
 export interface IEventAttendee {
-  id: Types.ObjectId | string;
-  profileImage?: string;
+  _id: Types.ObjectId | string;
+  profile_image?: string;
 }

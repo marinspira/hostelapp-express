@@ -1,23 +1,23 @@
 import { BackendResponse } from ".";
 import { Types, Document } from 'mongoose';
 
-export interface SendEmailCodeDTO {
+export interface ISendEmailCodeDTO {
   email: string;
   role: 'guest' | 'host';
 }
 
-export interface SendCodeResponse extends BackendResponse {
+export interface ISendCodeResponse extends BackendResponse {
   success: true;
   message: string;
 }
 
-export interface VerifyEmailCodeDTO {
+export interface IVerifyEmailCodeDTO {
   email: string;
   code: string;
   role: 'guest' | 'host';
 }
 
-export interface VerifyCodeResponse extends BackendResponse<IUserDTO> {
+export interface IVerifyCodeResponse extends BackendResponse<IUserDTO> {
   success: true;
   message: string;
   data: IUserDTO;
@@ -27,12 +27,12 @@ export interface IsAuthenticatedResponse extends BackendResponse<IUserDTO> {
   data: IUserDTO;
 }
 
-export interface LogoutResponse {
+export interface ILogoutResponse {
   success: true;
   message: string;
 }
 
-export interface ErrorResponse {
+export interface IErrorResponse {
   success: false;
   message: string;
 }
@@ -48,7 +48,7 @@ export interface IUser {
 }
 
 export interface IUserDTO extends IUser {
-  id: string;
+  _id: string;
 }
 
 export interface IUserDocument extends IUser, Document {

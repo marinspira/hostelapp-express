@@ -21,7 +21,7 @@ import { IGuestDocument } from '../interfaces/guest.ts';
 import { IHostelDocument } from '../interfaces/hostel.ts';
 import Hostel from '../models/hostel.model.ts';
 
-import { UploadedFile } from './events.controller.ts';
+import { UploadedFile } from './even.controller.ts';
 
 interface CreateGuestRequest extends AuthenticatedRequest {
   body: {
@@ -299,15 +299,15 @@ export const searchGuest = async (req: SearchGuestRequest, res: Response<Backend
   });
 };
 
-interface SaveGuestProfileImagesRequest extends AuthenticatedRequest {
+interface SaveGuestprofile_imagesRequest extends AuthenticatedRequest {
   body: {
     imageId: number;
   };
   file: UploadedFile;
 }
 
-export const saveGuestProfileImages = async (
-  req: SaveGuestProfileImagesRequest,
+export const saveGuestprofile_images = async (
+  req: SaveGuestprofile_imagesRequest,
   res: Response<BackendResponse<any>>
 ) => {
   const { imageId } = req.body;
@@ -360,14 +360,14 @@ export const saveGuestProfileImages = async (
   }
 };
 
-interface DeleteGuestProfileImageRequest extends AuthenticatedRequest {
+interface DeleteGuestprofile_imageRequest extends AuthenticatedRequest {
   body: {
     imageId: number;
   };
 }
 
-export const deleteGuestProfileImage = async (
-  req: DeleteGuestProfileImageRequest,
+export const deleteGuestprofile_image = async (
+  req: DeleteGuestprofile_imageRequest,
   res: Response<BackendResponse<any>>
 ) => {
   const { imageId } = req.body;

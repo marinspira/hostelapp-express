@@ -2,12 +2,12 @@ import express from 'express';
 
 // @ts-ignore
 import {
-  deleteGuestProfileImage,
+  deleteGuestprofile_image,
   getGuest,
   getHome,
   getCurrentStay,
   saveGuest,
-  saveGuestProfileImages,
+  saveGuestprofile_images,
   searchGuest,
   updateGuest,
 } from '../controllers/guest.controller.ts';
@@ -32,8 +32,8 @@ router.post(
   '/save-images',
   protectRoute,
   upload.single('photo'),
-  catchAsync(saveGuestProfileImages)
+  catchAsync(saveGuestprofile_images)
 );
-router.delete('/delete-images', protectRoute, catchAsync(deleteGuestProfileImage));
+router.delete('/delete-images', protectRoute, catchAsync(deleteGuestprofile_image));
 
 export default router;

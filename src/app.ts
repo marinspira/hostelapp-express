@@ -9,6 +9,9 @@ import swaggerUi from 'swagger-ui-express';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
+import eventRoutes from './routes/event.routes.ts';
+// import guestRoutes from './routes/guest.routes.ts';
+
 // @ts-ignore
 import errorHandler from './middleware/errorHandler.js';
 // @ts-ignore
@@ -40,12 +43,11 @@ const openApiSpec = JSON.parse(
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
 // Routes
-// app.use('/api/auth', authRoutes);
+app.use('/api/events', eventRoutes);
 // app.use('/api/guests', guestRoutes);
 // app.use('/api/hostels', hostelRoutes);
 // app.use('/api/reservations', reservationRoutes);
 // app.use('/api/notifications', notificationRoutes);
-// app.use('/api/events', eventRoutes);
 
 app.use(
   urlencoded({
@@ -54,7 +56,7 @@ app.use(
 );
 app.use(json());
 
-RegisterRoutes(app);
+// RegisterRoutes(app);
 
 // Static files
 const uploadsPath = path.join(__dirname, 'uploads');

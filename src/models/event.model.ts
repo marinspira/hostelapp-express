@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
-import type { IEventDocument } from '../interfaces/event';
+import type { IEventDocument } from '../interfaces/event.interface';
 
 export type IEventModel = Model<IEventDocument>;
 
