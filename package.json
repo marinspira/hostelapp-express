@@ -1,13 +1,14 @@
 {
   "name": "hostelapp",
   "version": "1.0.0",
-  "main": "service.js",
+  "main": "src/server.ts",
   "type": "module",
   "scripts": {
     "start": "node server.js",
     "start:ts": "node --import=\"data:text/javascript,import { register } from 'node:module'; import { pathToFileURL } from 'node:url'; register('ts-node/esm', pathToFileURL('./'));\" server.js",
     "test": "npx jest",
-    "dev": "nodemon server.js",
+    "generate:docs": "npx tsoa spec",
+    "dev": "nodemon src/server.ts",
     "dev:ts": "nodemon --exec \"node --import='data:text/javascript,import { register } from \\\"node:module\\\"; import { pathToFileURL } from \\\"node:url\\\"; register(\\\"ts-node/esm\\\", pathToFileURL(\\\"./\\\"));'\" server.js",
     "analyzer": "node ./node_modules/api-traffic-analyzer/dist/cli.js logs/users.log",
     "test:checkout": "node scripts/test-checkout-job.js",
@@ -39,10 +40,12 @@
     "multer": "^1.4.5-lts.1",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.6",
+    "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.1",
     "stripe": "^18.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "tsoa": "^7.0.0-alpha.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {

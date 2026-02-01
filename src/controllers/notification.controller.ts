@@ -1,5 +1,4 @@
 import { Response } from 'express';
-
 import { NotificationService } from '../services/notification.service.ts';
 import { AuthenticatedRequest } from '../interfaces/index.ts';
 // @ts-ignore

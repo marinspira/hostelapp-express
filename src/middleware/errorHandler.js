@@ -1,4 +1,5 @@
-import ErrorLog from '../models/logs.model.ts';
+
+import { ValidateError } from "tsoa";
 
 const errorHandler = async (err, req, res, next) => {
   console.error('Global error handler caught:', err);
@@ -13,17 +14,31 @@ const errorHandler = async (err, req, res, next) => {
 
   console.log('Error details from middleware:', JSON.stringify(errorDetails, null, 2));
 
-  try {
-    await ErrorLog.create(errorDetails);
-  } catch (err) {
-    console.error('Failed to save error to MongoDB:', err.message);
-  }
-
   if (res.headersSent) {
     return next(err);
   }
 
-  const statusCode = err.statusCode || 500;
+  // Handle TSOA validation errors
+  if (err instanceof ValidateError) {
+    console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
+    return res.status(422).json({
+      success: false,
+      message: "Validation Failed",
+      details: err.fields,
+    });
+  }
+
+  // Handle custom HTTP errors with statusCode property
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+      ...(err.details && { details: err.details }),
+    });
+  }
+
+  // Default error handling
+  const statusCode = err.status || err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
 
   res.status(statusCode).json({ success: false, message });

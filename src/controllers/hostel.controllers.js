@@ -5,7 +5,6 @@ import Reservation from '../models/reservation.model.ts';
 import User from '../models/user.model.ts';
 import countries from '../utils/coutries.js';
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
-import { ensureHostelGroupChat } from '../services/chat/groupChatManager.js';
 
 export const createHostel = async (req, res) => {
   const user = req.user;
@@ -56,7 +55,8 @@ export const createHostel = async (req, res) => {
     User.isNewUser = false;
     await User.save();
 
-    await ensureHostelGroupChat(newHostel._id);
+    // TODO Chat: Create hostel group chat
+    // await ensureHostelGroupChat(newHostel._id);
 
     return res.status(201).json({
       message: 'Hostel created!',

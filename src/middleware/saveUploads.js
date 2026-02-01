@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import multer from 'multer';
 
-import { __dirname } from '../../server.js';
+import { __dirname } from '../app.ts';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

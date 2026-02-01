@@ -1,5 +1,4 @@
 import { Response } from 'express';
-
 import { ReservationService } from '../services/reservation.service.ts';
 import { AuthenticatedRequest } from '../interfaces/index.ts';
 

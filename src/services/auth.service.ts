@@ -1,26 +1,52 @@
 import bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import nodemailer from 'nodemailer';
 import User from '../models/user.model.ts';
 import Hostel from '../models/hostel.model.ts';
 import Guest from '../models/guest.model.ts';
 // @ts-ignore
 import generateTokenAndSetCookie from '../utils/generateToken.js';
-import { EmailCodeRepository } from '../repositories/auth.repository.ts';
-import type { IUserDocument, SendEmailParams, SendEmailResult } from '../interfaces/auth.ts';
+import { AuthRepository } from '../repositories/auth.repository.ts';
+import {
+  BadRequestError,
+  ConflictError,
+  UnauthorizedError,
+  NotFoundError,
+} from '../utils/errors.ts';
+import { BackendResponse } from '../interfaces/index.ts';
+import {
+  IsAuthenticatedResponse,
+  SendCodeResponse,
+  VerifyCodeResponse,
+} from '../interfaces/auth.interface.ts';
+import type { Response } from 'express';
+
+interface IUserDocument extends Document {
+  email: string;
+  role: 'guest' | 'host';
+  name?: string;
+  sessionToken?: string;
+}
+
+interface SendEmailParams {
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
+}
 
 export class AuthService {
-  private readonly _emailCodeRepo = new EmailCodeRepository();
+  constructor(private readonly _authRepository: AuthRepository) {}
 
-  async sendEmailCode(email: string, role?: 'guest' | 'host') {
-    if (!email) throw new Error('Missing email');
+  async sendEmailCode(email: string, role: 'guest' | 'host'): Promise<SendCodeResponse> {
+    if (!email) throw new BadRequestError('Missing email');
 
     const emailLowercase = email.toLowerCase();
 
     // Check existing user & role
     const existingUser = await User.findOne({ email: emailLowercase });
     if (existingUser && role && existingUser.role !== role) {
-      throw new Error(
+      throw new BadRequestError(
         `This email is already registered as a ${existingUser.role}. Please login as ${existingUser.role} or use a different email.`
       );
     }
@@ -32,12 +58,12 @@ export class AuthService {
     ) {
       const code = '120567';
       const codeHash = await bcrypt.hash(code, 10);
-      await this._emailCodeRepo.upsertCode(
+      await this._authRepository.upsertCode(
         emailLowercase,
         codeHash,
         new Date(Date.now() + 10 * 60 * 1000)
       );
-      return { message: 'Code sent' };
+      return { message: 'Code sent', success: true };
     }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -46,7 +72,7 @@ export class AuthService {
 
     console.log(`[sendEmailCode] Code for ${emailLowercase}: ${code} (expires at ${expiresAt})`);
 
-    await this._emailCodeRepo.upsertCode(emailLowercase, codeHash, expiresAt);
+    await this._authRepository.upsertCode(emailLowercase, codeHash, expiresAt);
 
     await this.sendEmail({
       to: emailLowercase,
@@ -55,25 +81,25 @@ export class AuthService {
       html: `<p>Your code is <strong>${code}</strong>. It expires in 10 minutes.</p>`,
     });
 
-    return { message: 'Code sent' };
+    return { message: 'Code sent', success: true };
   }
 
   async verifyEmailCode(
     email: string,
     code: string,
     role: 'guest' | 'host'
-  ): Promise<IUserDocument> {
-    if (!email || !code) throw new Error('Missing email or code');
+  ): Promise<VerifyCodeResponse> {
+    if (!email || !code) throw new BadRequestError('Missing email or code');
 
     const emailLowercase = email.toLowerCase();
-    const record = await this._emailCodeRepo.findByEmail(emailLowercase);
-    if (!record) throw new Error('Code not found or expired');
+    const record = await this._authRepository.findByEmail(emailLowercase);
+    if (!record) throw new BadRequestError('Code not found or expired');
 
     const match = await bcrypt.compare(code, record.codeHash);
-    if (!match) throw new Error('Invalid code');
+    if (!match) throw new UnauthorizedError('Invalid code');
 
     // Remove used code
-    await this._emailCodeRepo.deleteByEmail(emailLowercase);
+    await this._authRepository.deleteByEmail(emailLowercase);
 
     // Find or create user
     let user = (await User.findOne({ email: emailLowercase })) as IUserDocument | null;
@@ -82,45 +108,58 @@ export class AuthService {
     if (!user) {
       user = new User({ email: emailLowercase, role }) as IUserDocument;
       await user.save();
-
-      // Add to HostelApp
-      try {
-        const hostelAppId = process.env.HOSTELAPP_OBJECT_ID;
-        const hostel = await Hostel.findById(hostelAppId);
-        if (hostel && !hostel?.user_id_guests?.includes(user._id as Types.ObjectId)) {
-          hostel?.user_id_guests?.push(user._id as Types.ObjectId);
-          await hostel.save();
-          // TODO CHAT: Add to hostel-guest chat
-          //   await initiateHostelGuestChat(hostel._id, user._id);
-        }
-      } catch (e) {
-        console.error('Error adding new user to HostelApp:', e);
-      }
     } else if (user.role !== role) {
-      throw new Error(`This email is already registered as a ${user.role}`);
+      throw new ConflictError(`This email is already registered as a ${user.role}`);
     }
 
     const sessionToken = generateTokenAndSetCookie(user._id);
     user.sessionToken = sessionToken;
     await user.save();
 
-    return user;
+    return {
+      data: {
+        id: (user._id as Types.ObjectId).toString() as string,
+        name: user.name as string,
+        isNewUser: false,
+        role: user.role,
+        email: user.email,
+      },
+      message: isNewUser ? 'New user created' : 'User logged in',
+      success: true,
+    };
   }
 
-  async isAuthenticated(userId: string) {
+  async isAuthenticated(userId: string): Promise<IsAuthenticatedResponse> {
     const user = await User.findById(userId);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundError('User not found');
 
     const guest = await Guest.findOne({ user: user._id });
     const hostel = await Hostel.findOne({ user_id_owners: user._id });
 
     return {
-      user,
-      isNewUser: !(guest?.birthday || hostel),
+      data: {
+        id: (user._id as Types.ObjectId).toString() as string,
+        name: user.name,
+        role: user.role,
+        email: user.email,
+        isNewUser: !(guest?.birthday || hostel),
+      },
+      message: 'User is authenticated',
+      success: true,
     };
   }
 
-  private async sendEmail({ to, subject, text, html }: SendEmailParams): Promise<SendEmailResult> {
+  async logout(res: Response): Promise<{ success: true; message: string }> {
+    res.cookie('jwt', '', { maxAge: 0 });
+    res.clearCookie('jwt');
+
+    return {
+      success: true,
+      message: 'Logged out successfully',
+    };
+  }
+
+  private async sendEmail({ to, subject, text, html }: SendEmailParams): Promise<BackendResponse> {
     let transporter;
 
     if (process.env.SMTP_HOST) {
@@ -134,17 +173,21 @@ export class AuthService {
       });
     } else {
       console.log('[sendEmail] SMTP not configured in production environment');
-      return { success: false };
+      throw new BadRequestError('SMTP not configured');
     }
 
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'no-reply@example.com',
-      to,
-      subject,
-      text,
-      html,
-    });
+    try {
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM || 'no-reply@example.com',
+        to,
+        subject,
+        text,
+        html,
+      });
+    } catch (error) {
+      throw new BadRequestError('Error sending email');
+    }
 
-    return { ...info, success: true };
+    return { success: true, message: 'Email sent' };
   }
 }

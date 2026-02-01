@@ -1,5 +1,4 @@
 import type { Response } from 'express';
-
 import type { IEventDocument, IEventListItemDTO } from '../interfaces/event.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';

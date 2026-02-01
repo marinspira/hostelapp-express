@@ -1,0 +1,27 @@
+{
+  "entryFile": "src/server.ts",
+  "controllerPathGlobs": ["src/controllers/*.ts"],
+  "spec": {
+    "outputDirectory": "src/docs",
+    "specVersion": 3,
+    "specFileBaseName": "swagger",
+    "name": "HostelApp API",
+    "version": "1.0.0",
+    "description": "API for HostelApp - A platform for hostel management and guest reservations",
+    "license": "MIT",
+    "contact": {
+      "name": "API Support",
+      "email": "support@hostelapp.io"
+    },
+    "noImplicitAdditionalProperties": "throw"
+  },
+  "routes": {
+    "routesDir": "src/routes",
+    "noImplicitAdditionalProperties": "throw"
+  },
+  "ignore": [
+    "**/node_modules/**",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
+}
