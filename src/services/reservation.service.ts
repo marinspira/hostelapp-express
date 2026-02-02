@@ -4,8 +4,8 @@ import type {
   ICreateReservationResponse, 
   IReservationListItemResponse,
   IReservationByIdResponse 
-} from '../interfaces/reservation.ts';
-import IReservation from '../interfaces/reservation.ts';
+} from '../interfaces/reservation.interface.ts';
+import IReservation from '../interfaces/reservation.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';

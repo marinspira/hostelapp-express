@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
-import { IReservationDocument } from '../interfaces/reservation';
+import { IReservationDocument } from '../interfaces/reservation.interface';
 
 export type IReservationModel = Model<IReservationDocument>;
 

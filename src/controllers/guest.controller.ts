@@ -1,562 +1,127 @@
+import { Post, Route, Request, Get, Put, Delete, Path, Body, Consumes } from 'tsoa';
+import { GuestService } from '../services/guest.service.ts';
+import { GuestRepository } from '../repositories/guest.repository.ts';
+import { HostelRepository } from '../repositories/hostel.repository.ts';
+import { ReservationRepository } from '../repositories/reservation.repository.ts';
+import { UnauthorizedError } from '../utils/errors.ts';
+import type { ICreateGuestResponse, IGuestByIdResponse, IGuest, IGuestCurrentStayResponse } from '../interfaces/guest.interface.ts';
+import type { AuthenticatedRequest, BackendResponse, UploadedFile } from '../interfaces/index.ts';
+// @ts-ignore
+import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import fs from 'fs';
 import path from 'path';
 
-// @ts-ignore
-import type { Response } from 'express';
+@Route('/api/guests')
+export class GuestController {
+  private guestService: GuestService;
 
-// @ts-ignore
-import { getRelativeFilePath } from '../middleware/saveUploads.js';
-// @ts-ignore
-import Guest from '../models/guest.model.ts';
-// @ts-ignore
-import User from '../models/user.model.ts';
-// @ts-ignore
-import Reservation from '../models/reservation.model.ts';
-import { AuthenticatedRequest } from '../interfaces/index.ts';
-import { IUserDocument } from '../interfaces/user.ts';
-// @ts-ignore
-import generateUniqueUsername from '../utils/generateUniqueUsername.js';
-import { BackendResponse } from '../interfaces/response.ts';
-import { IGuestDocument } from '../interfaces/guest.ts';
-import { IHostelDocument } from '../interfaces/hostel.ts';
-import Hostel from '../models/hostel.model.ts';
-
-import { UploadedFile } from './even.controller.ts';
-
-interface CreateGuestRequest extends AuthenticatedRequest {
-  body: {
-    guest: string;
-  };
-  file: UploadedFile;
-  user: IUserDocument;
-}
-
-export const saveGuest = async (
-  req: CreateGuestRequest,
-  res: Response<BackendResponse<IGuestDocument>>
-) => {
-  const user = req.user;
-  const guest = typeof req.body.guest === 'string' ? JSON.parse(req.body.guest) : req.body.guest;
-
-  if (!guest || !guest.name || guest.name.trim() === '') {
-    return res.status(400).json({
-      message: 'Guest name is required',
-      success: false,
-    });
+  constructor() {
+    const guestRepository = new GuestRepository();
+    const hostelRepository = new HostelRepository();
+    const reservationRepository = new ReservationRepository();
+    this.guestService = new GuestService(guestRepository, hostelRepository, reservationRepository);
   }
 
-  const imagePath = getRelativeFilePath(req, req.file);
-
-  let existingGuest = await Guest.findOne({ user: user._id });
-
-  if (existingGuest) {
-    return res.status(409).json({
-      message: 'Guest already exists',
-      success: false,
-    });
-  } else {
-    const username = await generateUniqueUsername(guest.name);
-
-    const newGuest = new Guest({
-      name: guest.name,
-      username: username,
-      profile: imagePath,
-      guestPhotos: guest.guestPhotos,
-      phone: guest.phone,
-      birthday: guest.birthday,
-      country: guest.country,
-      passaportPhoto: guest.passaportPhoto,
-      interests: guest.interests,
-      description: guest.description,
-      languages: guest.languages,
-      digitalNomad: guest.digitalNomad,
-      smoker: guest.smoker,
-      pets: guest.pets,
-      showProfileAuthorization: guest.showProfileAuthorization,
-      user: user._id,
-    });
-    await newGuest.save();
-
-    user.isNewUser = false;
-    await user.save();
-
-    return res.status(201).json({
-      message: 'Guest profile created successfully!',
-      success: true,
-      data: newGuest,
-    });
-  }
-};
-
-export const getGuest = async (req: AuthenticatedRequest, res: Response<BackendResponse<any>>) => {
-  const user = req.user;
-  const guest = await Guest.findOne({ user: user._id });
-
-  if (!guest) {
-    return res.status(404).json({
-      message: 'Guest not found!',
-      success: false,
-    });
-  }
-
-  return res.status(200).json({
-    message: 'Guest retrieved successfully',
-    success: true,
-    data: {
-      guestPhotos: guest.guestPhotos,
-      phone: guest.phone,
-      birthday: guest.birthday,
-      country: guest.country,
-      passaportPhoto: guest.passaportPhoto,
-      interests: guest.interests,
-      description: guest.description,
-      languages: guest.languages,
-      digitalNomad: guest.digitalNomad,
-      smoker: guest.smoker,
-      pets: guest.pets,
-      showProfileAuthorization: guest.showProfileAuthorization,
-    },
-  });
-};
-
-interface UpdateGuestRequest extends AuthenticatedRequest {
-  body: {
-    guestData: any;
-  };
-}
-
-export const updateGuest = async (req: UpdateGuestRequest, res: Response<BackendResponse<any>>) => {
-  const user = req.user;
-  const { guestData } = req.body;
-
-  const guest = await Guest.findOne({ user: user._id });
-
-  if (!guest) {
-    return res.status(404).json({
-      success: false,
-      message: 'Guest not found',
-    });
-  }
-
-  // Type-safe property updates
-  const allowedFields = [
-    'name',
-    'username',
-    'profile',
-    'guestPhotos',
-    'phone',
-    'birthday',
-    'country',
-    'passaportPhoto',
-    'interests',
-    'description',
-    'languages',
-    'digitalNomad',
-    'smoker',
-    'pets',
-    'instagram',
-    'linkedin',
-    'twitter',
-    'showProfileAuthorization',
-  ];
-
-  Object.keys(guestData).forEach(key => {
-    if (allowedFields.includes(key)) {
-      (guest as any)[key] = guestData[key];
-    }
-  });
-
-  await guest.save();
-
-  const {
-    guestPhotos,
-    phone,
-    country,
-    passaportPhoto,
-    interests,
-    languages,
-    digitalNomad,
-    smoker,
-    pets,
-    showProfileAuthorization,
-    description,
-    username,
-  } = guest;
-
-  return res.status(200).json({
-    success: true,
-    message: 'Guest updated successfully',
-    data: {
-      guestPhotos,
-      phone,
-      country,
-      passaportPhoto,
-      interests,
-      languages,
-      digitalNomad,
-      smoker,
-      pets,
-      showProfileAuthorization,
-      description,
-      username,
-    },
-  });
-};
-
-interface SearchGuestRequest extends AuthenticatedRequest {
-  params: {
-    username: string;
-  };
-}
-
-export const searchGuest = async (req: SearchGuestRequest, res: Response<BackendResponse<any>>) => {
-  const { username } = req.params;
-  const user = req.user;
-  const currentHostel = await Hostel.findOne({ user_id_owners: user._id });
-
-  if (!currentHostel) {
-    return res.status(400).json({
-      success: false,
-      message: 'Hostel not found for this user',
-      data: [],
-    });
-  }
-
-  // Find users by email (case-insensitive)
-  const usersWithEmailMatch = await User.find({
-    email: { $regex: username, $options: 'i' },
-    role: 'guest',
-  });
-
-  // Find guests by username
-  const guestsWithUsernameMatch = await Guest.find({
-    username: { $regex: username, $options: 'i' },
-  }).populate('user');
-
-  // Merge results
-  const guests = [];
-
-  // Process users matched by email
-  for (const user of usersWithEmailMatch) {
-    const guest = await Guest.findOne({ user: user._id });
-
-    if (guest) {
-      // Verificar se o guest está hospedado no hostel atual
-      const currentReservation = await Reservation.findOne({
-        user_id_guest: user._id,
-        hostel_id: currentHostel._id,
-        status: 'in house',
-      });
-
-      guests.push({
-        user_id_guest: user._id,
-        name: guest.name,
-        email: user.email,
-        image: guest.guestPhotos?.[0] || null,
-        username: guest.username,
-        isInHouse: !!currentReservation,
-      });
-    }
-  }
-
-  // Process guests matched by username
-  for (const guest of guestsWithUsernameMatch) {
-    // Type guard to ensure user is populated
-    if (guest.user && typeof guest.user === 'object' && 'email' in guest.user) {
-      const populatedUser = guest.user as unknown as IUserDocument;
-      // Avoid duplicates if already added via user email
-      if (!guests.some(g => g.user_id_guest.toString() === populatedUser._id.toString())) {
-        const currentReservation = await Reservation.findOne({
-          user_id_guest: populatedUser._id,
-          hostel_id: currentHostel._id,
-          status: 'in house',
-        });
-
-        guests.push({
-          user_id_guest: populatedUser._id,
-          name: guest.name,
-          email: populatedUser.email,
-          image: guest.guestPhotos?.[0] || null,
-          username: guest.username,
-          isInHouse: !!currentReservation,
-        });
-      }
-    }
-  }
-
-  if (guests.length === 0) {
-    return res.status(200).json({
-      success: true,
-      message: 'No guest or user found with the given username.',
-      data: [],
-    });
-  }
-
-  return res.status(200).json({
-    success: true,
-    message: 'Guest(s) found successfully.',
-    data: guests,
-  });
-};
-
-interface SaveGuestprofile_imagesRequest extends AuthenticatedRequest {
-  body: {
-    imageId: number;
-  };
-  file: UploadedFile;
-}
-
-export const saveGuestprofile_images = async (
-  req: SaveGuestprofile_imagesRequest,
-  res: Response<BackendResponse<any>>
-) => {
-  const { imageId } = req.body;
-  const imagePath = getRelativeFilePath(req, req.file);
-
-  const user = req.user;
-  const guest = await Guest.findOne({ user: user._id });
-
-  console.log('Image path to save:', imagePath);
-  console.log(guest);
-
-  if (guest) {
-    if (imageId < guest.guestPhotos.length) {
-      guest.guestPhotos[imageId] = imagePath;
-    } else {
-      guest.guestPhotos.push(imagePath);
-    }
-
-    await guest.save();
-
-    return res.status(200).json({
-      message: 'Guest images updated.',
-      success: true,
-      data: {
-        imagePath,
-      },
-    });
-  }
-
-  const newGuest = new Guest({
-    guestPhotos: [imagePath],
-    user: user._id,
-  });
-
-  if (newGuest) {
-    await newGuest.save();
-
-    return res.status(201).json({
-      message: 'New guest created, and photos added.',
-      success: true,
-      data: {
-        imagePath,
-      },
-    });
-  } else {
-    return res.status(400).json({
-      message: 'Error saving guest',
-      success: false,
-    });
-  }
-};
-
-interface DeleteGuestprofile_imageRequest extends AuthenticatedRequest {
-  body: {
-    imageId: number;
-  };
-}
-
-export const deleteGuestprofile_image = async (
-  req: DeleteGuestprofile_imageRequest,
-  res: Response<BackendResponse<any>>
-) => {
-  const { imageId } = req.body;
-  const user = req.user;
-  const guest = await Guest.findOne({ user: user._id });
-
-  if (!guest) {
-    return res.status(404).json({
-      message: 'Guest not found!',
-      success: false,
-    });
-  }
-
-  if (guest && imageId < guest.guestPhotos.length) {
-    const imagePath = guest.guestPhotos[imageId];
-
-    // Delete from files
-    const fullImagePath = path.resolve(imagePath);
-
-    fs.unlink(fullImagePath, async err => {
-      if (err) {
-        console.error('Error deleting file: ', err);
-        return res.status(500).json({
-          message: 'Failed to delete the image file.',
-          success: false,
-        });
-      }
-      return;
-    });
-
-    // Delete from the DB
-    guest.guestPhotos.splice(imageId, 1);
-
-    await guest.save();
-
-    return res.status(200).json({
-      message: 'Image successfully deleted',
-      success: true,
-      data: {
-        imageId,
-      },
-    });
-  }
-
-  return res.status(404).json({
-    message: 'Image not found.',
-    success: false,
-  });
-};
-
-export const getHome = async (req: AuthenticatedRequest, res: Response<BackendResponse<any>>) => {
-  const user = req.user;
-  const guest = await Guest.findOne({ user: user._id });
-
-  if (!guest) {
-    return res.status(404).json({
-      message: 'Guest not found!',
-      success: false,
-    });
-  }
-
-  const reservations = await Reservation.find({
-    user_id_guest: user._id,
-  }).populate({
-    path: 'hostel_id',
-    select: 'name logo _id',
-  });
-
-  const now = new Date();
-
-  const currentReservation = reservations.find((reservation: any) => {
-    const checkinDate = new Date(reservation.checkin_date);
-    checkinDate.setHours(0, 1, 0, 0);
-
-    const checkoutDate = new Date(reservation.checkout_date);
-    checkoutDate.setHours(10, 0, 0, 0);
-
-    return now >= checkinDate && now < checkoutDate;
-  });
-
-  console.log(currentReservation);
-
-  if (!currentReservation) {
-    return res.status(200).json({
-      success: true,
-      message: 'No current reservation',
-      data: null,
-    });
-  }
-
-  return res.status(200).json({
-    success: true,
-    message: 'Current reservation retrieved successfully',
-    data: {
-      hostel: {
-        id: (currentReservation.hostel_id as any)?._id,
-        img: (currentReservation.hostel_id as any)?.logo || '',
-        name: (currentReservation.hostel_id as any)?.name || '',
-      },
-      reservation: {
-        id: currentReservation._id,
-        room: currentReservation.room,
-        bed: currentReservation.bed,
-        checkinDate: currentReservation.checkin_date,
-        checkoutDate: currentReservation.checkout_date,
-        status: currentReservation.status,
-      },
-      otherGuests: [
-        {
-          name: '',
-          img: '',
-        },
-      ],
-      hostelEvents: ['events'],
-    },
-  });
-};
-
-export const getCurrentStay = async (
-  req: AuthenticatedRequest,
-  res: Response<BackendResponse<any>>
-) => {
-  try {
+  @Post('create')
+  @Consumes('multipart/form-data')
+  async create(@Request() req: AuthenticatedRequest): Promise<ICreateGuestResponse> {
     const user = req.user;
-    const guest = await Guest.findOne({ user: user._id });
-
-    if (!guest) {
-      return res.status(404).json({
-        message: 'Guest not found!',
-        success: false,
-      });
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
     }
 
-    const now = new Date();
+    const guestData =
+      typeof req.body.guest === 'string' ? JSON.parse(req.body.guest) : req.body.guest;
 
-    const reservation = await Reservation.findOne({
-      user_id_guest: user._id,
-      checkin_date: { $lte: now },
-      checkout_date: { $gt: now },
-      status: { $in: ['walking in', 'in house'] },
-    }).populate('hostel_id');
+    const uploadedFiles = (req.files ?? []) as UploadedFile[];
+    const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
 
-    if (!reservation) {
-      return res.status(404).json({
-        success: false,
-        message: 'Guest is not currently staying at any hostel',
-      });
-    }
-
-    const populatedHostel = reservation.hostel_id as unknown as IHostelDocument;
-
-    const formattedReservations = {
-      reservationId: reservation._id,
-      hostel: {
-        id: populatedHostel?._id,
-        name: populatedHostel?.name,
-        logo: populatedHostel?.logo,
-        address: {
-          street: populatedHostel?.address?.street,
-          city: populatedHostel?.address?.city,
-          country: populatedHostel?.address?.country,
-          zip: populatedHostel?.address?.zip,
-        },
-        phone: populatedHostel?.phone,
-        email: populatedHostel?.email,
-      },
-      room: reservation.room,
-      bed: reservation.bed,
-      checkinDate: reservation.checkin_date,
-      checkoutDate: reservation.checkout_date,
-      status: reservation.status,
-      daysRemaining: Math.ceil(
-        (new Date(reservation.checkout_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-      ),
-    };
-
-    return res.status(200).json({
-      success: true,
-      message: 'Guest is currently staying at hostel(s)',
-      data: {
-        activeReservation: formattedReservations,
-      },
-    });
-  } catch (error) {
-    console.error('Error checking current stay:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      data: null,
-    });
+    return this.guestService.create(guestData, user._id, imagePaths);
   }
-};
+
+  @Get('profile')
+  async getProfile(@Request() req: AuthenticatedRequest): Promise<IGuestByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.guestService.getByUserId(user._id);
+  }
+
+  @Put('update')
+  async update(
+    @Request() req: AuthenticatedRequest,
+    @Body() guestData: any
+  ): Promise<BackendResponse<Partial<IGuest>>> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.guestService.update(user._id, guestData);
+  }
+
+  @Get('search/{username}')
+  async searchGuests(
+    @Request() req: AuthenticatedRequest,
+    @Path() username: string
+  ): Promise<BackendResponse<any[]>> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.guestService.searchGuests(username, user._id);
+  }
+
+  @Post('photos')
+  @Consumes('multipart/form-data')
+  async updatePhoto(@Request() req: AuthenticatedRequest): Promise<BackendResponse<any>> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const { imageId } = req.body;
+    const imagePath = getRelativeFilePath(req, (req as any).file);
+
+    return this.guestService.updateGuestPhoto(user._id, parseInt(imageId), imagePath);
+  }
+
+  @Delete('photos/{imageId}')
+  async deletePhoto(
+    @Request() req: AuthenticatedRequest,
+    @Path() imageId: string
+  ): Promise<BackendResponse<{ imagePath: string }>> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Delete address from database
+    const result = await this.guestService.deleteGuestPhoto(user._id, parseInt(imageId));
+
+    // Delete physical file
+    if (result.data?.imagePath) {
+      const fullImagePath = path.resolve(result.data.imagePath);
+      fs.unlink(fullImagePath, err => {
+        if (err) {
+          console.error('Error deleting file: ', err);
+        }
+      });
+    }
+
+    return result;
+  }
+
+  @Get('current-stay')
+  async getCurrentStay(@Request() req: AuthenticatedRequest): Promise<IGuestCurrentStayResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.guestService.getCurrentStay(user._id);
+  }
+}

@@ -6,7 +6,7 @@ interface IReservation {
   hostel_id: Types.ObjectId;
   user_id_guest: Types.ObjectId;
   room: string;
-  bed?: string;
+  bed: string;
   checkin_date: Date;
   checkout_date: Date;
   created_at?: Date;

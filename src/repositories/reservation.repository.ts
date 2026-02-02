@@ -1,6 +1,6 @@
 import Reservation from '../models/reservation.model';
-import type IReservation from '../interfaces/reservation.ts';
-import type { IReservationDocument } from '../interfaces/reservation.ts';
+import type IReservation from '../interfaces/reservation.interface.ts';
+import type { IReservationDocument } from '../interfaces/reservation.interface.ts';
 
 export class ReservationRepository {
   async create(data: IReservation): Promise<IReservationDocument> {

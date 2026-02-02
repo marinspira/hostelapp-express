@@ -11,8 +11,8 @@ import type {
   ICreateReservationResponse,
   IReservationListItemResponse,
   IReservationByIdResponse,
-} from '../interfaces/reservation.ts';
-import IReservation from '../interfaces/reservation.ts';
+} from '../interfaces/reservation.interface.ts';
+import IReservation from '../interfaces/reservation.interface.ts';
 
 @Route('/api/reservations')
 export class ReservationController {
