@@ -1,4 +1,5 @@
 import { Document, Types } from 'mongoose';
+import { BackendResponse } from './index.ts';
 
 interface IReservation {
   status: 'walking in' | 'in house' | 'checked out';
@@ -19,3 +20,18 @@ export interface IReservationDocument extends IReservation, Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ICreateReservationRequest {
+  body: {
+    reservation: IReservation | string;
+  };
+  user: {
+    _id: string;
+  };
+}
+
+export interface ICreateReservationResponse extends BackendResponse<IReservationDocument> {}
+
+export interface IReservationListItemResponse extends BackendResponse<IReservationDocument[]> {}
+
+export interface IReservationByIdResponse extends BackendResponse<IReservationDocument> {}

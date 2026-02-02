@@ -17,4 +17,12 @@ export class HostelRepository {
       'address.country': { $regex: new RegExp(country, 'i') },
     }).select('_id');
   }
+
+  async removeGuestFromHostel(hostelId: string | Types.ObjectId, guestUserId: string | Types.ObjectId, session?: any): Promise<void> {
+    await Hostel.updateOne(
+      { _id: hostelId },
+      { $pull: { user_id_guests: guestUserId } },
+      { session }
+    );
+  }
 }

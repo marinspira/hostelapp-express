@@ -1,52 +1,64 @@
 import mongoose from 'mongoose';
-import type { IReservationDocument } from '../interfaces/reservation.ts';
+import type { 
+  IReservationDocument, 
+  ICreateReservationResponse, 
+  IReservationListItemResponse,
+  IReservationByIdResponse 
+} from '../interfaces/reservation.ts';
 import IReservation from '../interfaces/reservation.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
+import { GuestRepository } from '../repositories/guest.repository.ts';
 import { NotificationService } from './notification.service.ts';
-import { NotificationRepository } from '../repositories/notification.repository.ts';
-import Guest from '../models/guest.model.ts';
-import Hostel from '../models/hostel.model.ts';
+import { BackendResponse } from '../interfaces/index.ts';
+import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 
 export class ReservationService {
-  private readonly _notificationService: NotificationService;
+  private notificationService: NotificationService;
+  private reservationRepo: ReservationRepository;
+  private hostelRepo: HostelRepository;
+  private guestRepo: GuestRepository;
 
   constructor(
-    private readonly _reservationRepo: ReservationRepository,
-    private readonly _hostelRepo: HostelRepository
+    reservationRepository: ReservationRepository,
+    hostelRepository: HostelRepository,
+    guestRepository: GuestRepository,
+    notificationService: NotificationService
   ) {
-    // Initialize notification service
-    const notificationRepository = new NotificationRepository();
-    this._notificationService = new NotificationService(notificationRepository);
+    this.reservationRepo = reservationRepository;
+    this.hostelRepo = hostelRepository;
+    this.guestRepo = guestRepository;
+    this.notificationService = notificationService;
   }
-
-  async create(data: IReservation, ownerId: string): Promise<IReservationDocument> {
-    const hostel = await this._hostelRepo.findByOwner(ownerId);
+ 
+  async create(data: IReservation, ownerId: string): Promise<ICreateReservationResponse> {
+    const hostel = await this.hostelRepo.findByOwner(ownerId);
     if (!hostel) {
-      throw new Error('Hostel not found for this user');
+      throw new NotFoundError('Hostel not found for this user');
     }
 
     if (!data.user_id_guest) {
-      throw new Error('User ID (Guest) is required');
+      throw new BadRequestError('User ID (Guest) is required');
     }
 
-    const existingReservation = await this._reservationRepo.findActiveByGuestId(
+    const existingReservation = await this.reservationRepo.findActiveByGuestId(
       data.user_id_guest.toString()
     );
+
     if (existingReservation) {
-      throw new Error('Guest already has an active reservation');
+      throw new BadRequestError('Guest already has an active reservation');
     }
 
     if (!data.room) {
-      throw new Error('Room number is required');
+      throw new BadRequestError('Room number is required');
     }
 
     if (!data.bed) {
-      throw new Error('Bed number is required');
+      throw new BadRequestError('Bed number is required');
     }
 
     if (!data.checkin_date || !data.checkout_date) {
-      throw new Error('Check-in and check-out dates are required');
+      throw new BadRequestError('Check-in and check-out dates are required');
     }
 
     const reservationData = {
@@ -54,18 +66,11 @@ export class ReservationService {
       hostel_id: hostel._id,
     };
 
-    const reservation = await this._reservationRepo.create(reservationData);
-
-    try {
-      // TODO CHAT: Implement adding guest to hostel group
-      // await addGuestToHostelGroup(hostel._id, data.user_id_guest);
-    } catch (error) {
-      console.error('Error adding guest to hostel group:', error);
-    }
+    const reservation = await this.reservationRepo.create(reservationData);
 
     // Create notification for new reservation
     try {
-      await this._notificationService.createReservationNotification(
+      await this.notificationService.createReservationNotification(
         reservation._id.toString(),
         hostel._id.toString(),
         data.user_id_guest.toString(),
@@ -78,84 +83,110 @@ export class ReservationService {
       console.error('Error creating reservation notification:', error);
     }
 
-    return reservation;
+    return { 
+      success: true, 
+      message: 'Reservation created successfully', 
+      data: reservation 
+    };
   }
 
-  getReservations() {
-    return this._reservationRepo.findAll();
+  async getHostelReservations(ownerId: string): Promise<IReservationListItemResponse> {
+    const hostel = await this.hostelRepo.findByOwner(ownerId);
+    if (!hostel) {
+      throw new NotFoundError('Hostel not found for this user');
+    }
+
+    const reservations = await this.reservationRepo.findByHostelId(hostel._id.toString());
+    return { 
+      success: true, 
+      message: 'Reservations retrieved successfully', 
+      data: reservations 
+    };
   }
 
-  getReservationById(id: string) {
-    return this._reservationRepo.findById(id);
+  async getReservationById(id: string): Promise<IReservationByIdResponse> {
+    const reservation = await this.reservationRepo.findById(id);
+    if (!reservation) {
+      throw new NotFoundError('Reservation not found');
+    }
+    return { 
+      success: true, 
+      message: 'Reservation retrieved successfully', 
+      data: reservation 
+    };
   }
 
-  updateReservation(id: string, data: Partial<IReservation>) {
-    return this._reservationRepo.update(id, data);
+  async updateReservation(id: string, data: Partial<IReservation>): Promise<IReservationByIdResponse> {
+    const updated = await this.reservationRepo.update(id, data);
+    if (!updated) {
+      throw new NotFoundError('Reservation not found');
+    }
+    return { 
+      success: true, 
+      message: 'Reservation updated successfully', 
+      data: updated 
+    };
   }
 
-  deleteReservation(id: string) {
-    return this._reservationRepo.delete(id);
+  async deleteReservation(id: string): Promise<BackendResponse<null>> {
+    const deleted = await this.reservationRepo.delete(id);
+    if (!deleted) {
+      throw new NotFoundError('Reservation not found');
+    }
+    return { 
+      success: true, 
+      message: 'Reservation deleted successfully' 
+    };
   }
 
-  async checkoutReservation(reservationId: string): Promise<IReservationDocument | null> {
+  async checkoutReservation(reservationId: string): Promise<IReservationByIdResponse> {
     const session = await mongoose.startSession();
 
     try {
       let result: IReservationDocument | null = null;
 
       await session.withTransaction(async () => {
-        const reservation = await this._reservationRepo.findById(reservationId);
-        if (!reservation || reservation.status === 'checked out') {
-          throw new Error('Reservation not found or already checked out');
+        // 1. Find and validate reservation
+        const reservation = await this.reservationRepo.findById(reservationId);
+        if (!reservation) {
+          throw new NotFoundError('Reservation not found');
+        }
+        
+        if (reservation.status === 'checked out') {
+          throw new BadRequestError('Reservation is already checked out');
         }
 
         const guestUserId = reservation.user_id_guest;
         const hostelId = reservation.hostel_id;
 
-        await this._reservationRepo.update(reservationId, {
+        // 2. Update reservation status
+        await this.reservationRepo.update(reservationId, {
           status: 'checked out',
           checkout_processed_at: new Date(),
         });
 
-        // TODO ROOM: Update room bed to remove reservation_id
-        // await Room.updateOne(
-        //   {
-        //     name: reservation.room,
-        //     'beds.bed': reservation.bed,
-        //   },
-        //   { $set: { 'beds.$.reservation_id': null } },
-        //   { session }
-        // );
-
-        // 3) Remove guest reservation reference
-        await Guest.updateOne(
-          { user: guestUserId },
-          { $pull: { reservations: reservationId } },
-          { session }
-        );
-
-        // 4) Remove guest do grupo e da lista do hostel
+        // 3. Clean up guest and hostel relationships
         try {
-          // TODO CHAT: Implement removing guest from hostel group
-          // await removeGuestFromHostelGroup(hostelId, guestUserId);
+          // Remove guest reservation reference
+          await this.guestRepo.removeReservation(guestUserId, reservationId, session);
 
-          await Hostel.updateOne(
-            { _id: hostelId },
-            { $pull: { user_id_guests: guestUserId } },
-            { session }
-          );
+          // Remove guest from hostel guest list
+          await this.hostelRepo.removeGuestFromHostel(hostelId, guestUserId, session);
+          
         } catch (error) {
-          console.error('Warning: failed to remove guest from hostel group or guest list', error);
+          console.error('Warning: failed to update guest/hostel relationships during checkout', error);
+          // Continue with checkout process even if cleanup fails
         }
 
-        result = await this._reservationRepo.findById(reservationId);
+        // 4. Get updated reservation
+        result = await this.reservationRepo.findById(reservationId);
 
-        // Create checkout notification
+        // 5. Create checkout notification
         try {
           if (!reservation.room || !reservation.bed) {
-            throw new Error('Reservation room or bed is missing');
+            throw new Error('Reservation room or bed information is missing');
           }
-          await this._notificationService.createCheckoutNotification(
+          await this.notificationService.createCheckoutNotification(
             reservationId,
             hostelId.toString(),
             guestUserId.toString(),
@@ -164,15 +195,45 @@ export class ReservationService {
           );
         } catch (error) {
           console.error('Error creating checkout notification:', error);
+          // Don't fail the checkout if notification creation fails
         }
       });
 
-      return result;
+      if (!result) {
+        throw new NotFoundError('Unable to retrieve reservation after checkout');
+      }
+
+      return { 
+        success: true, 
+        message: 'Checkout completed successfully', 
+        data: result 
+      };
     } catch (error) {
-      console.error('Error during checkout:', error);
+      console.error('Error during checkout process:', error);
       throw error;
     } finally {
       await session.endSession();
     }
+  }
+
+  async getCurrentGuestReservation(guestUserId: string): Promise<IReservationByIdResponse> {
+    const reservation = await this.reservationRepo.findActiveByGuestId(guestUserId);
+    if (!reservation) {
+      throw new NotFoundError('No active reservation found');
+    }
+    return { 
+      success: true, 
+      message: 'Current reservation retrieved successfully', 
+      data: reservation 
+    };
+  }
+
+  async getGuestReservationHistory(guestUserId: string): Promise<IReservationListItemResponse> {
+    const reservations = await this.reservationRepo.findByGuestId(guestUserId);
+    return { 
+      success: true, 
+      message: 'Reservation history retrieved successfully', 
+      data: reservations 
+    };
   }
 }

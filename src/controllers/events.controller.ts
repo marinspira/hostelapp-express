@@ -6,7 +6,6 @@ import type {
   ICreateEventRequest,
   ICreateEventResponse,
   IEvent,
-  IEventDocument,
   IEventListItemResponse,
 } from '../interfaces/event.interface.ts';
 import { UnauthorizedError } from '../utils/errors.ts';

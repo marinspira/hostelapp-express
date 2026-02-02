@@ -1,71 +1,151 @@
-import { Response } from 'express';
 import { ReservationService } from '../services/reservation.service.ts';
-import { AuthenticatedRequest } from '../interfaces/index.ts';
+import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.ts';
+import { Delete, Get, Post, Route, Request, Path, Put, Body } from 'tsoa';
+import { ReservationRepository } from '../repositories/reservation.repository.ts';
+import { HostelRepository } from '../repositories/hostel.repository.ts';
+import { GuestRepository } from '../repositories/guest.repository.ts';
+import { NotificationService } from '../services/notification.service.ts';
+import { NotificationRepository } from '../repositories/notification.repository.ts';
+import { UnauthorizedError } from '../utils/errors.ts';
+import type {
+  ICreateReservationResponse,
+  IReservationListItemResponse,
+  IReservationByIdResponse,
+} from '../interfaces/reservation.ts';
+import IReservation from '../interfaces/reservation.ts';
 
+@Route('/api/reservations')
 export class ReservationController {
-  constructor(private readonly _service: ReservationService) {}
+  private reservationService: ReservationService;
 
-  create = async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const user = req.user;
-      const data = req.body;
-      const reservation = await this._service.create(data.reservation, user._id.toString());
-      return res.status(201).json(reservation);
-    } catch (error: any) {
-      return res.status(400).json({ message: error.message });
-    }
-  };
+  constructor() {
+    const reservationRepository = new ReservationRepository();
+    const hostelRepository = new HostelRepository();
+    const guestRepository = new GuestRepository();
+    const notificationRepository = new NotificationRepository();
+    const notificationService = new NotificationService(notificationRepository);
+    this.reservationService = new ReservationService(
+      reservationRepository,
+      hostelRepository,
+      guestRepository,
+      notificationService
+    );
+  }
 
-  findAll = async (_req: AuthenticatedRequest, res: Response) => {
-    const reservations = await this._service.getReservations();
-    return res.json(reservations);
-  };
-
-  findById = async (req: AuthenticatedRequest, res: Response) => {
-    const reservation = await this._service.getReservationById(req.params.id);
-
-    if (!reservation) {
-      return res.status(404).json({ message: 'Reservation not found' });
+  @Post('create')
+  async create(@Request() req: AuthenticatedRequest): Promise<ICreateReservationResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
     }
 
-    return res.json(reservation);
-  };
+    const reservationData = req.body;
+    return this.reservationService.create(reservationData, user._id);
+  }
 
-  update = async (req: AuthenticatedRequest, res: Response) => {
-    const updated = await this._service.updateReservation(req.params.id, req.body);
-
-    if (!updated) {
-      return res.status(404).json({ message: 'Reservation not found' });
+  @Get('/')
+  async listAll(@Request() req: AuthenticatedRequest): Promise<IReservationListItemResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
     }
 
-    return res.json(updated);
-  };
+    return this.reservationService.getHostelReservations(user._id);
+  }
 
-  delete = async (req: AuthenticatedRequest, res: Response) => {
-    const deleted = await this._service.deleteReservation(req.params.id);
-
-    if (!deleted) {
-      return res.status(404).json({ message: 'Reservation not found' });
+  @Get('{id}')
+  async findById(
+    @Request() req: AuthenticatedRequest,
+    @Path() id: string
+  ): Promise<IReservationByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
     }
 
-    return res.status(204).send();
-  };
+    return this.reservationService.getReservationById(id);
+  }
 
-  checkout = async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const reservationId = req.params.id;
-      const checkedOut = await this._service.checkoutReservation(reservationId);
-
-      if (!checkedOut) {
-        return res.status(404).json({ message: 'Reservation not found or already checked out' });
-      }
-
-      return res.json({
-        message: 'Checkout completed successfully',
-        reservation: checkedOut,
-      });
-    } catch (error: any) {
-      return res.status(400).json({ message: error.message });
+  @Put('{id}/update')
+  async update(
+    @Request() req: AuthenticatedRequest,
+    @Path() id: string,
+    @Body() reservationData: Partial<IReservation>
+  ): Promise<IReservationByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
     }
-  };
+
+    return this.reservationService.updateReservation(id, reservationData);
+  }
+
+  @Delete('{id}/delete')
+  async delete(
+    @Request() req: AuthenticatedRequest,
+    @Path() id: string
+  ): Promise<BackendResponse<null>> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.reservationService.deleteReservation(id);
+  }
+
+  @Put('{id}/checkout')
+  async checkout(
+    @Request() req: AuthenticatedRequest,
+    @Path() id: string
+  ): Promise<IReservationByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.reservationService.checkoutReservation(id);
+  }
+}
+
+@Route('/api/reservations/guest')
+export class GuestReservationController {
+  private reservationService: ReservationService;
+
+  constructor() {
+    const reservationRepository = new ReservationRepository();
+    const hostelRepository = new HostelRepository();
+    const guestRepository = new GuestRepository();
+    const notificationRepository = new NotificationRepository();
+    const notificationService = new NotificationService(notificationRepository);
+    this.reservationService = new ReservationService(
+      reservationRepository,
+      hostelRepository,
+      guestRepository,
+      notificationService
+    );
+  }
+
+  @Get('current')
+  async getCurrentReservation(
+    @Request() req: AuthenticatedRequest
+  ): Promise<IReservationByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.reservationService.getCurrentGuestReservation(user._id);
+  }
+
+  @Get('history')
+  async getReservationHistory(
+    @Request() req: AuthenticatedRequest
+  ): Promise<IReservationListItemResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.reservationService.getGuestReservationHistory(user._id);
+  }
 }

@@ -3,8 +3,9 @@ import type IReservation from '../interfaces/reservation.ts';
 import type { IReservationDocument } from '../interfaces/reservation.ts';
 
 export class ReservationRepository {
-  create(data: IReservation): Promise<any> {
-    return Reservation.create(data);
+  async create(data: IReservation): Promise<IReservationDocument> {
+    const reservation = await Reservation.create(data);
+    return reservation as IReservationDocument;
   }
 
   findAll(): Promise<IReservationDocument[]> {
@@ -39,5 +40,19 @@ export class ReservationRepository {
       checkin_date: { $lte: new Date() },
       checkout_date: { $gte: new Date() },
     });
+  }
+
+  async findByGuestId(guestId: string): Promise<IReservationDocument[]> {
+    const reservations = await Reservation.find({
+      user_id_guest: guestId,
+    }).sort({ created_at: -1 });
+    return reservations as IReservationDocument[];
+  }
+
+  async findByHostelId(hostelId: string): Promise<IReservationDocument[]> {
+    const reservations = await Reservation.find({
+      hostel_id: hostelId,
+    }).sort({ created_at: -1 });
+    return reservations as IReservationDocument[];
   }
 }

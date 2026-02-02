@@ -1,7 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
+import { IReservationDocument } from '../interfaces/reservation';
 
-const ReservationSchema = new mongoose.Schema(
-  {
+export type IReservationModel = Model<IReservationDocument>;
+
+const ReservationSchema = new Schema<IReservationDocument>({
     status: {
       type: String,
       enum: ['walking in', 'in house', 'checked out'],
@@ -53,6 +55,6 @@ const ReservationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Reservation = mongoose.model('Reservation', ReservationSchema);
+const Reservation = mongoose.model<IReservationDocument>('Reservation', ReservationSchema);
 
 export default Reservation;
