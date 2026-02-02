@@ -4,7 +4,7 @@ import { BackendResponse } from './index.ts';
 export interface IGuest {
   name: string;
   username: string;
-  guestPhotos: string[];
+  guest_photos: string[];
   phone: string;
   birthday: Date;
   country: string;

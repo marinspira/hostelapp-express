@@ -49,7 +49,7 @@ export class GuestService {
     const newGuestData = {
       name: guestData.name,
       username: username,
-      guestPhotos: imagePaths,
+      guest_photos: imagePaths,
       phone: guestData.phone,
       birthday: guestData.birthday,
       country: guestData.country,
@@ -98,7 +98,7 @@ export class GuestService {
     const allowedFields: (keyof IGuest)[] = [
       'name',
       'username',
-      'guestPhotos',
+      'guest_photos',
       'phone',
       'birthday',
       'country',
@@ -171,18 +171,17 @@ export class GuestService {
       throw new NotFoundError('Guest not found');
     }
 
-    if (imageId < guest.guestPhotos.length) {
-      guest.guestPhotos[imageId] = imagePath;
+    if (imageId < guest.guest_photos.length) {
+      guest.guest_photos[imageId] = imagePath;
     } else {
-      guest.guestPhotos.push(imagePath);
+      guest.guest_photos.push(imagePath);
     }
 
-    await this.guestRepo.update(guest._id.toString(), { guestPhotos: guest.guestPhotos });
+    await this.guestRepo.update(guest._id.toString(), { guest_photos: guest.guest_photos });
 
     return {
       success: true,
       message: 'Guest images updated.',
-      data: { imagePath },
     };
   }
 
@@ -195,14 +194,14 @@ export class GuestService {
       throw new NotFoundError('Guest not found');
     }
 
-    if (imageId >= guest.guestPhotos.length) {
+    if (imageId >= guest.guest_photos.length) {
       throw new NotFoundError('Image not found');
     }
 
-    const imagePath = guest.guestPhotos[imageId];
-    guest.guestPhotos.splice(imageId, 1);
+    const imagePath = guest.guest_photos[imageId];
+    guest.guest_photos.splice(imageId, 1);
 
-    await this.guestRepo.update(guest._id.toString(), { guestPhotos: guest.guestPhotos });
+    await this.guestRepo.update(guest._id.toString(), { guest_photos: guest.guest_photos });
 
     return {
       success: true,

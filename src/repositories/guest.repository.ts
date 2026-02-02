@@ -63,7 +63,7 @@ export class GuestRepository {
                     user_id_guest: user._id,
                     name: guest.name,
                     email: user.email,
-                    image: guest.guestPhotos?.[0] || null,
+                    image: guest.guest_photos?.[0] || null,
                     username: guest.username,
                     isInHouse: !!currentReservation,
                 });
@@ -86,7 +86,7 @@ export class GuestRepository {
                         user_id_guest: populatedUser._id,
                         name: guest.name,
                         email: populatedUser.email,
-                        image: guest.guestPhotos?.[0] || null,
+                        image: guest.guest_photos?.[0] || null,
                         username: guest.username,
                         isInHouse: !!currentReservation,
                     });

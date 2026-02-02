@@ -16,7 +16,7 @@ const GuestSchema = new Schema<IGuestDocument>({
     type: String,
     required: true,
   },
-  guestPhotos: {
+  guest_photos: {
     type: [String],
   },
   phone: {

@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
-import { IHostelDocument } from '../interfaces/hostel';
+import { IHostelDocument } from '../interfaces/hostel.interface';
 
 export type IHostelModel = Model<IHostelDocument>;
 

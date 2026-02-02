@@ -55,4 +55,17 @@ export class ReservationRepository {
     }).sort({ created_at: -1 });
     return reservations as IReservationDocument[];
   }
+
+  async findCurrentGuestsByHostelId(hostelId: string): Promise<IReservationDocument[]> {
+    const reservations = await Reservation.find({
+      hostel_id: hostelId,
+      status: { $in: ['in house', 'walking in'] },
+    })
+    .populate({
+      path: 'user_id_guest',
+      select: 'email',
+    })
+    .sort({ checkin_date: -1 });
+    return reservations as IReservationDocument[];
+  }
 }

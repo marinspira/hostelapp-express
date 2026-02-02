@@ -1,4 +1,5 @@
 import { Document, Types } from 'mongoose';
+import { BackendResponse } from './index.ts';
 
 export type HostelStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
@@ -28,7 +29,27 @@ export interface IHostel {
   policies: boolean;
 }
 
+export interface IGuestListItem {
+  user_id: string;
+  name: string;
+  email: string;
+  first_photo: string;
+  room: string;
+  bed: string;
+  checkin_date: string;
+  checkout_date: string;
+  reservation_id: string;
+}
+
 export interface IHostelDocument extends IHostel, Document {
   _id: Types.ObjectId;
   created_at: Date;
 }
+
+export interface ICreateHostelResponse extends BackendResponse<IHostelDocument> {}
+
+export interface IHostelListItemResponse extends BackendResponse<IHostelDocument[]> {}
+
+export interface IHostelByIdResponse extends BackendResponse<IHostelDocument> {}
+
+export interface IGuestListResponse extends BackendResponse<IGuestListItem[]> {}

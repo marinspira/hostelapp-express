@@ -5,7 +5,7 @@ import { HostelRepository } from '../repositories/hostel.repository';
 import Hostel from '../models/hostel.model';
 import Event from '../models/event.model';
 import { EventService } from '../services/event.service';
-import { IHostelDocument } from '../interfaces/hostel';
+import { IHostelDocument } from '../interfaces/hostel.interface';
 
 let mongoServer: MongoMemoryServer;
 let service: EventService;

@@ -4,7 +4,7 @@ import { GuestRepository } from '../repositories/guest.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { UnauthorizedError } from '../utils/errors.ts';
-import type { ICreateGuestResponse, IGuestByIdResponse, IGuest, IGuestCurrentStayResponse } from '../interfaces/guest.interface.ts';
+import type { ICreateGuestResponse, IGuestByIdResponse, IGuest, IGuestCurrentStayResponse, IGuestDocument } from '../interfaces/guest.interface.ts';
 import type { AuthenticatedRequest, BackendResponse, UploadedFile } from '../interfaces/index.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
@@ -66,7 +66,7 @@ export class GuestController {
   async searchGuests(
     @Request() req: AuthenticatedRequest,
     @Path() username: string
-  ): Promise<BackendResponse<any[]>> {
+  ): Promise<BackendResponse<IGuestDocument[]>> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
@@ -77,7 +77,7 @@ export class GuestController {
 
   @Post('photos')
   @Consumes('multipart/form-data')
-  async updatePhoto(@Request() req: AuthenticatedRequest): Promise<BackendResponse<any>> {
+  async updatePhoto(@Request() req: AuthenticatedRequest): Promise<BackendResponse<{ imagePath: string }>> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
