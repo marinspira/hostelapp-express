@@ -1,5 +1,6 @@
-import { BackendResponse } from ".";
 import { Types, Document } from 'mongoose';
+
+import { BackendResponse } from './index.interface';
 
 export interface ISendEmailCodeDTO {
   email: string;
@@ -57,4 +58,3 @@ export interface IUserDocument extends IUser, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

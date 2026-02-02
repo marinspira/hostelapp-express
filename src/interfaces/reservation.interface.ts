@@ -1,5 +1,6 @@
 import { Document, Types } from 'mongoose';
-import { BackendResponse } from './index.ts';
+
+import { BackendResponse } from './index.interface.ts';
 
 interface IReservation {
   status: 'walking in' | 'in house' | 'checked out';

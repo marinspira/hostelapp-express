@@ -1,49 +1,113 @@
 import { Types } from 'mongoose';
-import type { INotificationDocument } from '../interfaces/notification.ts';
-import INotification from '../interfaces/notification.ts';
+
+import type {
+  ICreateNotificationResponse,
+  INotificationListItemResponse,
+  INotificationByIdResponse,
+  IUnreadCountResponse,
+  INotificationData,
+} from '../interfaces/notification.interface.ts';
+import INotification from '../interfaces/notification.interface.ts';
 import { NotificationRepository } from '../repositories/notification.repository.ts';
-import Hostel from '../models/hostel.model.ts';
-import Guest from '../models/guest.model.ts';
+import { HostelRepository } from '../repositories/hostel.repository.ts';
+import { GuestRepository } from '../repositories/guest.repository.ts';
+import { BackendResponse } from '../interfaces/index.interface.ts';
+import { NotFoundError } from '../utils/errors.ts';
 
 export class NotificationService {
-  constructor(private readonly _notificationRepo: NotificationRepository) {}
+  private notificationRepo: NotificationRepository;
+  private hostelRepo: HostelRepository;
+  private guestRepo: GuestRepository;
 
-  async createNotification(data: INotification): Promise<INotificationDocument> {
-    return this._notificationRepo.create(data);
+  constructor(
+    notificationRepository: NotificationRepository,
+    hostelRepository: HostelRepository,
+    guestRepository: GuestRepository
+  ) {
+    this.notificationRepo = notificationRepository;
+    this.hostelRepo = hostelRepository;
+    this.guestRepo = guestRepository;
   }
 
-  async getNotificationsForUser(userId: string): Promise<INotificationDocument[]> {
-    return this._notificationRepo.findByUserId(new Types.ObjectId(userId));
+  async createNotification(data: INotification): Promise<ICreateNotificationResponse> {
+    const notification = await this.notificationRepo.create(data);
+    return {
+      success: true,
+      message: 'Notification created successfully',
+      data: notification,
+    };
   }
 
-  async getNotificationsForHostel(hostelId: string): Promise<INotificationDocument[]> {
-    return this._notificationRepo.findByHostelId(new Types.ObjectId(hostelId));
+  async getNotificationsForUser(userId: string): Promise<INotificationListItemResponse> {
+    const notifications = await this.notificationRepo.findByUserId(new Types.ObjectId(userId));
+    return {
+      success: true,
+      message: 'Notifications retrieved successfully',
+      data: notifications,
+    };
   }
 
-  async markAsRead(notificationId: string): Promise<INotificationDocument | null> {
-    return this._notificationRepo.markAsRead(notificationId);
+  async getNotificationsForHostel(hostelId: string): Promise<INotificationListItemResponse> {
+    const notifications = await this.notificationRepo.findByHostelId(new Types.ObjectId(hostelId));
+    return {
+      success: true,
+      message: 'Notifications retrieved successfully',
+      data: notifications,
+    };
   }
 
-  async markAllAsReadForUser(userId: string): Promise<void> {
-    return this._notificationRepo.markAllAsReadForUser(userId);
+  async markAsRead(notificationId: string): Promise<INotificationByIdResponse> {
+    const notification = await this.notificationRepo.markAsRead(notificationId);
+    if (!notification) {
+      throw new NotFoundError('Notification not found');
+    }
+    return {
+      success: true,
+      message: 'Notification marked as read',
+      data: notification,
+    };
   }
 
-  async markAllAsReadForHostel(hostelId: string): Promise<void> {
-    return this._notificationRepo.markAllAsReadForHostel(hostelId);
+  async markAllAsReadForUser(userId: string): Promise<BackendResponse<null>> {
+    await this.notificationRepo.markAllAsReadForUser(userId);
+    return {
+      success: true,
+      message: 'All notifications marked as read',
+    };
   }
 
-  async deleteNotification(notificationId: string): Promise<INotificationDocument | null> {
-    return this._notificationRepo.delete(notificationId);
+  async markAllAsReadForHostel(hostelId: string): Promise<BackendResponse<null>> {
+    await this.notificationRepo.markAllAsReadForHostel(hostelId);
+    return {
+      success: true,
+      message: 'All notifications marked as read',
+    };
   }
 
-  async getUnreadCount(userId?: string, hostelId?: string): Promise<number> {
+  async deleteNotification(notificationId: string): Promise<BackendResponse<null>> {
+    const notification = await this.notificationRepo.delete(notificationId);
+    if (!notification) {
+      throw new NotFoundError('Notification not found');
+    }
+    return {
+      success: true,
+      message: 'Notification deleted successfully',
+    };
+  }
+
+  async getUnreadCount(userId?: string, hostelId?: string): Promise<IUnreadCountResponse> {
+    let count = 0;
     if (userId) {
-      return this._notificationRepo.getUnreadCountForUser(userId);
+      count = await this.notificationRepo.getUnreadCountForUser(userId);
+    } else if (hostelId) {
+      count = await this.notificationRepo.getUnreadCountForHostel(hostelId);
     }
-    if (hostelId) {
-      return this._notificationRepo.getUnreadCountForHostel(hostelId);
-    }
-    return 0;
+
+    return {
+      success: true,
+      message: 'Unread count retrieved successfully',
+      data: { unreadCount: count },
+    };
   }
 
   async createReservationNotification(
@@ -56,50 +120,54 @@ export class NotificationService {
     checkoutDate: Date
   ): Promise<void> {
     try {
-      const guest = await Guest.findOne({ user: guestUserId }).populate('user');
+      const guest = await this.guestRepo.findByUserId(guestUserId);
       const guestName = guest?.name || 'Unknown Guest';
 
-      const hostel = await Hostel.findById(hostelId);
-      const hostelOwners = await Hostel.findById(hostelId).populate('user_id_owners');
-      if (hostelOwners && hostelOwners.user_id_owners) {
-        const owners = Array.isArray(hostelOwners.user_id_owners)
-          ? hostelOwners.user_id_owners
-          : [hostelOwners.user_id_owners];
+      const hostel = await this.hostelRepo.findById(hostelId);
 
-        for (const owner of owners) {
-          await this.createNotification({
-            recipient: { user: new Types.ObjectId(owner._id || owner) },
+      if (hostel?.user_id_owners) {
+        const owners = Array.isArray(hostel.user_id_owners)
+          ? hostel.user_id_owners
+          : [hostel.user_id_owners];
+
+        for (const ownerId of owners) {
+          const notificationData: INotificationData = {
+            reservationId,
+            roomNumber,
+            bedNumber,
+            guestId: guestUserId,
+            guestName,
+            hostelId,
+            checkinDate,
+            checkoutDate,
+          };
+
+          await this.notificationRepo.create({
+            recipient: { user: new Types.ObjectId(ownerId) },
             type: 'reservation_created',
             title: 'Nova Reserva',
             message: `${guestName} fez uma nova reserva no seu hostel.`,
-            data: {
-              reservationId,
-              roomNumber,
-              bedNumber,
-              guestId: guestUserId,
-              guestName,
-              hostelId,
-              checkinDate,
-              checkoutDate,
-            },
+            data: notificationData,
           });
         }
       }
 
-      await this.createNotification({
+      const guestNotificationData: INotificationData = {
+        reservationId,
+        roomNumber,
+        bedNumber,
+        hostelId,
+        hostelName: hostel?.name,
+        checkinDate,
+        checkoutDate,
+      };
+
+      await this.notificationRepo.create({
         recipient: { user: new Types.ObjectId(guestUserId) },
         type: 'reservation_created',
         title: 'Reserva Confirmada',
         message: `Sua reserva no quarto ${roomNumber}, cama ${bedNumber} foi confirmada!`,
-        data: {
-          reservationId,
-          roomNumber,
-          bedNumber,
-          hostelId,
-          hostelName: hostel?.name,
-          checkinDate,
-          checkoutDate,
-        },
+        data: guestNotificationData,
       });
     } catch (error) {
       console.error('Error creating reservation notification:', error);
@@ -114,50 +182,50 @@ export class NotificationService {
     bedNumber: string
   ): Promise<void> {
     try {
-      const guest = await Guest.findOne({ user: guestUserId }).populate('user');
+      const guest = await this.guestRepo.findByUserId(guestUserId);
       const guestName = guest?.name || 'Unknown Guest';
-      const hostel = await Hostel.findById(hostelId);
 
-      const hostelOwners = await Hostel.findById(hostelId).populate('user_id_owners');
-      if (hostelOwners && hostelOwners.user_id_owners) {
-        const owners = Array.isArray(hostelOwners.user_id_owners)
-          ? hostelOwners.user_id_owners
-          : [hostelOwners.user_id_owners];
+      const hostel = await this.hostelRepo.findById(hostelId);
 
-        for (const owner of owners) {
-          await this.createNotification({
-            recipient: {
-              user: new Types.ObjectId(owner._id || owner.toString()),
-            },
+      if (hostel?.user_id_owners) {
+        const owners = Array.isArray(hostel.user_id_owners)
+          ? hostel.user_id_owners
+          : [hostel.user_id_owners];
+
+        for (const ownerId of owners) {
+          const notificationData: INotificationData = {
+            reservationId,
+            roomNumber,
+            bedNumber,
+            guestId: guestUserId,
+            guestName,
+            hostelId,
+          };
+
+          await this.notificationRepo.create({
+            recipient: { user: new Types.ObjectId(ownerId) },
             type: 'guest_checkedout',
             title: 'Checkout Realizado',
             message: `${guestName} fez checkout do quarto ${roomNumber}, cama ${bedNumber}`,
-            data: {
-              reservationId,
-              roomNumber,
-              bedNumber,
-              guestId: guestUserId,
-              guestName,
-              hostelId,
-            },
+            data: notificationData,
           });
         }
       }
 
-      await this.createNotification({
-        recipient: {
-          user: new Types.ObjectId(guestUserId),
-        },
+      const guestNotificationData: INotificationData = {
+        reservationId,
+        roomNumber,
+        bedNumber,
+        hostelId,
+        hostelName: hostel?.name,
+      };
+
+      await this.notificationRepo.create({
+        recipient: { user: new Types.ObjectId(guestUserId) },
         type: 'guest_checkedout',
         title: 'Checkout Confirmado',
         message: `Seu checkout do quarto ${roomNumber} foi processado com sucesso!`,
-        data: {
-          reservationId,
-          roomNumber,
-          bedNumber,
-          hostelId,
-          hostelName: hostel?.name,
-        },
+        data: guestNotificationData,
       });
     } catch (error) {
       console.error('Error creating checkout notification:', error);

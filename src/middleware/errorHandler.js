@@ -1,5 +1,4 @@
-
-import { ValidateError } from "tsoa";
+import { ValidateError } from 'tsoa';
 
 const errorHandler = async (err, req, res, next) => {
   console.error('Global error handler caught:', err);
@@ -23,7 +22,7 @@ const errorHandler = async (err, req, res, next) => {
     console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
     return res.status(422).json({
       success: false,
-      message: "Validation Failed",
+      message: 'Validation Failed',
       details: err.fields,
     });
   }

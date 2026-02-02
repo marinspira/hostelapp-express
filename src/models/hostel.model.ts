@@ -1,9 +1,11 @@
 import mongoose, { Model, Schema } from 'mongoose';
+
 import { IHostelDocument } from '../interfaces/hostel.interface';
 
 export type IHostelModel = Model<IHostelDocument>;
 
-const HostelSchema = new Schema<IHostelDocument>({
+const HostelSchema = new Schema<IHostelDocument>(
+  {
     status: {
       type: String,
       enum: ['pending', 'approved', 'rejected', 'suspended'],

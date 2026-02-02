@@ -1,5 +1,7 @@
 import mongoose, { Document, Types } from 'mongoose';
-import { AuthenticatedRequest, BackendResponse } from '.';
+import type { Express } from 'express';
+
+import { AuthenticatedRequest, BackendResponse } from './index.interface';
 import { IUserDocument } from './auth.interface';
 
 export interface ICreateEventResponse extends BackendResponse<IEventDocument> {

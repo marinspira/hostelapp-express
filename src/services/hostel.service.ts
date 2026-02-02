@@ -1,15 +1,15 @@
 import { Types } from 'mongoose';
-import type { 
-  IHostelDocument,
+
+import type {
   ICreateHostelResponse,
   IHostelByIdResponse,
   IGuestListResponse,
-  IHostel 
+  IHostel,
 } from '../interfaces/hostel.interface.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
-import { BackendResponse } from '../interfaces/index.ts';
+import { BackendResponse } from '../interfaces/index.interface.ts';
 import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 // @ts-ignore
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
@@ -41,11 +41,15 @@ export class HostelService {
     return {
       success: true,
       message: 'Hostel found successfully!',
-      data: hostel
+      data: hostel,
     };
   }
 
-  async create(hostelData: any, ownerId: string, logoPath?: string): Promise<ICreateHostelResponse> {
+  async create(
+    hostelData: any,
+    ownerId: string,
+    logoPath?: string
+  ): Promise<ICreateHostelResponse> {
     if (!hostelData || !hostelData.name || hostelData.name.trim() === '') {
       throw new BadRequestError('Hostel name is required');
     }
@@ -84,7 +88,7 @@ export class HostelService {
     return {
       success: true,
       message: 'Hostel created!',
-      data: hostel
+      data: hostel,
     };
   }
 
@@ -97,7 +101,7 @@ export class HostelService {
     return {
       success: true,
       message: 'Hostel found successfully!',
-      data: hostel
+      data: hostel,
     };
   }
 
@@ -115,7 +119,7 @@ export class HostelService {
     return {
       success: true,
       message: 'Hostel updated successfully',
-      data: updatedHostel
+      data: updatedHostel,
     };
   }
 
@@ -129,7 +133,7 @@ export class HostelService {
 
     return {
       success: true,
-      message: 'Hostel deleted successfully'
+      message: 'Hostel deleted successfully',
     };
   }
 
@@ -140,13 +144,15 @@ export class HostelService {
     }
 
     // Get current reservations (in house and walking in status)
-    const currentReservations = await this.reservationRepo.findCurrentGuestsByHostelId(hostel._id.toString());
+    const currentReservations = await this.reservationRepo.findCurrentGuestsByHostelId(
+      hostel._id.toString()
+    );
 
     if (!currentReservations.length) {
       return {
         success: true,
         message: 'No current guests found',
-        data: []
+        data: [],
       };
     }
 
@@ -154,7 +160,9 @@ export class HostelService {
     const guestReservationsMap = new Map();
 
     currentReservations.forEach((reservation: IReservation) => {
-      const guestId = reservation.user_id_guest._id ? reservation.user_id_guest._id.toString() : reservation.user_id_guest.toString();
+      const guestId = reservation.user_id_guest._id
+        ? reservation.user_id_guest._id.toString()
+        : reservation.user_id_guest.toString();
       const existingReservation = guestReservationsMap.get(guestId);
 
       if (!existingReservation) {
@@ -174,11 +182,11 @@ export class HostelService {
 
     // Get guest details for unique reservations
     const guests = [];
-    
+
     for (const reservation of uniqueReservations) {
       const guestUserId = reservation.user_id_guest._id || reservation.user_id_guest;
       const guestData = await this.guestRepo.findByUserId(guestUserId);
-      
+
       guests.push({
         user_id: guestUserId,
         name: guestData?.name || 'Unknown',
@@ -195,7 +203,7 @@ export class HostelService {
     return {
       success: true,
       message: 'Guests retrieved successfully',
-      data: guests
+      data: guests,
     };
   }
 }

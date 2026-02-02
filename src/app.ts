@@ -1,6 +1,8 @@
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { URL } from 'url';
+
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -11,7 +13,6 @@ import cookieParser from 'cookie-parser';
 
 import eventRoutes from './routes/event.routes.ts';
 // import guestRoutes from './routes/guest.routes.ts';
-
 // @ts-ignore
 import errorHandler from './middleware/errorHandler.js';
 // @ts-ignore
@@ -56,7 +57,7 @@ app.use(
 );
 app.use(json());
 
-// RegisterRoutes(app);
+RegisterRoutes(app);
 
 // Static files
 const uploadsPath = path.join(__dirname, 'uploads');

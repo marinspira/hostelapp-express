@@ -1,6 +1,11 @@
-import Event from '../models/event.model.ts';
-import type { IEventAttendee, IEventDocument, IEventListItem } from '../interfaces/event.interface.ts';
 import { Types } from 'mongoose';
+
+import Event from '../models/event.model.ts';
+import type {
+  IEventAttendee,
+  IEventDocument,
+  IEventListItem,
+} from '../interfaces/event.interface.ts';
 
 export class EventRepository {
   async create(event: Partial<IEventDocument>): Promise<IEventDocument> {
@@ -12,9 +17,7 @@ export class EventRepository {
     return Event.findById(eventId);
   }
 
-  async findByIdWithAttendeeProfiles(
-    eventId: string
-  ): Promise<IEventDocument | null> {
+  async findByIdWithAttendeeProfiles(eventId: string): Promise<IEventDocument | null> {
     const event = await Event.findById(eventId)
       .populate('attendees', 'profile_image')
       .populate({ path: 'hostel_id', select: 'currency' })

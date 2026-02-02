@@ -61,11 +61,11 @@ export class ReservationRepository {
       hostel_id: hostelId,
       status: { $in: ['in house', 'walking in'] },
     })
-    .populate({
-      path: 'user_id_guest',
-      select: 'email',
-    })
-    .sort({ checkin_date: -1 });
+      .populate({
+        path: 'user_id_guest',
+        select: 'email',
+      })
+      .sort({ checkin_date: -1 });
     return reservations as IReservationDocument[];
   }
 }

@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import type {
@@ -5,12 +7,10 @@ import type {
   ICreateEventResponse,
   IEvent,
   IEventDocument,
-  IEventListItem,
   IEventListItemResponse,
 } from '../interfaces/event.interface.ts';
 import { BadRequestError, NotFoundError } from '../utils/errors.ts';
-import { Types } from 'mongoose';
-import { BackendResponse } from '../interfaces/index.ts';
+import { BackendResponse } from '../interfaces/index.interface.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 
@@ -90,7 +90,7 @@ export class EventService {
   async update(
     eventId: string,
     eventData: Partial<IEvent>,
-    imagePaths: string[]
+    // imagePaths: string[]
   ): Promise<BackendResponse<null>> {
     const existingEvent = await this.eventRepo.findById(eventId);
     if (!existingEvent) {

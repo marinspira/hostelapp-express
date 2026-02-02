@@ -1,7 +1,8 @@
+import { Route, Post, Body, Request, SuccessResponse, Security } from 'tsoa';
+
 import { AuthService } from '../services/auth.service.ts';
 import { AuthRepository } from '../repositories/auth.repository.ts';
-import type { AuthenticatedRequest } from '../interfaces/index.ts';
-import { Route, Post, Body, Request, SuccessResponse, Security } from 'tsoa';
+import type { AuthenticatedRequest } from '../interfaces/index.interface.ts';
 import type {
   IsAuthenticatedResponse,
   ILogoutResponse,
@@ -12,10 +13,10 @@ import type {
 } from '../interfaces/auth.interface.ts';
 
 interface IAuthController {
-  sendEmailCode(body: ISendEmailCodeDTO): Promise<ISendCodeResponse>;
-  verifyEmailCode(body: IVerifyEmailCodeDTO): Promise<IVerifyCodeResponse>;
-  isAuthenticated(req: AuthenticatedRequest): Promise<IsAuthenticatedResponse>;
-  logout(req: AuthenticatedRequest): Promise<ILogoutResponse>;
+  sendEmailCode(_body: ISendEmailCodeDTO): Promise<ISendCodeResponse>;
+  verifyEmailCode(_body: IVerifyEmailCodeDTO): Promise<IVerifyCodeResponse>;
+  isAuthenticated(_req: AuthenticatedRequest): Promise<IsAuthenticatedResponse>;
+  logout(_req: AuthenticatedRequest): Promise<ILogoutResponse>;
 }
 
 @Route('/api/auth')

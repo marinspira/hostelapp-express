@@ -1,17 +1,19 @@
 import mongoose from 'mongoose';
-import type { 
-  IReservationDocument, 
-  ICreateReservationResponse, 
+
+import type {
+  IReservationDocument,
+  ICreateReservationResponse,
   IReservationListItemResponse,
-  IReservationByIdResponse 
+  IReservationByIdResponse,
 } from '../interfaces/reservation.interface.ts';
 import IReservation from '../interfaces/reservation.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
-import { NotificationService } from './notification.service.ts';
-import { BackendResponse } from '../interfaces/index.ts';
+import { BackendResponse } from '../interfaces/index.interface.ts';
 import { BadRequestError, NotFoundError } from '../utils/errors.ts';
+
+import { NotificationService } from './notification.service.ts';
 
 export class ReservationService {
   private notificationService: NotificationService;
@@ -30,7 +32,7 @@ export class ReservationService {
     this.guestRepo = guestRepository;
     this.notificationService = notificationService;
   }
- 
+
   async create(data: IReservation, ownerId: string): Promise<ICreateReservationResponse> {
     const hostel = await this.hostelRepo.findByOwner(ownerId);
     if (!hostel) {
@@ -83,10 +85,10 @@ export class ReservationService {
       console.error('Error creating reservation notification:', error);
     }
 
-    return { 
-      success: true, 
-      message: 'Reservation created successfully', 
-      data: reservation 
+    return {
+      success: true,
+      message: 'Reservation created successfully',
+      data: reservation,
     };
   }
 
@@ -97,10 +99,10 @@ export class ReservationService {
     }
 
     const reservations = await this.reservationRepo.findByHostelId(hostel._id.toString());
-    return { 
-      success: true, 
-      message: 'Reservations retrieved successfully', 
-      data: reservations 
+    return {
+      success: true,
+      message: 'Reservations retrieved successfully',
+      data: reservations,
     };
   }
 
@@ -109,22 +111,25 @@ export class ReservationService {
     if (!reservation) {
       throw new NotFoundError('Reservation not found');
     }
-    return { 
-      success: true, 
-      message: 'Reservation retrieved successfully', 
-      data: reservation 
+    return {
+      success: true,
+      message: 'Reservation retrieved successfully',
+      data: reservation,
     };
   }
 
-  async updateReservation(id: string, data: Partial<IReservation>): Promise<IReservationByIdResponse> {
+  async updateReservation(
+    id: string,
+    data: Partial<IReservation>
+  ): Promise<IReservationByIdResponse> {
     const updated = await this.reservationRepo.update(id, data);
     if (!updated) {
       throw new NotFoundError('Reservation not found');
     }
-    return { 
-      success: true, 
-      message: 'Reservation updated successfully', 
-      data: updated 
+    return {
+      success: true,
+      message: 'Reservation updated successfully',
+      data: updated,
     };
   }
 
@@ -133,9 +138,9 @@ export class ReservationService {
     if (!deleted) {
       throw new NotFoundError('Reservation not found');
     }
-    return { 
-      success: true, 
-      message: 'Reservation deleted successfully' 
+    return {
+      success: true,
+      message: 'Reservation deleted successfully',
     };
   }
 
@@ -151,7 +156,7 @@ export class ReservationService {
         if (!reservation) {
           throw new NotFoundError('Reservation not found');
         }
-        
+
         if (reservation.status === 'checked out') {
           throw new BadRequestError('Reservation is already checked out');
         }
@@ -168,13 +173,15 @@ export class ReservationService {
         // 3. Clean up guest and hostel relationships
         try {
           // Remove guest reservation reference
-          await this.guestRepo.removeReservation(guestUserId, reservationId, session);
+          await this.guestRepo.removeReservation(guestUserId, reservationId);
 
           // Remove guest from hostel guest list
-          await this.hostelRepo.removeGuestFromHostel(hostelId, guestUserId, session);
-          
+          await this.hostelRepo.removeGuestFromHostel(hostelId, guestUserId);
         } catch (error) {
-          console.error('Warning: failed to update guest/hostel relationships during checkout', error);
+          console.error(
+            'Warning: failed to update guest/hostel relationships during checkout',
+            error
+          );
           // Continue with checkout process even if cleanup fails
         }
 
@@ -203,10 +210,10 @@ export class ReservationService {
         throw new NotFoundError('Unable to retrieve reservation after checkout');
       }
 
-      return { 
-        success: true, 
-        message: 'Checkout completed successfully', 
-        data: result 
+      return {
+        success: true,
+        message: 'Checkout completed successfully',
+        data: result,
       };
     } catch (error) {
       console.error('Error during checkout process:', error);
@@ -221,19 +228,19 @@ export class ReservationService {
     if (!reservation) {
       throw new NotFoundError('No active reservation found');
     }
-    return { 
-      success: true, 
-      message: 'Current reservation retrieved successfully', 
-      data: reservation 
+    return {
+      success: true,
+      message: 'Current reservation retrieved successfully',
+      data: reservation,
     };
   }
 
   async getGuestReservationHistory(guestUserId: string): Promise<IReservationListItemResponse> {
     const reservations = await this.reservationRepo.findByGuestId(guestUserId);
-    return { 
-      success: true, 
-      message: 'Reservation history retrieved successfully', 
-      data: reservations 
+    return {
+      success: true,
+      message: 'Reservation history retrieved successfully',
+      data: reservations,
     };
   }
 }

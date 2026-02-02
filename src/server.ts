@@ -1,4 +1,5 @@
 import http from 'http';
+
 import connectToMongoDB from './db/connect.ts';
 import { startAutomaticCheckoutJob } from './jobs/checkout.job.ts';
 import app from './app.ts';

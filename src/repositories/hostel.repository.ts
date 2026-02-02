@@ -1,5 +1,6 @@
 // @ts-ignore
 import { Types } from 'mongoose';
+
 import Hostel from '../models/hostel.model.ts';
 import { IHostel, IHostelDocument } from '../interfaces/hostel.interface.ts';
 
@@ -35,19 +36,23 @@ export class HostelRepository {
     return await Hostel.findByIdAndDelete(hostelId);
   }
 
-  async removeGuestFromHostel(hostelId: string | Types.ObjectId, guestUserId: string | Types.ObjectId, session?: any): Promise<void> {
+  async removeGuestFromHostel(
+    hostelId: string | Types.ObjectId,
+    guestUserId: string | Types.ObjectId,
+  ): Promise<void> {
     await Hostel.updateOne(
       { _id: hostelId },
       { $pull: { user_id_guests: guestUserId } },
-      { session }
     );
   }
 
-  async addGuestToHostel(hostelId: string | Types.ObjectId, guestUserId: string | Types.ObjectId, session?: any): Promise<void> {
+  async addGuestToHostel(
+    hostelId: string | Types.ObjectId,
+    guestUserId: string | Types.ObjectId,
+  ): Promise<void> {
     await Hostel.updateOne(
       { _id: hostelId },
       { $addToSet: { user_id_guests: guestUserId } },
-      { session }
     );
   }
 }

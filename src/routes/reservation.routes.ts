@@ -1,4 +1,5 @@
 import express from 'express';
+
 // @ts-ignore
 import catchAsync from '../utils/catchAsync.js';
 // @ts-ignore

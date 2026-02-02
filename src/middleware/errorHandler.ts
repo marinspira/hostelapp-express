@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { ValidateError, FieldErrors } from 'tsoa';
+import { ValidateError } from 'tsoa';
+
 import { HttpError } from '../utils/errors.js';
 
 export interface ErrorResponse {
@@ -9,9 +10,9 @@ export interface ErrorResponse {
 }
 
 export default function errorHandler(
-  err: unknown, 
-  req: Request, 
-  res: Response<ErrorResponse>, 
+  err: unknown,
+  req: Request,
+  res: Response<ErrorResponse>,
   next: NextFunction
 ): Response<ErrorResponse> | void {
   console.error('Error caught by middleware:', err);
@@ -26,7 +27,7 @@ export default function errorHandler(
     console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
     return res.status(422).json({
       success: false,
-      message: "Validation Failed",
+      message: 'Validation Failed',
       details: err.fields,
     });
   }
@@ -49,7 +50,7 @@ export default function errorHandler(
 
     return res.status(500).json({
       success: false,
-      message: process.env.NODE_ENV === 'development' ? err.message : "Internal Server Error",
+      message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
     });
   }
 
@@ -57,6 +58,6 @@ export default function errorHandler(
   console.error('Unknown error type:', err);
   return res.status(500).json({
     success: false,
-    message: "Internal Server Error",
+    message: 'Internal Server Error',
   });
 }

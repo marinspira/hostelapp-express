@@ -1,434 +1,386 @@
 {
-	"openapi": "3.0.0",
-	"components": {
-		"examples": {},
-		"headers": {},
-		"parameters": {},
-		"requestBodies": {},
-		"responses": {},
-		"schemas": {
-			"Record_string.unknown_": {
-				"properties": {},
-				"additionalProperties": {},
-				"type": "object",
-				"description": "Construct a type with a set of properties K of type T"
-			},
-			"SendCodeResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean",
-						"enum": [
-							true
-						],
-						"nullable": false
-					},
-					"data": {
-						"$ref": "#/components/schemas/Record_string.unknown_"
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"ErrorResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean",
-						"enum": [
-							false
-						],
-						"nullable": false
-					},
-					"message": {
-						"type": "string"
-					},
-					"details": {}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"IUserDTO": {
-				"properties": {
-					"role": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					},
-					"email": {
-						"type": "string"
-					},
-					"isNewUser": {
-						"type": "boolean"
-					},
-					"isPremium": {
-						"type": "boolean"
-					},
-					"premiumPlan": {
-						"type": "string",
-						"enum": [
-							"basic",
-							"premium",
-							"enterprise"
-						]
-					},
-					"subscriptionActive": {
-						"type": "boolean"
-					},
-					"id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"role",
-					"name",
-					"email",
-					"isNewUser",
-					"id"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"VerifyCodeResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean",
-						"enum": [
-							true
-						],
-						"nullable": false
-					},
-					"data": {
-						"$ref": "#/components/schemas/IUserDTO"
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message",
-					"data"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"IsAuthenticatedResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"data": {
-						"$ref": "#/components/schemas/IUserDTO"
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message",
-					"data"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"LogoutResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean",
-						"enum": [
-							true
-						],
-						"nullable": false
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			}
-		},
-		"securitySchemes": {}
-	},
-	"info": {
-		"title": "HostelApp API",
-		"version": "1.0.0",
-		"description": "API for HostelApp - A platform for hostel management and guest reservations",
-		"license": {
-			"name": "MIT"
-		},
-		"contact": {
-			"name": "API Support",
-			"email": "support@hostelapp.io"
-		}
-	},
-	"paths": {
-		"/auth/send-code": {
-			"post": {
-				"operationId": "SendEmailCode",
-				"responses": {
-					"200": {
-						"description": "Code sent successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/SendCodeResponse"
-								},
-								"examples": {
-									"Example 1": {
-										"value": {
-											"success": true,
-											"message": "Code sent"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "Bad Request - Invalid email or role",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorResponse"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"properties": {
-									"role": {
-										"type": "string",
-										"enum": [
-											"guest",
-											"host"
-										]
-									},
-									"email": {
-										"type": "string"
-									}
-								},
-								"required": [
-									"role",
-									"email"
-								],
-								"type": "object"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/auth/verify-code": {
-			"post": {
-				"operationId": "VerifyEmailCode",
-				"responses": {
-					"200": {
-						"description": "Code verified successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/VerifyCodeResponse"
-								},
-								"examples": {
-									"Example 1": {
-										"value": {
-											"success": true,
-											"message": "User logged in",
-											"data": {
-												"id": "64f123abc123def4567890ab",
-												"name": "John Doe",
-												"email": "john@example.com",
-												"role": "guest",
-												"isNewUser": false
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "Bad Request - Missing email or code",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorResponse"
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Unauthorized - Invalid code",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorResponse"
-								}
-							}
-						}
-					},
-					"409": {
-						"description": "Conflict - Email already registered with different role",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorResponse"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"properties": {
-									"role": {
-										"type": "string",
-										"enum": [
-											"guest",
-											"host"
-										]
-									},
-									"code": {
-										"type": "string"
-									},
-									"email": {
-										"type": "string"
-									}
-								},
-								"required": [
-									"role",
-									"code",
-									"email"
-								],
-								"type": "object"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/auth/is-authenticated": {
-			"post": {
-				"operationId": "IsAuthenticated",
-				"responses": {
-					"200": {
-						"description": "User is authenticated",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/IsAuthenticatedResponse"
-								},
-								"examples": {
-									"Example 1": {
-										"value": {
-											"success": true,
-											"message": "User is authenticated",
-											"data": {
-												"id": "64f123abc123def4567890ab",
-												"name": "John Doe",
-												"email": "john@example.com",
-												"role": "guest",
-												"isNewUser": false
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Unauthorized",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorResponse"
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorResponse"
-								}
-							}
-						}
-					}
-				},
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": []
-			}
-		},
-		"/auth/logout": {
-			"post": {
-				"operationId": "Logout",
-				"responses": {
-					"200": {
-						"description": "Logged out successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LogoutResponse"
-								},
-								"examples": {
-									"Example 1": {
-										"value": {
-											"success": true,
-											"message": "Logged out successfully"
-										}
-									}
-								}
-							}
-						}
-					}
-				},
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": []
-			}
-		}
-	},
-	"servers": [
-		{
-			"url": "/"
-		}
-	]
+  "openapi": "3.0.0",
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "Record_string.unknown_": {
+        "properties": {},
+        "additionalProperties": {},
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "SendCodeResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true],
+            "nullable": false
+          },
+          "data": {
+            "$ref": "#/components/schemas/Record_string.unknown_"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["success", "message"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ErrorResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false],
+            "nullable": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {}
+        },
+        "required": ["success", "message"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "IUserDTO": {
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "isNewUser": {
+            "type": "boolean"
+          },
+          "isPremium": {
+            "type": "boolean"
+          },
+          "premiumPlan": {
+            "type": "string",
+            "enum": ["basic", "premium", "enterprise"]
+          },
+          "subscriptionActive": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["role", "name", "email", "isNewUser", "id"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "VerifyCodeResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true],
+            "nullable": false
+          },
+          "data": {
+            "$ref": "#/components/schemas/IUserDTO"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["success", "message", "data"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "IsAuthenticatedResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IUserDTO"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["success", "message", "data"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "LogoutResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true],
+            "nullable": false
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["success", "message"],
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "securitySchemes": {}
+  },
+  "info": {
+    "title": "HostelApp API",
+    "version": "1.0.0",
+    "description": "API for HostelApp - A platform for hostel management and guest reservations",
+    "license": {
+      "name": "MIT"
+    },
+    "contact": {
+      "name": "API Support",
+      "email": "support@hostelapp.io"
+    }
+  },
+  "paths": {
+    "/auth/send-code": {
+      "post": {
+        "operationId": "SendEmailCode",
+        "responses": {
+          "200": {
+            "description": "Code sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendCodeResponse"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "success": true,
+                      "message": "Code sent"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid email or role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": ["guest", "host"]
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": ["role", "email"],
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-code": {
+      "post": {
+        "operationId": "VerifyEmailCode",
+        "responses": {
+          "200": {
+            "description": "Code verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCodeResponse"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "success": true,
+                      "message": "User logged in",
+                      "data": {
+                        "id": "64f123abc123def4567890ab",
+                        "name": "John Doe",
+                        "email": "john@example.com",
+                        "role": "guest",
+                        "isNewUser": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Missing email or code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Email already registered with different role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": ["guest", "host"]
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": ["role", "code", "email"],
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/is-authenticated": {
+      "post": {
+        "operationId": "IsAuthenticated",
+        "responses": {
+          "200": {
+            "description": "User is authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsAuthenticatedResponse"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "success": true,
+                      "message": "User is authenticated",
+                      "data": {
+                        "id": "64f123abc123def4567890ab",
+                        "name": "John Doe",
+                        "email": "john@example.com",
+                        "role": "guest",
+                        "isNewUser": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "parameters": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "Logout",
+        "responses": {
+          "200": {
+            "description": "Logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "success": true,
+                      "message": "Logged out successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "parameters": []
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ]
 }

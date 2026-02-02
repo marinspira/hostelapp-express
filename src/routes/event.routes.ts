@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { EventsController } from '../controllers/events.controller.ts';
 // @ts-ignore
 import protectRoute from '../middleware/protectRoute.js';
@@ -10,7 +11,12 @@ import catchAsync from '../utils/catchAsync.js';
 const router = express.Router();
 const eventsController = new EventsController();
 
-router.post('/create', protectRoute, upload.array('images', 4), catchAsync(eventsController.create.bind(eventsController)));
+router.post(
+  '/create',
+  protectRoute,
+  upload.array('images', 4),
+  catchAsync(eventsController.create.bind(eventsController))
+);
 
 // router.put('/update/:id', protectRoute, upload.array('images', 4), catchAsync(updateEvent));
 

@@ -1,9 +1,11 @@
 import mongoose, { Model, Schema } from 'mongoose';
+
 import { IReservationDocument } from '../interfaces/reservation.interface';
 
 export type IReservationModel = Model<IReservationDocument>;
 
-const ReservationSchema = new Schema<IReservationDocument>({
+const ReservationSchema = new Schema<IReservationDocument>(
+  {
     status: {
       type: String,
       enum: ['walking in', 'in house', 'checked out'],

@@ -1,4 +1,5 @@
 import { Post, Route, Request, Get, Put, Delete, Body, Consumes } from 'tsoa';
+
 import { HostelService } from '../services/hostel.service.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
@@ -8,9 +9,9 @@ import type {
   ICreateHostelResponse,
   IHostelByIdResponse,
   IGuestListResponse,
-  IHostel
+  IHostel,
 } from '../interfaces/hostel.interface.ts';
-import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.ts';
+import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 
@@ -22,7 +23,11 @@ export class HostelController {
     const hostelRepository = new HostelRepository();
     const reservationRepository = new ReservationRepository();
     const guestRepository = new GuestRepository();
-    this.hostelService = new HostelService(hostelRepository, reservationRepository, guestRepository);
+    this.hostelService = new HostelService(
+      hostelRepository,
+      reservationRepository,
+      guestRepository
+    );
   }
 
   @Post('create')
@@ -33,7 +38,8 @@ export class HostelController {
       throw new UnauthorizedError('User not authenticated');
     }
 
-    const hostelData = typeof req.body.hostel === 'string' ? JSON.parse(req.body.hostel) : req.body.hostel;
+    const hostelData =
+      typeof req.body.hostel === 'string' ? JSON.parse(req.body.hostel) : req.body.hostel;
     const logoPath = (req as any).file ? getRelativeFilePath(req, (req as any).file) : undefined;
 
     return this.hostelService.create(hostelData, user._id, logoPath);

@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import { Document, Types } from 'mongoose';
 import nodemailer from 'nodemailer';
+import type { Response } from 'express';
+
 import User from '../models/user.model.ts';
 import Hostel from '../models/hostel.model.ts';
 import Guest from '../models/guest.model.ts';
@@ -13,13 +15,12 @@ import {
   UnauthorizedError,
   NotFoundError,
 } from '../utils/errors.ts';
-import { BackendResponse } from '../interfaces/index.ts';
+import { BackendResponse } from '../interfaces/index.interface.ts';
 import {
   IsAuthenticatedResponse,
   ISendCodeResponse,
   IVerifyCodeResponse,
 } from '../interfaces/auth.interface.ts';
-import type { Response } from 'express';
 
 interface IUserDocument extends Document {
   email: string;
@@ -185,6 +186,7 @@ export class AuthService {
         html,
       });
     } catch (error) {
+      console.error('[sendEmail] Error sending email:', error);
       throw new BadRequestError('Error sending email');
     }
 

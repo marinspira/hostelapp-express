@@ -1,4 +1,6 @@
-import { Post, Route, Request, Consumes, Body, Path, Get, Put, Delete } from 'tsoa';
+import { Post, Route, Request, Consumes, Path, Get, Put, Delete } from 'tsoa';
+import { Types } from 'mongoose';
+
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { EventService, GuestEventService } from '../services/event.service.ts';
@@ -9,10 +11,13 @@ import type {
   IEventListItemResponse,
 } from '../interfaces/event.interface.ts';
 import { UnauthorizedError } from '../utils/errors.ts';
-import type { AuthenticatedRequest, BackendResponse, UploadedFile } from '../interfaces/index.ts';
+import type {
+  AuthenticatedRequest,
+  BackendResponse,
+  UploadedFile,
+} from '../interfaces/index.interface.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import { Types } from 'mongoose';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 
 @Route('/api/events')
@@ -60,7 +65,6 @@ export class EventsController {
   async update(
     @Request() req: AuthenticatedRequest,
     @Path() eventId: string,
-    @Body() eventData: Partial<IEvent>
   ): Promise<BackendResponse<null>> {
     const user = req.user;
     if (!user?._id) {
@@ -70,10 +74,10 @@ export class EventsController {
     const eventObject: IEvent =
       typeof req.body.event === 'string' ? JSON.parse(req.body.event) : req.body.event;
 
-    const uploadedFiles = (req.files ?? []) as UploadedFile[];
-    const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
+    // const uploadedFiles = (req.files ?? []) as UploadedFile[];
+    // const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
 
-    return this.eventService.update(eventId, eventData, imagePaths);
+    return this.eventService.update(eventId, eventObject);
   }
 
   @Delete('{eventId}/{hostelId}/delete')

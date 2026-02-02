@@ -1,6 +1,7 @@
-import { ReservationService } from '../services/reservation.service.ts';
-import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.ts';
 import { Delete, Get, Post, Route, Request, Path, Put, Body } from 'tsoa';
+
+import { ReservationService } from '../services/reservation.service.ts';
+import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
@@ -23,7 +24,11 @@ export class ReservationController {
     const hostelRepository = new HostelRepository();
     const guestRepository = new GuestRepository();
     const notificationRepository = new NotificationRepository();
-    const notificationService = new NotificationService(notificationRepository);
+    const notificationService = new NotificationService(
+      notificationRepository,
+      hostelRepository,
+      guestRepository
+    );
     this.reservationService = new ReservationService(
       reservationRepository,
       hostelRepository,
@@ -116,7 +121,11 @@ export class GuestReservationController {
     const hostelRepository = new HostelRepository();
     const guestRepository = new GuestRepository();
     const notificationRepository = new NotificationRepository();
-    const notificationService = new NotificationService(notificationRepository);
+    const notificationService = new NotificationService(
+      notificationRepository,
+      hostelRepository,
+      guestRepository
+    );
     this.reservationService = new ReservationService(
       reservationRepository,
       hostelRepository,

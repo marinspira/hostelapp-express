@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
-import { BackendResponse } from './index.ts';
+
+import { BackendResponse } from './index.interface.ts';
 
 export interface IGuest {
   name: string;
