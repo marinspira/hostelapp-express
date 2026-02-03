@@ -13,16 +13,25 @@ import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 import { BackendResponse } from '../interfaces/index.interface.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
+import { IUserDocument } from '../interfaces/auth.interface.ts';
 
 export class EventService {
   private readonly eventRepo: EventRepository;
+  private readonly guestRepo: GuestRepository;
+  private readonly hostelRepo: HostelRepository;
 
-  constructor(eventRepo: EventRepository) {
+  constructor(
+    eventRepo: EventRepository,
+    guestRepo: GuestRepository,
+    hostelRepo: HostelRepository
+  ) {
     this.eventRepo = eventRepo;
+    this.guestRepo = guestRepo;
+    this.hostelRepo = hostelRepo;
   }
 
   async create(
-    hostelId: Types.ObjectId,
+    userId: Types.ObjectId,
     event: IEvent,
     imagePaths: string[]
   ): Promise<ICreateEventResponse> {
@@ -46,6 +55,7 @@ export class EventService {
       event.free_entry === false &&
       !event.payment_to_hostel &&
       !event.price &&
+      !event.currency &&
       !event.receive_payment_online &&
       !event.payment_methods?.length
     ) {
@@ -61,10 +71,17 @@ export class EventService {
       );
     }
 
-    event.hostel_id = hostelId;
+    const eventAlreadyExists = await this.eventRepo.findByNameAndHostel(event.name, userId);
+    if (eventAlreadyExists) {
+      throw new BadRequestError('This event already exists.');
+    }
+
+    event.created_by = userId;
     event.photos_last_event = imagePaths as string[];
 
     const createdEvent: IEventDocument = await this.eventRepo.create(event);
+
+    console.log('Created event:', createdEvent);
 
     return { message: 'Event created successfully', success: true, data: createdEvent };
   }
@@ -89,7 +106,7 @@ export class EventService {
   // TODO: FINISH THIS
   async update(
     eventId: string,
-    eventData: Partial<IEvent>,
+    eventData: Partial<IEvent>
     // imagePaths: string[]
   ): Promise<BackendResponse<null>> {
     const existingEvent = await this.eventRepo.findById(eventId);

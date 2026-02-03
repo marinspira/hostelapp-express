@@ -7,7 +7,7 @@ import User from '../models/user.model.ts';
 import Hostel from '../models/hostel.model.ts';
 import Guest from '../models/guest.model.ts';
 // @ts-ignore
-import generateTokenAndSetCookie from '../utils/generateToken.js';
+import { generateToken } from '../utils/generateToken.js';
 import { AuthRepository } from '../repositories/auth.repository.ts';
 import {
   BadRequestError,
@@ -113,7 +113,7 @@ export class AuthService {
       throw new ConflictError(`This email is already registered as a ${user.role}`);
     }
 
-    const sessionToken = generateTokenAndSetCookie(user._id);
+    const sessionToken = generateToken(user._id);
     user.sessionToken = sessionToken;
     await user.save();
 
@@ -121,7 +121,7 @@ export class AuthService {
       data: {
         _id: (user._id as Types.ObjectId).toString() as string,
         name: user.name as string,
-        isNewUser: false,
+        isNewUser: isNewUser,
         role: user.role,
         email: user.email,
       },
@@ -150,9 +150,9 @@ export class AuthService {
     };
   }
 
-  async logout(res: Response): Promise<{ success: true; message: string }> {
-    res.cookie('jwt', '', { maxAge: 0 });
-    res.clearCookie('jwt');
+  async logout(userId: string): Promise<{ success: true; message: string }> {
+    // Update user to remove session token
+    await User.findByIdAndUpdate(userId, { $unset: { sessionToken: 1 } });
 
     return {
       success: true,

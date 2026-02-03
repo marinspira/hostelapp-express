@@ -1,6 +1,6 @@
 export class HttpError extends Error {
   constructor(
-    public _statusCode: number,
+    public statusCode: number,
     message: string,
   ) {
     super(message);

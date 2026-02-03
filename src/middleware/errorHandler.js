@@ -1,8 +1,6 @@
 import { ValidateError } from 'tsoa';
 
 const errorHandler = async (err, req, res, next) => {
-  console.error('Global error handler caught:', err);
-
   const errorDetails = {
     message: err.message,
     stack: err.stack,

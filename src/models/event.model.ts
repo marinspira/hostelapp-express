@@ -101,13 +101,9 @@ const EventSchema = new Schema<IEventDocument>({
     enum: ['card', 'cash'],
     required: true,
   },
-  hostel_id: {
+  created_by: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Hostel',
     required: true,
-  },
-  suggested_by: {
-    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
   status: {

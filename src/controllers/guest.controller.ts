@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Post, Route, Request, Get, Put, Delete, Path, Body, Consumes } from 'tsoa';
+import { Post, Route, Request, Get, Put, Delete, Path, Body, Consumes, Tags } from 'tsoa';
 
 import { GuestService } from '../services/guest.service.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
@@ -24,6 +24,7 @@ import type {
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 
 @Route('/api/guests')
+@Tags('Guests')
 export class GuestController {
   private guestService: GuestService;
 

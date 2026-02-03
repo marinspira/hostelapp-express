@@ -13,11 +13,24 @@
       "name": "API Support",
       "email": "support@hostelapp.io"
     },
-    "noImplicitAdditionalProperties": "throw"
+    "servers": ["localhost:8000", "api.hostelapp.io"],
+    "noImplicitAdditionalProperties": "silently-remove-extras",
+    "additionalPropertiesMode": "silently-remove-extras",
+    "hideSchemas": true,
+    "generateComponents": false,
+    "securityDefinitions": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   },
   "routes": {
     "routesDir": "src/routes",
-    "noImplicitAdditionalProperties": "throw"
+    "noImplicitAdditionalProperties": "silently-remove-extras",
+    "additionalPropertiesMode": "silently-remove-extras",
+    "authenticationModule": "src/docs/authentication.ts"
   },
   "ignore": ["**/node_modules/**", "**/*.spec.ts", "**/*.test.ts"]
 }

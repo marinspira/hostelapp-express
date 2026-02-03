@@ -1,4 +1,4 @@
-import { Delete, Get, Post, Route, Request, Path, Put, Body } from 'tsoa';
+import { Delete, Get, Post, Route, Request, Path, Put, Body, Tags } from 'tsoa';
 
 import { ReservationService } from '../services/reservation.service.ts';
 import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
@@ -16,6 +16,7 @@ import type {
 import IReservation from '../interfaces/reservation.interface.ts';
 
 @Route('/api/reservations')
+@Tags('Reservations')
 export class ReservationController {
   private reservationService: ReservationService;
 
@@ -113,6 +114,7 @@ export class ReservationController {
 }
 
 @Route('/api/reservations/guest')
+@Tags('Reservations Guest')
 export class GuestReservationController {
   private reservationService: ReservationService;
 

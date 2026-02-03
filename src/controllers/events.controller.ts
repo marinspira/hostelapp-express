@@ -1,4 +1,4 @@
-import { Post, Route, Request, Consumes, Path, Get, Put, Delete } from 'tsoa';
+import { Post, Route, Request, Consumes, Path, Get, Put, Delete, Tags } from 'tsoa';
 import { Types } from 'mongoose';
 
 import { EventRepository } from '../repositories/event.repository.ts';
@@ -21,16 +21,19 @@ import { getRelativeFilePath } from '../middleware/saveUploads.js';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 
 @Route('/api/events')
+@Tags('Events')
 export class EventsController {
   private eventService: EventService;
 
   constructor() {
     const eventRepository = new EventRepository();
-    this.eventService = new EventService(eventRepository);
+    const guestRepository = new GuestRepository();
+    const hostelRepository = new HostelRepository();
+    this.eventService = new EventService(eventRepository, guestRepository, hostelRepository);
   }
 
-  @Post('create')
-  @Consumes('multipart/form-data')
+  // @Post('create') // Commented out to avoid conflict with manual route
+  // @Consumes('multipart/form-data') // Using manual route with multer instead
   async create(@Request() req: ICreateEventRequest): Promise<ICreateEventResponse> {
     const user = req.user;
     if (!user?._id) {
@@ -95,6 +98,7 @@ export class EventsController {
 }
 
 @Route('/api/events/guest')
+@Tags('Events Guest')
 export class GuestEventsController {
   private eventService: GuestEventService;
 

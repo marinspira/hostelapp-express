@@ -2,7 +2,6 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { URL } from 'url';
-
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -10,13 +9,9 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-
 import eventRoutes from './routes/event.routes.ts';
-// import guestRoutes from './routes/guest.routes.ts';
 // @ts-ignore
 import errorHandler from './middleware/errorHandler.js';
-// @ts-ignore
-// import { json } from './middleware/ensureJson.js';
 import { RegisterRoutes } from './routes/routes.ts';
 
 const app = express();
@@ -24,8 +19,8 @@ dotenv.config();
 
 // Define __dirname manualmente
 const __filename = fileURLToPath(import.meta.url);
-const backendFiles = path.dirname(__filename);
-export const __dirname = path.dirname(`${backendFiles}/backend`);
+const srcDir = path.dirname(__filename);
+export const __dirname = path.dirname(srcDir);
 
 // Middlewares
 app.use(cors());
@@ -33,9 +28,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-
-// Middleware para garantir respostas JSON
-// app.use(json);
 
 // Swagger route
 const openApiSpec = JSON.parse(
@@ -79,7 +71,6 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Error handler deve ser o ÚLTIMO middleware
 // @ts-ignore
 app.use(errorHandler);
 

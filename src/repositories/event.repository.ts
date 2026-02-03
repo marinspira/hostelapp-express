@@ -17,6 +17,10 @@ export class EventRepository {
     return Event.findById(eventId);
   }
 
+  async findByNameAndHostel(name: string, created_by: Types.ObjectId): Promise<IEventDocument | null> {
+    return Event.findOne({ name, created_by });
+  }
+
   async findByIdWithAttendeeProfiles(eventId: string): Promise<IEventDocument | null> {
     const event = await Event.findById(eventId)
       .populate('attendees', 'profile_image')
@@ -31,8 +35,7 @@ export class EventRepository {
         _id: guest._id?.toString(),
         profile_image: guest.profile_image,
       })),
-      currency: (event.hostel_id as any)?.currency,
-    };
+    } as IEventDocument;
   }
 
   async findUpcomingByHostelId(hostelId: Types.ObjectId): Promise<IEventListItem[]> {
@@ -52,7 +55,7 @@ export class EventRepository {
           _id: guest._id.toString(),
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
-      currency: (event.hostel_id as any)?.currency ?? null,
+      currency: event.currency,
       free_entry: event.free_entry,
     }));
   }
@@ -117,7 +120,7 @@ export class EventRepository {
           profile_image: guest.profile_image,
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
-      currency: (event.hostel_id as any)?.currency ?? null,
+      currency: event.currency,
       free_entry: event.free_entry,
     }));
   }

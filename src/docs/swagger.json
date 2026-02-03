@@ -1,386 +1,2112 @@
 {
-  "openapi": "3.0.0",
-  "components": {
-    "examples": {},
-    "headers": {},
-    "parameters": {},
-    "requestBodies": {},
-    "responses": {},
-    "schemas": {
-      "Record_string.unknown_": {
-        "properties": {},
-        "additionalProperties": {},
-        "type": "object",
-        "description": "Construct a type with a set of properties K of type T"
-      },
-      "SendCodeResponse": {
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "enum": [true],
-            "nullable": false
-          },
-          "data": {
-            "$ref": "#/components/schemas/Record_string.unknown_"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["success", "message"],
-        "type": "object",
-        "additionalProperties": true
-      },
-      "ErrorResponse": {
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "enum": [false],
-            "nullable": false
-          },
-          "message": {
-            "type": "string"
-          },
-          "details": {}
-        },
-        "required": ["success", "message"],
-        "type": "object",
-        "additionalProperties": true
-      },
-      "IUserDTO": {
-        "properties": {
-          "role": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "isNewUser": {
-            "type": "boolean"
-          },
-          "isPremium": {
-            "type": "boolean"
-          },
-          "premiumPlan": {
-            "type": "string",
-            "enum": ["basic", "premium", "enterprise"]
-          },
-          "subscriptionActive": {
-            "type": "boolean"
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": ["role", "name", "email", "isNewUser", "id"],
-        "type": "object",
-        "additionalProperties": true
-      },
-      "VerifyCodeResponse": {
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "enum": [true],
-            "nullable": false
-          },
-          "data": {
-            "$ref": "#/components/schemas/IUserDTO"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["success", "message", "data"],
-        "type": "object",
-        "additionalProperties": true
-      },
-      "IsAuthenticatedResponse": {
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "$ref": "#/components/schemas/IUserDTO"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["success", "message", "data"],
-        "type": "object",
-        "additionalProperties": true
-      },
-      "LogoutResponse": {
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "enum": [true],
-            "nullable": false
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["success", "message"],
-        "type": "object",
-        "additionalProperties": true
-      }
-    },
-    "securitySchemes": {}
-  },
-  "info": {
-    "title": "HostelApp API",
-    "version": "1.0.0",
-    "description": "API for HostelApp - A platform for hostel management and guest reservations",
-    "license": {
-      "name": "MIT"
-    },
-    "contact": {
-      "name": "API Support",
-      "email": "support@hostelapp.io"
-    }
-  },
-  "paths": {
-    "/auth/send-code": {
-      "post": {
-        "operationId": "SendEmailCode",
-        "responses": {
-          "200": {
-            "description": "Code sent successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendCodeResponse"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "success": true,
-                      "message": "Code sent"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid email or role",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "role": {
-                    "type": "string",
-                    "enum": ["guest", "host"]
-                  },
-                  "email": {
-                    "type": "string"
-                  }
-                },
-                "required": ["role", "email"],
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/verify-code": {
-      "post": {
-        "operationId": "VerifyEmailCode",
-        "responses": {
-          "200": {
-            "description": "Code verified successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VerifyCodeResponse"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "success": true,
-                      "message": "User logged in",
-                      "data": {
-                        "id": "64f123abc123def4567890ab",
-                        "name": "John Doe",
-                        "email": "john@example.com",
-                        "role": "guest",
-                        "isNewUser": false
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Missing email or code",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Invalid code",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict - Email already registered with different role",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "role": {
-                    "type": "string",
-                    "enum": ["guest", "host"]
-                  },
-                  "code": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  }
-                },
-                "required": ["role", "code", "email"],
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/is-authenticated": {
-      "post": {
-        "operationId": "IsAuthenticated",
-        "responses": {
-          "200": {
-            "description": "User is authenticated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IsAuthenticatedResponse"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "success": true,
-                      "message": "User is authenticated",
-                      "data": {
-                        "id": "64f123abc123def4567890ab",
-                        "name": "John Doe",
-                        "email": "john@example.com",
-                        "role": "guest",
-                        "isNewUser": false
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "jwt": []
-          }
-        ],
-        "parameters": []
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "operationId": "Logout",
-        "responses": {
-          "200": {
-            "description": "Logged out successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LogoutResponse"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "success": true,
-                      "message": "Logged out successfully"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "jwt": []
-          }
-        ],
-        "parameters": []
-      }
-    }
-  },
-  "servers": [
-    {
-      "url": "/"
-    }
-  ]
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"mongoose.FlattenProperty_mongoose.Default__v_mongoose.Require_id_DocType___91__id_93__": {
+				"$ref": "#/components/schemas/mongoose.FlattenProperty_mongoose.Default__v_mongoose.Require_id_DocType___91__id_93__",
+				"description": "Separate type is needed for properties of union type (for example, Types.DocumentArray | undefined) to apply conditional check to each member of it\nhttps://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types"
+			},
+			"mongoose.FlattenProperty_mongoose.Default__v_mongoose.Require_id_DocType___91___v_93__": {
+				"$ref": "#/components/schemas/mongoose.FlattenProperty_mongoose.Default__v_mongoose.Require_id_DocType___91___v_93__",
+				"description": "Separate type is needed for properties of union type (for example, Types.DocumentArray | undefined) to apply conditional check to each member of it\nhttps://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types"
+			},
+			"mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___": {
+				"properties": {
+					"_id": {
+						"$ref": "#/components/schemas/mongoose.FlattenProperty_mongoose.Default__v_mongoose.Require_id_DocType___91__id_93__"
+					},
+					"__v": {
+						"$ref": "#/components/schemas/mongoose.FlattenProperty_mongoose.Default__v_mongoose.Require_id_DocType___91___v_93__"
+					}
+				},
+				"required": [
+					"_id",
+					"__v"
+				],
+				"type": "object"
+			},
+			"IReservationDocument": {
+				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
+			},
+			"ICreateReservationResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IReservationDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IReservationListItemResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/IReservationDocument"
+						},
+						"type": "array"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IReservationByIdResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IReservationDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"mongoose.Types.ObjectId": {
+				"type": "string"
+			},
+			"Partial_IReservation_": {
+				"properties": {
+					"status": {
+						"type": "string",
+						"enum": [
+							"walking in",
+							"in house",
+							"checked out"
+						]
+					},
+					"hostel_id": {
+						"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+					},
+					"user_id_guest": {
+						"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+					},
+					"room": {
+						"type": "string"
+					},
+					"bed": {
+						"type": "string"
+					},
+					"checkin_date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"checkout_date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"checkout_processed_at": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"BackendResponse_null_": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"type": "number",
+						"enum": [
+							null
+						],
+						"nullable": true
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"INotificationDocument": {
+				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
+			},
+			"INotificationListItemResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/INotificationDocument"
+						},
+						"type": "array"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"INotificationByIdResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/INotificationDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IUnreadCountResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"properties": {
+							"unreadCount": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"unreadCount"
+						],
+						"type": "object"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IHostelDocument": {
+				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
+			},
+			"ICreateHostelResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IHostelDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IHostelByIdResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IHostelDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"HostelStatus": {
+				"type": "string",
+				"enum": [
+					"pending",
+					"approved",
+					"rejected",
+					"suspended"
+				]
+			},
+			"Partial_IHostel_": {
+				"properties": {
+					"status": {
+						"$ref": "#/components/schemas/HostelStatus"
+					},
+					"stripeAccountId": {
+						"type": "string"
+					},
+					"logo": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"address": {
+						"properties": {
+							"zip": {
+								"type": "string"
+							},
+							"country": {
+								"type": "string"
+							},
+							"city": {
+								"type": "string"
+							},
+							"street": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"country",
+							"city",
+							"street"
+						],
+						"type": "object"
+					},
+					"phone": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"website": {
+						"type": "string"
+					},
+					"experience_with_volunteers": {
+						"type": "boolean"
+					},
+					"currency": {
+						"type": "string"
+					},
+					"rooms": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"user_id_owners": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"user_id_guests": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"user_id_staffs": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"events": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"volunteer_opportunities": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"policies": {
+						"type": "boolean"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"IGuestListItem": {
+				"properties": {
+					"user_id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"first_photo": {
+						"type": "string"
+					},
+					"room": {
+						"type": "string"
+					},
+					"bed": {
+						"type": "string"
+					},
+					"checkin_date": {
+						"type": "string"
+					},
+					"checkout_date": {
+						"type": "string"
+					},
+					"reservation_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"user_id",
+					"name",
+					"email",
+					"first_photo",
+					"room",
+					"bed",
+					"checkin_date",
+					"checkout_date",
+					"reservation_id"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IGuestListResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/IGuestListItem"
+						},
+						"type": "array"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IGuestDocument": {
+				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
+			},
+			"ICreateGuestResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IGuestDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IGuestByIdResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IGuestDocument"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Partial_IGuest_": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"guest_photos": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"phone": {
+						"type": "string"
+					},
+					"birthday": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"country": {
+						"type": "string"
+					},
+					"showProfileAuthorization": {
+						"type": "boolean"
+					},
+					"user": {
+						"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+					},
+					"reservations": {
+						"items": {
+							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+						},
+						"type": "array"
+					},
+					"passaportPhoto": {
+						"type": "string"
+					},
+					"interests": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"description": {
+						"type": "string"
+					},
+					"languages": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"digitalNomad": {
+						"type": "boolean"
+					},
+					"smoker": {
+						"type": "boolean"
+					},
+					"pets": {
+						"type": "boolean"
+					},
+					"instagram": {
+						"type": "string"
+					},
+					"linkedin": {
+						"type": "string"
+					},
+					"twitter": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"BackendResponse_Partial_IGuest__": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/Partial_IGuest_"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"BackendResponse_IGuestDocument-Array_": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/IGuestDocument"
+						},
+						"type": "array"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"BackendResponse__imagePath-string__": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"properties": {
+							"imagePath": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"imagePath"
+						],
+						"type": "object"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IGuestCurrentStay": {
+				"properties": {
+					"reservationId": {
+						"type": "string"
+					},
+					"hostel": {
+						"properties": {
+							"email": {
+								"type": "string"
+							},
+							"phone": {
+								"type": "string"
+							},
+							"address": {
+								"properties": {
+									"country": {
+										"type": "string"
+									},
+									"city": {
+										"type": "string"
+									},
+									"street": {
+										"type": "string"
+									}
+								},
+								"type": "object"
+							},
+							"logo": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"_id": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					},
+					"room": {
+						"type": "string"
+					},
+					"bed": {
+						"type": "string"
+					},
+					"checkinDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"checkoutDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"status": {
+						"type": "string"
+					},
+					"daysRemaining": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"reservationId",
+					"hostel",
+					"room",
+					"bed",
+					"checkinDate",
+					"checkoutDate",
+					"status",
+					"daysRemaining"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IGuestCurrentStayResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IGuestCurrentStay"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IEventAttendee": {
+				"properties": {
+					"_id": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+							},
+							{
+								"type": "string"
+							}
+						]
+					},
+					"profile_image": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"_id"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IEventListItem": {
+				"properties": {
+					"_id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"start_date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"photos_last_event": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"attendees": {
+						"items": {
+							"$ref": "#/components/schemas/IEventAttendee"
+						},
+						"type": "array"
+					},
+					"free_entry": {
+						"type": "boolean"
+					},
+					"price": {
+						"type": "number",
+						"format": "double"
+					},
+					"currency": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"_id",
+					"name",
+					"start_date",
+					"photos_last_event",
+					"free_entry"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IEventListItemResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/IEventListItem"
+						},
+						"type": "array"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Record_string.unknown_": {
+				"properties": {},
+				"additionalProperties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"ISendCodeResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"$ref": "#/components/schemas/Record_string.unknown_"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISendEmailCodeDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string",
+						"enum": [
+							"guest",
+							"host"
+						]
+					}
+				},
+				"required": [
+					"email",
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IUserDTO": {
+				"properties": {
+					"role": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"isNewUser": {
+						"type": "boolean"
+					},
+					"isPremium": {
+						"type": "boolean"
+					},
+					"premiumPlan": {
+						"type": "string",
+						"enum": [
+							"basic",
+							"premium",
+							"enterprise"
+						]
+					},
+					"subscriptionActive": {
+						"type": "boolean"
+					},
+					"_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"role",
+					"name",
+					"email",
+					"isNewUser",
+					"_id"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IVerifyCodeResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"$ref": "#/components/schemas/IUserDTO"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IVerifyEmailCodeDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string",
+						"enum": [
+							"guest",
+							"host"
+						]
+					}
+				},
+				"required": [
+					"email",
+					"code",
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"IsAuthenticatedResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IUserDTO"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message",
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ILogoutResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			}
+		},
+		"securitySchemes": {
+			"jwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	},
+	"info": {
+		"title": "HostelApp API",
+		"version": "1.0.0",
+		"description": "API for HostelApp - A platform for hostel management and guest reservations",
+		"license": {
+			"name": "MIT"
+		},
+		"contact": {
+			"name": "API Support",
+			"email": "support@hostelapp.io"
+		}
+	},
+	"paths": {
+		"/api/reservations/create": {
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ICreateReservationResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/reservations": {
+			"get": {
+				"operationId": "ListAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IReservationListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/reservations/{id}": {
+			"get": {
+				"operationId": "FindById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IReservationByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/reservations/{id}/update": {
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IReservationByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_IReservation_"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/reservations/{id}/delete": {
+			"delete": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/reservations/{id}/checkout": {
+			"put": {
+				"operationId": "Checkout",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IReservationByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/reservations/guest/current": {
+			"get": {
+				"operationId": "GetCurrentReservation",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IReservationByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations Guest"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/reservations/guest/history": {
+			"get": {
+				"operationId": "GetReservationHistory",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IReservationListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations Guest"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/notifications/user": {
+			"get": {
+				"operationId": "GetUserNotifications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/INotificationListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/notifications/hostel/{hostelId}": {
+			"get": {
+				"operationId": "GetHostelNotifications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/INotificationListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "hostelId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/notifications/{notificationId}/read": {
+			"put": {
+				"operationId": "MarkAsRead",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/INotificationByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "notificationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/notifications/user/mark-all-read": {
+			"put": {
+				"operationId": "MarkAllAsReadForUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/notifications/hostel/{hostelId}/mark-all-read": {
+			"put": {
+				"operationId": "MarkAllAsReadForHostel",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "hostelId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/notifications/{notificationId}": {
+			"delete": {
+				"operationId": "DeleteNotification",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "notificationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/notifications/unread-count": {
+			"get": {
+				"operationId": "GetUnreadCount",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IUnreadCountResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "hostelId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/hostels/create": {
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ICreateHostelResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Hostels"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/hostels/{id}": {
+			"get": {
+				"operationId": "GetHostel",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IHostelByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Hostels"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/hostels/update": {
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IHostelByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Hostels"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_IHostel_"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/hostels/delete": {
+			"delete": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Hostels"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/hostels/guests/current": {
+			"get": {
+				"operationId": "GetCurrentGuests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IGuestListResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Hostels"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/guests/create": {
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ICreateGuestResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/guests/profile": {
+			"get": {
+				"operationId": "GetProfile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IGuestByIdResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/guests/update": {
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_Partial_IGuest__"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/api/guests/search/{username}": {
+			"get": {
+				"operationId": "SearchGuests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_IGuestDocument-Array_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/guests/photos": {
+			"post": {
+				"operationId": "UpdatePhoto",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse__imagePath-string__"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/guests/photos/{imageId}": {
+			"delete": {
+				"operationId": "DeletePhoto",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse__imagePath-string__"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "imageId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/guests/current-stay": {
+			"get": {
+				"operationId": "GetCurrentStay",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IGuestCurrentStayResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guests"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/events/{hostelId}/list": {
+			"get": {
+				"operationId": "ListByHostelId",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IEventListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "hostelId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/events/{eventId}/update": {
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "eventId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/events/{eventId}/{hostelId}/delete": {
+			"delete": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "eventId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "hostelId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/events/guest/current-stay": {
+			"get": {
+				"operationId": "ListEventsForCurrentStay",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IEventListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events Guest"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/events/guest/public/{city}/{country}": {
+			"get": {
+				"operationId": "ListPublicEvents",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IEventListItemResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events Guest"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "city",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "country",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/events/guest/join/{eventId}": {
+			"post": {
+				"operationId": "JoinEvent",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events Guest"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "eventId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/events/guest/leave/{eventId}": {
+			"post": {
+				"operationId": "LeaveEvent",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BackendResponse_null_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Events Guest"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "eventId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/auth/send-code": {
+			"post": {
+				"operationId": "SendEmailCode",
+				"responses": {
+					"200": {
+						"description": "Code sent successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ISendCodeResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ISendEmailCodeDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auth/verify-code": {
+			"post": {
+				"operationId": "VerifyEmailCode",
+				"responses": {
+					"200": {
+						"description": "Code verified successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IVerifyCodeResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IVerifyEmailCodeDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auth/is-authenticated": {
+			"post": {
+				"operationId": "IsAuthenticated",
+				"responses": {
+					"200": {
+						"description": "User is authenticated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IsAuthenticatedResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Authentication"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/auth/logout": {
+			"post": {
+				"operationId": "Logout",
+				"responses": {
+					"200": {
+						"description": "Logged out successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ILogoutResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "https://localhost:8000/"
+		},
+		{
+			"url": "https://api.hostelapp.io/"
+		}
+	]
 }

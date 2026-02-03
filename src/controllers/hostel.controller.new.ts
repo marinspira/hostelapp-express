@@ -1,4 +1,4 @@
-import { Post, Route, Request, Get, Put, Delete, Body, Consumes } from 'tsoa';
+import { Post, Route, Request, Get, Put, Delete, Body, Consumes, Tags } from 'tsoa';
 
 import { HostelService } from '../services/hostel.service.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
@@ -16,6 +16,7 @@ import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 
 @Route('/api/hostels')
+@Tags('Hostels')
 export class HostelController {
   private hostelService: HostelService;
 

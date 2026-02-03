@@ -64,7 +64,7 @@ export interface IEvent {
   >;
   attendees?: IEventAttendee[];
   payment_methods: Array<'card' | 'cash'>;
-  hostel_id?: Types.ObjectId;
+  created_by?: Types.ObjectId // Hostel or Guest ID;
   suggested_by?: Types.ObjectId;
   status?: 'pending' | 'approved' | 'rejected';
 }
