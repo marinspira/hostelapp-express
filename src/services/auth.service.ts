@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Document, Types } from 'mongoose';
 import nodemailer from 'nodemailer';
-import type { Response } from 'express';
 
 import User from '../models/user.model.ts';
 import Hostel from '../models/hostel.model.ts';

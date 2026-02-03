@@ -106,6 +106,10 @@ const EventSchema = new Schema<IEventDocument>({
     required: true,
     ref: 'User',
   },
+  hostel_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Hostel',
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

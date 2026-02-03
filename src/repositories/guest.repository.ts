@@ -26,14 +26,8 @@ export class GuestRepository {
     });
   }
 
-  async removeReservation(
-    guestId: string | Types.ObjectId,
-    reservationId: string,
-  ): Promise<void> {
-    await Guest.updateOne(
-      { user: guestId },
-      { $pull: { reservations: reservationId } },
-    );
+  async removeReservation(guestId: string | Types.ObjectId, reservationId: string): Promise<void> {
+    await Guest.updateOne({ user: guestId }, { $pull: { reservations: reservationId } });
   }
 
   async searchByUsernameOrEmail(searchTerm: string, hostelId: string): Promise<any[]> {

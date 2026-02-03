@@ -4,7 +4,7 @@ import type { Express } from 'express';
 import { AuthenticatedRequest, BackendResponse } from './index.interface';
 import { IUserDocument } from './auth.interface';
 
-export interface ICreateEventResponse extends BackendResponse<IEventDocument> {
+export interface IEventResponse extends BackendResponse<IEventDocument> {
   success: true;
   message: string;
   data: IEventDocument;
@@ -64,7 +64,8 @@ export interface IEvent {
   >;
   attendees?: IEventAttendee[];
   payment_methods: Array<'card' | 'cash'>;
-  created_by?: Types.ObjectId // Hostel or Guest ID;
+  created_by?: Types.ObjectId; // User;
+  hostel_id?: Types.ObjectId;
   suggested_by?: Types.ObjectId;
   status?: 'pending' | 'approved' | 'rejected';
 }

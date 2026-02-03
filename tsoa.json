@@ -22,7 +22,8 @@
       "jwt": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "JWT authentication with role-based access. Available roles: host, guest"
       }
     }
   },

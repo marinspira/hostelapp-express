@@ -1,7 +1,8 @@
 export class HttpError extends Error {
   constructor(
+    // eslint-disable-next-line no-unused-vars
     public statusCode: number,
-    message: string,
+    message: string
   ) {
     super(message);
     this.name = this.constructor.name;

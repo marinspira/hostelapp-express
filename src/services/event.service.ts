@@ -4,7 +4,7 @@ import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import type {
   GetEventByIdResponse,
-  ICreateEventResponse,
+  IEventResponse,
   IEvent,
   IEventDocument,
   IEventListItemResponse,
@@ -13,7 +13,6 @@ import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 import { BackendResponse } from '../interfaces/index.interface.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
-import { IUserDocument } from '../interfaces/auth.interface.ts';
 
 export class EventService {
   private readonly eventRepo: EventRepository;
@@ -34,7 +33,26 @@ export class EventService {
     userId: Types.ObjectId,
     event: IEvent,
     imagePaths: string[]
-  ): Promise<ICreateEventResponse> {
+  ): Promise<IEventResponse> {
+    const hostel = await this.hostelRepo.findByOwner(userId);
+    if (hostel) {
+      event.hostel_id = hostel._id;
+    } else {
+      const reservationRepository = new ReservationRepository();
+      const activeReservation = await reservationRepository.findCurrentStayByGuestId(
+        userId.toString()
+      );
+
+      if (activeReservation) {
+        event.hostel_id = activeReservation.hostel_id;
+      } else {
+        event.open_to_public = true;
+        if (event.hostel_location === true) {
+          throw new BadRequestError('Hostel location cannot be selected without a hostel');
+        }
+      }
+    }
+
     if (event.name === undefined || event.name === null) {
       throw new BadRequestError('Event name is required');
     }
@@ -53,10 +71,8 @@ export class EventService {
 
     if (
       event.free_entry === false &&
-      !event.payment_to_hostel &&
       !event.price &&
       !event.currency &&
-      !event.receive_payment_online &&
       !event.payment_methods?.length
     ) {
       throw new BadRequestError('Payment details are required');
@@ -81,8 +97,6 @@ export class EventService {
 
     const createdEvent: IEventDocument = await this.eventRepo.create(event);
 
-    console.log('Created event:', createdEvent);
-
     return { message: 'Event created successfully', success: true, data: createdEvent };
   }
 
@@ -103,25 +117,45 @@ export class EventService {
     return { success: true, message: 'Events retrieved successfully', data: events };
   }
 
-  // TODO: FINISH THIS
   async update(
+    userId: string,
     eventId: string,
-    eventData: Partial<IEvent>
-    // imagePaths: string[]
-  ): Promise<BackendResponse<null>> {
+    eventData: Partial<IEvent>,
+    imagePaths: string[]
+  ): Promise<IEventResponse> {
     const existingEvent = await this.eventRepo.findById(eventId);
     if (!existingEvent) {
       throw new NotFoundError('Event not found');
     }
 
+    if (!existingEvent.created_by || userId.toString() !== existingEvent.created_by.toString()) {
+      throw new BadRequestError('User not authorized to update this event');
+    }
+
+    if (imagePaths && imagePaths.length > 0) {
+      const existingPhotos = eventData.photos_last_event || [];
+      eventData.photos_last_event = [...existingPhotos, ...imagePaths];
+    }
+
     Object.assign(existingEvent, eventData);
 
-    await this.eventRepo.update(eventId, existingEvent);
-    return { success: true, message: 'Event updated successfully' };
+    const updatedEvent = await this.eventRepo.update(eventId, existingEvent);
+
+    if (!updatedEvent) {
+      throw new NotFoundError('Event not found after update');
+    }
+
+    return { success: true, message: 'Event updated successfully', data: updatedEvent };
   }
 
-  async delete(eventId: string, hostelId: string): Promise<BackendResponse<null>> {
-    const deletedEvent = await this.eventRepo.deleteByIdAndHostel(eventId, hostelId);
+  async delete(eventId: string, userId: string): Promise<BackendResponse<null>> {
+    const existingEvent = await this.eventRepo.findById(eventId);
+
+    if (!existingEvent?.created_by || userId.toString() !== existingEvent?.created_by.toString()) {
+      throw new BadRequestError('User not authorized to update this event');
+    }
+
+    const deletedEvent = await this.eventRepo.deleteByIdAndCreatedBy(eventId, userId);
 
     if (!deletedEvent) {
       throw new NotFoundError('Event not found');
@@ -160,6 +194,7 @@ export class GuestEventService {
 
   async joinEvent(userId: Types.ObjectId, eventId: string): Promise<BackendResponse<null>> {
     const event = await this.eventRepo.findById(eventId);
+    console.log('userId:', userId, 'eventId:', eventId);
     const guest = await this.guestRepo.findById(userId);
 
     if (!guest) {

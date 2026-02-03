@@ -17,7 +17,10 @@ export class EventRepository {
     return Event.findById(eventId);
   }
 
-  async findByNameAndHostel(name: string, created_by: Types.ObjectId): Promise<IEventDocument | null> {
+  async findByNameAndHostel(
+    name: string,
+    created_by: Types.ObjectId
+  ): Promise<IEventDocument | null> {
     return Event.findOne({ name, created_by });
   }
 
@@ -71,10 +74,10 @@ export class EventRepository {
     return Event.findByIdAndDelete(id);
   }
 
-  async deleteByIdAndHostel(eventId: string, hostelId: string): Promise<IEventDocument | null> {
+  async deleteByIdAndCreatedBy(eventId: string, userId: string): Promise<IEventDocument | null> {
     return Event.findOneAndDelete({
       _id: eventId,
-      hostel_id: hostelId,
+      created_by: userId,
     });
   }
 

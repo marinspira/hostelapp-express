@@ -1,5 +1,5 @@
 import { Route, Post, Body, Request, SuccessResponse, Security, Tags } from 'tsoa';
-import type { Response as ExpressResponse } from 'express';
+
 import { AuthService } from '../services/auth.service.ts';
 import { AuthRepository } from '../repositories/auth.repository.ts';
 // @ts-ignore
@@ -39,14 +39,17 @@ export class AuthController implements IAuthController {
 
   @SuccessResponse(200, 'Code verified successfully')
   @Post('verify-code')
-  async verifyEmailCode(@Body() body: IVerifyEmailCodeDTO, @Request() request: any): Promise<IVerifyCodeResponse> {
+  async verifyEmailCode(
+    @Body() body: IVerifyEmailCodeDTO,
+    @Request() request: any
+  ): Promise<IVerifyCodeResponse> {
     const result = await this.authService.verifyEmailCode(body.email, body.code, body.role);
-    
+
     // Set cookie with the session token
     if (result.data && request.res) {
       generateTokenAndSetCookie(result.data._id, request.res);
     }
-    
+
     return result;
   }
 
@@ -60,15 +63,18 @@ export class AuthController implements IAuthController {
 
   @SuccessResponse(200, 'Logged out successfully')
   @Post('logout')
-  async logout(@Request() req: AuthenticatedRequest, @Request() request: any): Promise<ILogoutResponse> {
+  async logout(
+    @Request() req: AuthenticatedRequest,
+    @Request() request: any
+  ): Promise<ILogoutResponse> {
     const result = await this.authService.logout(req.user._id);
-    
+
     // Clear cookie
     if (request.res) {
       request.res.cookie('jwt', '', { maxAge: 0 });
       request.res.clearCookie('jwt');
     }
-    
+
     return result;
   }
 }

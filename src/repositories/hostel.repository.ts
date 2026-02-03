@@ -38,21 +38,15 @@ export class HostelRepository {
 
   async removeGuestFromHostel(
     hostelId: string | Types.ObjectId,
-    guestUserId: string | Types.ObjectId,
+    guestUserId: string | Types.ObjectId
   ): Promise<void> {
-    await Hostel.updateOne(
-      { _id: hostelId },
-      { $pull: { user_id_guests: guestUserId } },
-    );
+    await Hostel.updateOne({ _id: hostelId }, { $pull: { user_id_guests: guestUserId } });
   }
 
   async addGuestToHostel(
     hostelId: string | Types.ObjectId,
-    guestUserId: string | Types.ObjectId,
+    guestUserId: string | Types.ObjectId
   ): Promise<void> {
-    await Hostel.updateOne(
-      { _id: hostelId },
-      { $addToSet: { user_id_guests: guestUserId } },
-    );
+    await Hostel.updateOne({ _id: hostelId }, { $addToSet: { user_id_guests: guestUserId } });
   }
 }

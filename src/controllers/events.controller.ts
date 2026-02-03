@@ -1,4 +1,4 @@
-import { Post, Route, Request, Consumes, Path, Get, Put, Delete, Tags } from 'tsoa';
+import { Post, Route, Request, Path, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
 
 import { EventRepository } from '../repositories/event.repository.ts';
@@ -6,7 +6,7 @@ import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { EventService, GuestEventService } from '../services/event.service.ts';
 import type {
   ICreateEventRequest,
-  ICreateEventResponse,
+  IEventResponse,
   IEvent,
   IEventListItemResponse,
 } from '../interfaces/event.interface.ts';
@@ -32,9 +32,7 @@ export class EventsController {
     this.eventService = new EventService(eventRepository, guestRepository, hostelRepository);
   }
 
-  // @Post('create') // Commented out to avoid conflict with manual route
-  // @Consumes('multipart/form-data') // Using manual route with multer instead
-  async create(@Request() req: ICreateEventRequest): Promise<ICreateEventResponse> {
+  async create(@Request() req: ICreateEventRequest): Promise<IEventResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
@@ -49,51 +47,47 @@ export class EventsController {
     return this.eventService.create(user._id, eventObject, imagePaths);
   }
 
-  @Get('{hostelId}/list')
-  async listByHostelId(
-    @Request() req: AuthenticatedRequest,
-    @Path() hostelId: string
-  ): Promise<IEventListItemResponse> {
-    const user = req.user;
-    if (!user?._id) {
-      throw new UnauthorizedError('User not authenticated');
-    }
-
-    const hostelObjectId = new Types.ObjectId(hostelId);
-    return this.eventService.listByHostelId(hostelObjectId);
-  }
-
-  @Put('{eventId}/update')
-  @Consumes('multipart/form-data')
   async update(
     @Request() req: AuthenticatedRequest,
-    @Path() eventId: string,
-  ): Promise<BackendResponse<null>> {
+    @Path() eventId: string
+  ): Promise<IEventResponse> {
     const user = req.user;
-    if (!user?._id) {
+    if (!user) {
       throw new UnauthorizedError('User not authenticated');
     }
 
     const eventObject: IEvent =
       typeof req.body.event === 'string' ? JSON.parse(req.body.event) : req.body.event;
 
-    // const uploadedFiles = (req.files ?? []) as UploadedFile[];
-    // const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
+    const uploadedFiles = (
+      Array.isArray(req.files) ? req.files : (req.files?.['images'] ?? [])
+    ) as UploadedFile[];
+    const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
 
-    return this.eventService.update(eventId, eventObject);
+    return this.eventService.update(user._id, eventId, eventObject, imagePaths);
   }
 
-  @Delete('{eventId}/{hostelId}/delete')
+  @Get('{hostelId}/list')
+  @Security('jwt')
+  async listByHostelId(
+    @Request() _req: AuthenticatedRequest,
+    @Path() hostelId: string
+  ): Promise<IEventListItemResponse> {
+    const hostelObjectId = new Types.ObjectId(hostelId);
+    return this.eventService.listByHostelId(hostelObjectId);
+  }
+
+  @Delete('{eventId}/delete')
+  @Security('jwt')
   async delete(
     @Request() req: AuthenticatedRequest,
-    @Path() eventId: string,
-    @Path() hostelId: string
+    @Path() eventId: string
   ): Promise<BackendResponse<null>> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
     }
-    return this.eventService.delete(eventId, hostelId);
+    return this.eventService.delete(eventId, user._id);
   }
 }
 
@@ -110,17 +104,19 @@ export class GuestEventsController {
   }
 
   @Get('current-stay')
+  @Security('jwt')
   async listEventsForCurrentStay(
     @Request() req: AuthenticatedRequest
   ): Promise<IEventListItemResponse> {
     const user = req.user;
-    if (!user?._id) {
-      throw new UnauthorizedError('User not authenticated');
+    if (user.role !== 'guest' || !user?._id) {
+      throw new UnauthorizedError('User not authenticated as guest');
     }
     return this.eventService.listEventsForCurrentStay(user._id);
   }
 
   @Get('public/{city}/{country}')
+  @Security('jwt')
   async listPublicEvents(
     @Path() city: string,
     @Path() country: string
@@ -129,25 +125,27 @@ export class GuestEventsController {
   }
 
   @Post('join/{eventId}')
+  @Security('jwt')
   async joinEvent(
     @Request() req: AuthenticatedRequest,
     @Path() eventId: string
   ): Promise<BackendResponse<null>> {
     const user = req.user;
-    if (!user?._id) {
-      throw new UnauthorizedError('User not authenticated');
+    if (user.role !== 'guest' || !user?._id) {
+      throw new UnauthorizedError('User not authenticated as guest');
     }
     return this.eventService.joinEvent(user._id, eventId);
   }
 
   @Post('leave/{eventId}')
+  @Security('jwt')
   async leaveEvent(
     @Request() req: AuthenticatedRequest,
     @Path() eventId: string
   ): Promise<BackendResponse<null>> {
     const user = req.user;
-    if (!user?._id) {
-      throw new UnauthorizedError('User not authenticated');
+    if (user.role !== 'guest' || !user?._id) {
+      throw new UnauthorizedError('User not authenticated as guest');
     }
     return this.eventService.leaveEvent(user._id, eventId);
   }
