@@ -1,19 +1,18 @@
 import fs from 'fs';
 import path from 'path';
-
-import { Post, Route, Request, Get, Put, Delete, Path, Body, Consumes, Tags } from 'tsoa';
-
+import { Post, Route, Request, Get, Delete, Path, Consumes, Tags, Security } from 'tsoa';
 import { GuestService } from '../services/guest.service.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { UnauthorizedError } from '../utils/errors.ts';
 import type {
-  ICreateGuestResponse,
   IGuestByIdResponse,
   IGuest,
   IGuestCurrentStayResponse,
   IGuestDocument,
+  ICreateGuestRequest,
+  IGuestResponse,
 } from '../interfaces/guest.interface.ts';
 import type {
   AuthenticatedRequest,
@@ -35,12 +34,16 @@ export class GuestController {
     this.guestService = new GuestService(guestRepository, hostelRepository, reservationRepository);
   }
 
-  @Post('create')
-  @Consumes('multipart/form-data')
-  async create(@Request() req: AuthenticatedRequest): Promise<ICreateGuestResponse> {
+  async create(req: ICreateGuestRequest): Promise<IGuestResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
+    }
+
+    if (user.role !== 'guest') {
+      throw new UnauthorizedError(
+        'Only users signed up with guest role can create a guest profile'
+      );
     }
 
     const guestData =
@@ -52,30 +55,41 @@ export class GuestController {
     return this.guestService.create(guestData, user._id, imagePaths);
   }
 
-  @Get('profile')
-  async getProfile(@Request() req: AuthenticatedRequest): Promise<IGuestByIdResponse> {
+  async update(
+    @Request() req: ICreateGuestRequest,
+    @Path() guestId: string
+  ): Promise<IGuestResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
     }
 
-    return this.guestService.getByUserId(user._id);
+    if (user.role !== 'guest') {
+      throw new UnauthorizedError('Only guests can update their profile');
+    }
+
+    const guestData =
+      typeof req.body.guest === 'string' ? JSON.parse(req.body.guest) : req.body.guest;
+
+    const uploadedFiles = (req.files ?? []) as UploadedFile[];
+    const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
+
+    return this.guestService.update(user._id, guestData, imagePaths);
   }
 
-  @Put('update')
-  async update(
-    @Request() req: AuthenticatedRequest,
-    @Body() guestData: any
-  ): Promise<BackendResponse<Partial<IGuest>>> {
+  @Get('current-stay')
+  @Security('jwt')
+  async getCurrentStay(@Request() req: AuthenticatedRequest): Promise<IGuestCurrentStayResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
     }
 
-    return this.guestService.update(user._id, guestData);
+    return this.guestService.getCurrentStay(user._id);
   }
 
   @Get('search/{username}')
+  @Security('jwt')
   async searchGuests(
     @Request() req: AuthenticatedRequest,
     @Path() username: string
@@ -88,23 +102,8 @@ export class GuestController {
     return this.guestService.searchGuests(username, user._id);
   }
 
-  @Post('photos')
-  @Consumes('multipart/form-data')
-  async updatePhoto(
-    @Request() req: AuthenticatedRequest
-  ): Promise<BackendResponse<{ imagePath: string }>> {
-    const user = req.user;
-    if (!user?._id) {
-      throw new UnauthorizedError('User not authenticated');
-    }
-
-    const { imageId } = req.body;
-    const imagePath = getRelativeFilePath(req, (req as any).file);
-
-    return this.guestService.updateGuestPhoto(user._id, parseInt(imageId), imagePath);
-  }
-
   @Delete('photos/{imageId}')
+  @Security('jwt')
   async deletePhoto(
     @Request() req: AuthenticatedRequest,
     @Path() imageId: string
@@ -127,16 +126,34 @@ export class GuestController {
       });
     }
 
-    return result;
+    const response = {
+      success: result.success,
+      message: result.message,
+    };
+
+    return response;
   }
 
-  @Get('current-stay')
-  async getCurrentStay(@Request() req: AuthenticatedRequest): Promise<IGuestCurrentStayResponse> {
+  @Get('{guestId}')
+  @Security('jwt')
+  async getProfile(
+    @Request() _req: AuthenticatedRequest,
+    @Path() guestId: string
+  ): Promise<IGuestByIdResponse> {
+    return this.guestService.getByGuestId(guestId);
+  }
+
+  @Delete('{guestId}/delete')
+  @Security('jwt')
+  async deleteGuest(
+    @Request() req: AuthenticatedRequest,
+    @Path() guestId: string
+  ): Promise<BackendResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
     }
 
-    return this.guestService.getCurrentStay(user._id);
+    return this.guestService.deleteGuest(guestId, user._id);
   }
 }

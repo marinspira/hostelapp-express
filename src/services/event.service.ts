@@ -118,7 +118,7 @@ export class EventService {
   }
 
   async update(
-    userId: string,
+    userId: Types.ObjectId,
     eventId: string,
     eventData: Partial<IEvent>,
     imagePaths: string[]

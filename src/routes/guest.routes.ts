@@ -1,16 +1,6 @@
 import express from 'express';
-
 // @ts-ignore
-import {
-  deleteGuestprofile_image,
-  getGuest,
-  getHome,
-  getCurrentStay,
-  saveGuest,
-  saveGuestprofile_images,
-  searchGuest,
-  updateGuest,
-} from '../controllers/guest.controller.ts';
+import { GuestController } from '../controllers/guest.controller.ts';
 // @ts-ignore
 import protectRoute from '../middleware/protectRoute.js';
 // @ts-ignore
@@ -19,21 +9,24 @@ import { upload } from '../middleware/saveUploads.js';
 import catchAsync from '../utils/catchAsync.js';
 
 const router = express.Router();
+const guestController = new GuestController();
 
-router.post('/create', protectRoute, upload.single('photo'), catchAsync(saveGuest));
-router.get('/me', protectRoute, catchAsync(getGuest));
-router.put('/update', protectRoute, catchAsync(updateGuest));
-router.get('/home', protectRoute, catchAsync(getHome));
-router.get('/current-stay', protectRoute, catchAsync(getCurrentStay));
-router.get('/:username', protectRoute, catchAsync(searchGuest));
+router.post('/create', protectRoute, upload.array('image', 1), async (req, res, next) => {
+  try {
+    const result = await guestController.create(req as any);
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
 
-// Guest images
-router.post(
-  '/save-images',
-  protectRoute,
-  upload.single('photo'),
-  catchAsync(saveGuestprofile_images)
-);
-router.delete('/delete-images', protectRoute, catchAsync(deleteGuestprofile_image));
+router.put('/:id/update', protectRoute, upload.array('images', 4), async (req, res, next) => {
+  try {
+    const result = await guestController.update(req as any, req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

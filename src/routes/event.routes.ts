@@ -18,7 +18,7 @@ router.post('/create', protectRoute, upload.array('images', 4), async (req, res,
   }
 });
 
-router.post('/:id/update', protectRoute, upload.array('images', 4), async (req, res, next) => {
+router.put('/:id/update', protectRoute, upload.array('images', 4), async (req, res, next) => {
   try {
     const result = await eventsController.update(req as any, req.params.id);
     res.status(200).json(result);

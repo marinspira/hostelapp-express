@@ -7,6 +7,7 @@
     "start": "node server.js",
     "start:ts": "node --import=\"data:text/javascript,import { register } from 'node:module'; import { pathToFileURL } from 'node:url'; register('ts-node/esm', pathToFileURL('./'));\" server.js",
     "test": "npx jest",
+    "build:routes": "npx tsoa spec-and-routes",
     "generate:docs": "npx tsoa spec",
     "dev": "nodemon src/server.ts",
     "dev:ts": "nodemon --exec \"node --import='data:text/javascript,import { register } from \\\"node:module\\\"; import { pathToFileURL } from \\\"node:url\\\"; register(\\\"ts-node/esm\\\", pathToFileURL(\\\"./\\\"));'\" server.js",

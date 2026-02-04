@@ -2,11 +2,11 @@ import { Types } from 'mongoose';
 
 import type {
   IGuestDocument,
-  ICreateGuestResponse,
   IGuestByIdResponse,
   IGuest,
   IGuestCurrentStayResponse,
   IGuestCurrentStay,
+  IGuestResponse,
 } from '../interfaces/guest.interface.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
@@ -33,12 +33,14 @@ export class GuestService {
 
   async create(
     guestData: IGuest,
-    userId: string,
+    userId: Types.ObjectId,
     imagePaths?: string[]
-  ): Promise<ICreateGuestResponse> {
+  ): Promise<IGuestResponse> {
     if (!guestData || !guestData.name || guestData.name.trim() === '') {
       throw new BadRequestError('Guest name is required');
     }
+
+    console.log('Creating guest with data:', guestData, 'for userId:', userId);
 
     const existingGuest = await this.guestRepo.findByUserId(userId);
     if (existingGuest) {
@@ -74,8 +76,8 @@ export class GuestService {
     };
   }
 
-  async getByUserId(userId: string): Promise<IGuestByIdResponse> {
-    const guest = await this.guestRepo.findByUserId(userId);
+  async getByGuestId(guestId: string): Promise<IGuestByIdResponse> {
+    const guest = await this.guestRepo.findById(guestId);
     if (!guest) {
       throw new NotFoundError('Guest not found');
     }
@@ -88,21 +90,25 @@ export class GuestService {
   }
 
   async update(
-    userId: string,
-    guestData: Partial<IGuest>
-  ): Promise<BackendResponse<IGuestDocument>> {
+    userId: Types.ObjectId,
+    guestData: Partial<IGuest>,
+    imagePaths?: string[]
+  ): Promise<IGuestResponse> {
     const guest = await this.guestRepo.findByUserId(userId);
     if (!guest) {
       throw new NotFoundError('Guest not found');
     }
 
+    if (imagePaths && imagePaths.length > 0) {
+      const existingPhotos = guest.guest_photos || [];
+      const updated = guestData.guest_photos = [...existingPhotos, ...imagePaths];
+    }
+
     const allowedFields: (keyof IGuest)[] = [
       'name',
       'username',
-      'guest_photos',
       'phone',
-      'birthday',
-      'country',
+      'guest_photos',
       'passaportPhoto',
       'interests',
       'description',
@@ -135,6 +141,28 @@ export class GuestService {
     };
   }
 
+  async deleteGuest(
+    guestId: string,
+    userId: string
+  ): Promise<BackendResponse> {
+    const guest = await this.guestRepo.findById(guestId);
+    if (!guest) {
+      throw new NotFoundError('Guest not found');
+    }
+
+    if (guest.user.toString() !== userId.toString()) {
+      throw new BadRequestError('You are not authorized to delete this guest profile');
+    }
+
+    await this.guestRepo.delete(guestId);
+    await this.guestRepo.deleteUser(userId);
+
+    return {
+      success: true,
+      message: 'User deleted successfully',
+    };
+  }
+
   async searchGuests(
     username: string,
     hostelOwnerId: string
@@ -158,31 +186,6 @@ export class GuestService {
       success: true,
       message: 'Guest(s) found successfully.',
       data: guests,
-    };
-  }
-
-  async updateGuestPhoto(
-    userId: string,
-    imageId: number,
-    imagePath: string
-  ): Promise<BackendResponse<{ imagePath: string }>> {
-    let guest = await this.guestRepo.findByUserId(userId);
-
-    if (!guest) {
-      throw new NotFoundError('Guest not found');
-    }
-
-    if (imageId < guest.guest_photos.length) {
-      guest.guest_photos[imageId] = imagePath;
-    } else {
-      guest.guest_photos.push(imagePath);
-    }
-
-    await this.guestRepo.update(guest._id.toString(), { guest_photos: guest.guest_photos });
-
-    return {
-      success: true,
-      message: 'Guest images updated.',
     };
   }
 
@@ -225,13 +228,13 @@ export class GuestService {
       };
     }
 
-    const hostel = await this.hostelRepo.findById(reservation.hostel_id.toString());
+    const hostel = await this.hostelRepo.findById(reservation.hostel_id);
     const now = new Date();
 
     const activeReservation: IGuestCurrentStay = {
-      reservationId: reservation._id.toString(),
+      reservationId: reservation._id,
       hostel: {
-        _id: hostel?._id.toString(),
+        _id: hostel?._id,
         name: hostel?.name,
         logo: hostel?.logo,
         address: hostel?.address,

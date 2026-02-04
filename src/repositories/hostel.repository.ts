@@ -9,7 +9,7 @@ export class HostelRepository {
     return Hostel.findOne({ user_id_owners: ownerId });
   }
 
-  async findById(id: string): Promise<IHostelDocument | null> {
+  async findById(id: Types.ObjectId): Promise<IHostelDocument | null> {
     return Hostel.findById(id);
   }
 

@@ -1,6 +1,7 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
-import { BackendResponse } from './index.interface.ts';
+import { AuthenticatedRequest, BackendResponse } from './index.interface.ts';
+import { IUserDocument } from './auth.interface.ts';
 
 export interface IGuest {
   name: string;
@@ -29,10 +30,18 @@ export interface IGuestDocument extends IGuest, Document {
   created_at: Date;
 }
 
+export interface ICreateGuestRequest extends AuthenticatedRequest {
+  body: {
+    guest: string;
+  };
+  files: Express.Multer.File[];
+  user: IUserDocument;
+}
+
 export interface IGuestCurrentStay {
-  reservationId: string;
+  reservationId: Types.ObjectId;
   hostel: {
-    _id?: string;
+    _id?: Types.ObjectId;
     name?: string;
     logo?: string;
     address?: {
@@ -53,7 +62,7 @@ export interface IGuestCurrentStay {
 
 export interface IGuestCurrentStayResponse extends BackendResponse<IGuestCurrentStay> {}
 
-export interface ICreateGuestResponse extends BackendResponse<IGuestDocument> {}
+export interface IGuestResponse extends BackendResponse<IGuestDocument> {}
 
 export interface IGuestListItemResponse extends BackendResponse<IGuestDocument[]> {}
 

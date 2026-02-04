@@ -1,6 +1,5 @@
 import { Post, Route, Request, Path, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
-
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { EventService, GuestEventService } from '../services/event.service.ts';
@@ -48,7 +47,7 @@ export class EventsController {
   }
 
   async update(
-    @Request() req: AuthenticatedRequest,
+    @Request() req: ICreateEventRequest,
     @Path() eventId: string
   ): Promise<IEventResponse> {
     const user = req.user;

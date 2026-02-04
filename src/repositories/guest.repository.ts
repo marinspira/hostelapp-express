@@ -6,7 +6,7 @@ import User from '../models/user.model';
 import Reservation from '../models/reservation.model';
 
 export class GuestRepository {
-  async findById(guestId: Types.ObjectId): Promise<IGuestDocument | null> {
+  async findById(guestId: Types.ObjectId | string): Promise<IGuestDocument | null> {
     return await Guest.findById(guestId).exec();
   }
 
@@ -92,5 +92,13 @@ export class GuestRepository {
     }
 
     return guests;
+  }
+
+  async delete(guestId: string): Promise<void> {
+    await Guest.findByIdAndDelete(guestId).exec();
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await User.findOneAndDelete({ _id: userId }).exec();
   }
 }

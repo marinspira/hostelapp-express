@@ -12,10 +12,6 @@ const GuestSchema = new Schema<IGuestDocument>({
   username: {
     type: String,
   },
-  profile: {
-    type: String,
-    required: true,
-  },
   guest_photos: {
     type: [String],
   },
