@@ -17,10 +17,7 @@ export class GuestService {
   private guestRepo: GuestRepository;
   private hostelRepo: HostelRepository;
 
-  constructor(
-    guestRepository: GuestRepository,
-    hostelRepository: HostelRepository,
-  ) {
+  constructor(guestRepository: GuestRepository, hostelRepository: HostelRepository) {
     this.guestRepo = guestRepository;
     this.hostelRepo = hostelRepository;
   }
@@ -81,6 +78,18 @@ export class GuestService {
     };
   }
 
+  async getByUserId(userId: Types.ObjectId): Promise<IGuestByIdResponse> {
+    const guest = await this.guestRepo.findByUserId(userId);
+    if (!guest) {
+      throw new NotFoundError('Guest not found');
+    }
+    return {
+      success: true,
+      message: 'Guest retrieved successfully',
+      data: guest,
+    };
+  }
+
   async update(
     userId: Types.ObjectId,
     guestData: Partial<IGuest>,
@@ -133,10 +142,7 @@ export class GuestService {
     };
   }
 
-  async deleteGuest(
-    guestId: string,
-    userId: string
-  ): Promise<BackendResponse> {
+  async deleteGuest(guestId: string, userId: string): Promise<BackendResponse> {
     const guest = await this.guestRepo.findById(guestId);
     if (!guest) {
       throw new NotFoundError('Guest not found');

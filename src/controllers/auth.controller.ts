@@ -43,26 +43,19 @@ export class AuthController implements IAuthController {
     @Body() body: IVerifyEmailCodeDTO,
     @Request() request: any
   ): Promise<IVerifyCodeResponse> {
-    const result = await this.authService.verifyEmailCode(body.email, body.code, body.role);
-
-    // Set cookie with the session token
-    if (result.data && request.res) {
-      generateTokenAndSetCookie(result.data._id, request.res);
-    }
-
-    return result;
+    return await this.authService.verifyEmailCode(body.email, body.code, body.role, request);
   }
 
   @SuccessResponse(200, 'User is authenticated')
   @Security('jwt')
   @Post('is-authenticated')
   async isAuthenticated(@Request() req: AuthenticatedRequest): Promise<IsAuthenticatedResponse> {
-    const userId = req.user._id;
-    return this.authService.isAuthenticated(userId);
+    return this.authService.isAuthenticated(req.user._id);
   }
 
   @SuccessResponse(200, 'Logged out successfully')
   @Post('logout')
+  @Security('jwt')
   async logout(
     @Request() req: AuthenticatedRequest,
     @Request() request: any

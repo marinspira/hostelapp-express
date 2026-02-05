@@ -2,12 +2,13 @@ import { Post, Route, Request, Path, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { EventService, GuestEventService } from '../services/event.service.ts';
+import { EventService } from '../services/event.service.ts';
 import type {
   ICreateEventRequest,
   IEventResponse,
   IEvent,
   IEventListItemResponse,
+  GetEventByIdResponse,
 } from '../interfaces/event.interface.ts';
 import { UnauthorizedError } from '../utils/errors.ts';
 import type {
@@ -88,18 +89,32 @@ export class EventsController {
     }
     return this.eventService.delete(eventId, user._id);
   }
+
+  @Get('{eventId}')
+  @Security('jwt')
+  async getEventDetails(
+    @Request() req: AuthenticatedRequest,
+    @Path() eventId: string
+  ): Promise<GetEventByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+    return this.eventService.getByEventId(eventId.toString());
+  }
 }
 
 @Route('/api/events/guest')
 @Tags('Events Guest')
 export class GuestEventsController {
-  private eventService: GuestEventService;
+  private eventService: EventService;
 
   constructor() {
     const eventRepository = new EventRepository();
     const hostelRepository = new HostelRepository();
-    const guestRepo = new GuestRepository();
-    this.eventService = new GuestEventService(eventRepository, hostelRepository, guestRepo);
+    const guestRepository = new GuestRepository();
+    this.eventService = new EventService(eventRepository, guestRepository, hostelRepository);
+
   }
 
   @Get('current-stay')

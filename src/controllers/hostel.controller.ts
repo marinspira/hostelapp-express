@@ -79,6 +79,17 @@ export class HostelController {
     return this.hostelService.delete(user._id);
   }
 
+  @Get('mine')
+  @Security('jwt')
+  async getMyHostel(@Request() req: AuthenticatedRequest): Promise<IHostelByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.hostelService.getByOwnerId(user._id);
+  }
+
   @Get(':id')
   @Security('jwt')
   async getHostel(@Request() req: AuthenticatedRequest): Promise<IHostelByIdResponse> {

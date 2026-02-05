@@ -18,14 +18,14 @@ export interface IVerifyEmailCodeDTO {
   role: 'guest' | 'host';
 }
 
-export interface IVerifyCodeResponse extends BackendResponse<IUserDTO> {
+export interface IVerifyCodeResponse extends BackendResponse<IUserDocument> {
   success: true;
   message: string;
-  data: IUserDTO;
+  data: IUserDocument;
 }
 
 export interface IsAuthenticatedResponse extends BackendResponse<IUserDTO> {
-  data: IUserDTO;
+  data?: IUserDTO;
 }
 
 export interface ILogoutResponse {
@@ -54,7 +54,7 @@ export interface IUserDTO extends IUser {
 
 export interface IUserDocument extends IUser, Document {
   _id: Types.ObjectId;
-  sessionToken: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  sessionToken: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

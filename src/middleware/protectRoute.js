@@ -29,6 +29,11 @@ const protectRoute = async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Check if the token is still valid in the database (session management)
+    if (!user.sessionToken || user.sessionToken !== token) {
+      return res.status(401).json({ error: 'Session expired or invalid' });
+    }
+
     // Attach the user object to the request for use in the next middleware/route handler
     req.user = user;
 

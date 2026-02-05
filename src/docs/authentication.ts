@@ -52,6 +52,13 @@ export async function expressAuthentication(
         throw error;
       }
 
+      // Check if the token is still valid in the database (session management)
+      if (!user.sessionToken || user.sessionToken !== token) {
+        const error = new Error('Session expired or invalid');
+        (error as any).status = 401;
+        throw error;
+      }
+
       // Role/scope verification - TSOA passes required roles in the scopes array
       if (scopes && scopes.length > 0) {
         const userRole = user.role; // Adjust based on your user model

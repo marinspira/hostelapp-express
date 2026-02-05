@@ -160,22 +160,6 @@ export class EventService {
     }
     return { success: true, message: 'Event deleted successfully' };
   }
-}
-
-export class GuestEventService {
-  private readonly eventRepo: EventRepository;
-  private readonly hostelRepo: HostelRepository;
-  private readonly guestRepo: GuestRepository;
-
-  constructor(
-    eventRepo: EventRepository,
-    hostelRepo: HostelRepository,
-    guestRepo: GuestRepository
-  ) {
-    this.eventRepo = eventRepo;
-    this.hostelRepo = hostelRepo;
-    this.guestRepo = guestRepo;
-  }
 
   async listPublicEvents(city: string, country: string): Promise<IEventListItemResponse> {
     if (!city || !country) {

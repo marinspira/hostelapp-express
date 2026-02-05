@@ -6,7 +6,7 @@ import User from '../models/user.model.ts';
 import Hostel from '../models/hostel.model.ts';
 import Guest from '../models/guest.model.ts';
 // @ts-ignore
-import { generateToken } from '../utils/generateToken.js';
+import generateTokenAndSetCookie from '../utils/generateToken.js';
 import { AuthRepository } from '../repositories/auth.repository.ts';
 import {
   BadRequestError,
@@ -18,15 +18,9 @@ import { BackendResponse } from '../interfaces/index.interface.ts';
 import {
   IsAuthenticatedResponse,
   ISendCodeResponse,
+  IUserDocument,
   IVerifyCodeResponse,
 } from '../interfaces/auth.interface.ts';
-
-interface IUserDocument extends Document {
-  email: string;
-  role: 'guest' | 'host';
-  name?: string;
-  sessionToken?: string;
-}
 
 interface SendEmailParams {
   to: string;
@@ -87,7 +81,8 @@ export class AuthService {
   async verifyEmailCode(
     email: string,
     code: string,
-    role: 'guest' | 'host'
+    role: 'guest' | 'host',
+    request: any
   ): Promise<IVerifyCodeResponse> {
     if (!email || !code) throw new BadRequestError('Missing email or code');
 
@@ -112,18 +107,12 @@ export class AuthService {
       throw new ConflictError(`This email is already registered as a ${user.role}`);
     }
 
-    const sessionToken = generateToken(user._id);
+    const sessionToken = generateTokenAndSetCookie(user._id, request.res);
     user.sessionToken = sessionToken;
     await user.save();
 
     return {
-      data: {
-        _id: (user._id as Types.ObjectId).toString() as string,
-        name: user.name as string,
-        isNewUser: isNewUser,
-        role: user.role,
-        email: user.email,
-      },
+      data: user,
       message: isNewUser ? 'New user created' : 'User logged in',
       success: true,
     };

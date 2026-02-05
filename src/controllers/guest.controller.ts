@@ -119,6 +119,17 @@ export class GuestController {
     return response;
   }
 
+  @Get('me')
+  @Security('jwt')
+  async getMyProfile(@Request() req: AuthenticatedRequest): Promise<IGuestByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    return this.guestService.getByUserId(user._id);
+  }
+
   @Get('{guestId}')
   @Security('jwt')
   async getProfile(
