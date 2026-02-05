@@ -171,31 +171,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": true,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IGuestCurrentStay": {
-        "dataType": "refObject",
-        "properties": {
-            "reservationId": {"ref":"mongoose.Types.ObjectId","required":true},
-            "hostel": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"phone":{"dataType":"string"},"address":{"dataType":"nestedObjectLiteral","nestedProperties":{"country":{"dataType":"string"},"city":{"dataType":"string"},"street":{"dataType":"string"}}},"logo":{"dataType":"string"},"name":{"dataType":"string"},"_id":{"ref":"mongoose.Types.ObjectId"}},"required":true},
-            "room": {"dataType":"string","required":true},
-            "bed": {"dataType":"string","required":true},
-            "checkinDate": {"dataType":"datetime","required":true},
-            "checkoutDate": {"dataType":"datetime","required":true},
-            "status": {"dataType":"string","required":true},
-            "daysRemaining": {"dataType":"double","required":true},
-        },
-        "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IGuestCurrentStayResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "success": {"dataType":"boolean","required":true},
-            "data": {"ref":"IGuestCurrentStay"},
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IGuestDocument": {
         "dataType": "refAlias",
         "type": {"ref":"mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___","validators":{}},
@@ -799,37 +774,6 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getHostel',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsGuestController_getCurrentStay: Record<string, TsoaRoute.ParameterSchema> = {
-                req: {"in":"request","name":"req","required":true,"dataType":"object"},
-        };
-        app.get('/api/guests/current-stay',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(GuestController)),
-            ...(fetchMiddlewares<RequestHandler>(GuestController.prototype.getCurrentStay)),
-
-            async function GuestController_getCurrentStay(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsGuestController_getCurrentStay, request, response });
-
-                const controller = new GuestController();
-
-              await templateService.apiHandler({
-                methodName: 'getCurrentStay',
                 controller,
                 response,
                 next,

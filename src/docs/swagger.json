@@ -304,99 +304,6 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"IGuestCurrentStay": {
-				"properties": {
-					"reservationId": {
-						"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-					},
-					"hostel": {
-						"properties": {
-							"email": {
-								"type": "string"
-							},
-							"phone": {
-								"type": "string"
-							},
-							"address": {
-								"properties": {
-									"country": {
-										"type": "string"
-									},
-									"city": {
-										"type": "string"
-									},
-									"street": {
-										"type": "string"
-									}
-								},
-								"type": "object"
-							},
-							"logo": {
-								"type": "string"
-							},
-							"name": {
-								"type": "string"
-							},
-							"_id": {
-								"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-							}
-						},
-						"type": "object"
-					},
-					"room": {
-						"type": "string"
-					},
-					"bed": {
-						"type": "string"
-					},
-					"checkinDate": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"checkoutDate": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"status": {
-						"type": "string"
-					},
-					"daysRemaining": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"reservationId",
-					"hostel",
-					"room",
-					"bed",
-					"checkinDate",
-					"checkoutDate",
-					"status",
-					"daysRemaining"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"IGuestCurrentStayResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"data": {
-						"$ref": "#/components/schemas/IGuestCurrentStay"
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
 			"IGuestDocument": {
 				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
 			},
@@ -1195,32 +1102,6 @@
 				},
 				"tags": [
 					"Hostels"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": []
-			}
-		},
-		"/api/guests/current-stay": {
-			"get": {
-				"operationId": "GetCurrentStay",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/IGuestCurrentStayResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Guests"
 				],
 				"security": [
 					{
