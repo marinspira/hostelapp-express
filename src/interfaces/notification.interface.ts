@@ -4,10 +4,7 @@ import { Types } from 'mongoose';
 import { BackendResponse } from './index.interface.ts';
 
 export default interface INotification {
-  recipient: {
-    user?: Types.ObjectId | null;
-    hostel?: Types.ObjectId | null;
-  };
+  recipients: Types.ObjectId[];
   type:
     | 'reservation_created'
     | 'reservation_cancelled'
@@ -33,15 +30,12 @@ export interface INotificationByIdResponse extends BackendResponse<INotification
 
 export interface IUnreadCountResponse extends BackendResponse<{ unreadCount: number }> {}
 
-export interface INotificationData {
-  [key: string]: unknown;
+export interface INotificationCreateReservationData {
   reservationId?: string;
-  roomNumber?: string;
-  bedNumber?: string;
+  room?: string;
+  bed?: string;
   guestId?: string;
-  guestName?: string;
   hostelId?: string;
-  hostelName?: string;
-  checkinDate?: Date;
-  checkoutDate?: Date;
+  checkin_date?: Date;
+  checkout_date?: Date;
 }

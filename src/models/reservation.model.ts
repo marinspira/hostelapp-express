@@ -29,13 +29,6 @@ const ReservationSchema = new Schema<IReservationDocument>(
     checkout_date: {
       type: Date,
       required: true,
-      validate: {
-        validator: function (value: Date): boolean {
-          // @ts-ignore
-          return value > this.checkin_date;
-        },
-        message: 'Checkout date must be after checkin date',
-      },
     },
     room: {
       type: String,
@@ -44,10 +37,6 @@ const ReservationSchema = new Schema<IReservationDocument>(
     bed: {
       type: String,
       required: true,
-    },
-    created_at: {
-      type: Date,
-      default: Date.now,
     },
     checkout_processed_at: {
       type: Date,

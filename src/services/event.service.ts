@@ -39,9 +39,7 @@ export class EventService {
       event.hostel_id = hostel._id;
     } else {
       const reservationRepository = new ReservationRepository();
-      const activeReservation = await reservationRepository.findCurrentStayByGuestId(
-        userId.toString()
-      );
+      const activeReservation = await reservationRepository.findCurrentStayByGuestId(userId);
 
       if (activeReservation) {
         event.hostel_id = activeReservation.hostel_id;
@@ -255,7 +253,7 @@ export class GuestEventService {
     return { success: true, message: 'Successfully left event' };
   }
 
-  async listEventsForCurrentStay(userId: string): Promise<IEventListItemResponse> {
+  async listEventsForCurrentStay(userId: Types.ObjectId): Promise<IEventListItemResponse> {
     const reservationRepository = new ReservationRepository();
 
     const activeReservation = await reservationRepository.findCurrentStayByGuestId(userId);

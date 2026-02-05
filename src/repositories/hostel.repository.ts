@@ -10,6 +10,11 @@ export class HostelRepository {
     return Hostel.findOne({ user_id_owners: ownerId });
   }
 
+  async findOwnerByHostelId(hostelId: Types.ObjectId | string): Promise<Types.ObjectId[] | null> {
+    const hostel = await Hostel.findById(hostelId).select('user_id_owners');
+    return hostel && hostel.user_id_owners ? hostel.user_id_owners : null;
+  }
+
   async findById(id: Types.ObjectId): Promise<IHostelDocument | null> {
     return Hostel.findById(id);
   }

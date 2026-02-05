@@ -1,11 +1,8 @@
 import { Types } from 'mongoose';
-
 import type {
   IGuestDocument,
   IGuestByIdResponse,
   IGuest,
-  IGuestCurrentStayResponse,
-  IGuestCurrentStay,
   IGuestResponse,
 } from '../interfaces/guest.interface.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
@@ -19,16 +16,13 @@ import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 export class GuestService {
   private guestRepo: GuestRepository;
   private hostelRepo: HostelRepository;
-  private reservationRepo: ReservationRepository;
 
   constructor(
     guestRepository: GuestRepository,
     hostelRepository: HostelRepository,
-    reservationRepository: ReservationRepository
   ) {
     this.guestRepo = guestRepository;
     this.hostelRepo = hostelRepository;
-    this.reservationRepo = reservationRepository;
   }
 
   async create(
@@ -39,8 +33,6 @@ export class GuestService {
     if (!guestData || !guestData.name || guestData.name.trim() === '') {
       throw new BadRequestError('Guest name is required');
     }
-
-    console.log('Creating guest with data:', guestData, 'for userId:', userId);
 
     const existingGuest = await this.guestRepo.findByUserId(userId);
     if (existingGuest) {
@@ -211,50 +203,6 @@ export class GuestService {
       success: true,
       message: 'Image successfully deleted',
       data: { imagePath },
-    };
-  }
-
-  async getCurrentStay(userId: string): Promise<IGuestCurrentStayResponse> {
-    const guest = await this.guestRepo.findByUserId(userId);
-    if (!guest) {
-      throw new NotFoundError('Guest not found');
-    }
-
-    const reservation = await this.reservationRepo.findCurrentStayByGuestId(userId);
-    if (!reservation) {
-      return {
-        success: true,
-        message: 'No current reservation',
-      };
-    }
-
-    const hostel = await this.hostelRepo.findById(reservation.hostel_id);
-    const now = new Date();
-
-    const activeReservation: IGuestCurrentStay = {
-      reservationId: reservation._id,
-      hostel: {
-        _id: hostel?._id,
-        name: hostel?.name,
-        logo: hostel?.logo,
-        address: hostel?.address,
-        phone: hostel?.phone,
-        email: hostel?.email,
-      },
-      room: reservation.room,
-      bed: reservation.bed,
-      checkinDate: reservation.checkin_date,
-      checkoutDate: reservation.checkout_date,
-      status: reservation.status,
-      daysRemaining: Math.ceil(
-        (new Date(reservation.checkout_date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-      ),
-    };
-
-    return {
-      success: true,
-      message: 'Guest is currently staying at hostel(s)',
-      data: activeReservation,
     };
   }
 }

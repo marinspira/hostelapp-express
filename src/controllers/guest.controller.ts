@@ -30,8 +30,7 @@ export class GuestController {
   constructor() {
     const guestRepository = new GuestRepository();
     const hostelRepository = new HostelRepository();
-    const reservationRepository = new ReservationRepository();
-    this.guestService = new GuestService(guestRepository, hostelRepository, reservationRepository);
+    this.guestService = new GuestService(guestRepository, hostelRepository);
   }
 
   async create(req: ICreateGuestRequest): Promise<IGuestResponse> {
@@ -72,17 +71,6 @@ export class GuestController {
     const imagePaths = uploadedFiles.map(file => getRelativeFilePath(req, file));
 
     return this.guestService.update(user._id, guestData, imagePaths);
-  }
-
-  @Get('current-stay')
-  @Security('jwt')
-  async getCurrentStay(@Request() req: AuthenticatedRequest): Promise<IGuestCurrentStayResponse> {
-    const user = req.user;
-    if (!user?._id) {
-      throw new UnauthorizedError('User not authenticated');
-    }
-
-    return this.guestService.getCurrentStay(user._id);
   }
 
   @Get('search/{username}')

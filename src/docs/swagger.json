@@ -52,6 +52,36 @@
 				"type": "object",
 				"additionalProperties": true
 			},
+			"IReservationCreateRequest": {
+				"properties": {
+					"user_id_guest": {
+						"type": "string"
+					},
+					"room": {
+						"type": "string"
+					},
+					"bed": {
+						"type": "string"
+					},
+					"checkin_date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"checkout_date": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"user_id_guest",
+					"room",
+					"bed",
+					"checkin_date",
+					"checkout_date"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"IReservationListItemResponse": {
 				"properties": {
 					"success": {
@@ -126,10 +156,6 @@
 						"type": "string",
 						"format": "date-time"
 					},
-					"created_at": {
-						"type": "string",
-						"format": "date-time"
-					},
 					"checkout_processed_at": {
 						"type": "string",
 						"format": "date-time"
@@ -161,17 +187,34 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"INotificationDocument": {
-				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
+			"IOtherGuest": {
+				"properties": {
+					"guestId": {
+						"$ref": "#/components/schemas/mongoose.Types.ObjectId"
+					},
+					"name": {
+						"type": "string"
+					},
+					"photo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"guestId",
+					"name",
+					"photo"
+				],
+				"type": "object",
+				"additionalProperties": true
 			},
-			"INotificationListItemResponse": {
+			"IOthersGuestsListResponse": {
 				"properties": {
 					"success": {
 						"type": "boolean"
 					},
 					"data": {
 						"items": {
-							"$ref": "#/components/schemas/INotificationDocument"
+							"$ref": "#/components/schemas/IOtherGuest"
 						},
 						"type": "array"
 					},
@@ -186,13 +229,19 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"INotificationByIdResponse": {
+			"INotificationDocument": {
+				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
+			},
+			"INotificationListItemResponse": {
 				"properties": {
 					"success": {
 						"type": "boolean"
 					},
 					"data": {
-						"$ref": "#/components/schemas/INotificationDocument"
+						"items": {
+							"$ref": "#/components/schemas/INotificationDocument"
+						},
+						"type": "array"
 					},
 					"message": {
 						"type": "string"
@@ -243,72 +292,6 @@
 					},
 					"data": {
 						"$ref": "#/components/schemas/IHostelDocument"
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"IGuestListItem": {
-				"properties": {
-					"user_id": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					},
-					"email": {
-						"type": "string"
-					},
-					"first_photo": {
-						"type": "string"
-					},
-					"room": {
-						"type": "string"
-					},
-					"bed": {
-						"type": "string"
-					},
-					"checkin_date": {
-						"type": "string"
-					},
-					"checkout_date": {
-						"type": "string"
-					},
-					"reservation_id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"user_id",
-					"name",
-					"email",
-					"first_photo",
-					"room",
-					"bed",
-					"checkin_date",
-					"checkout_date",
-					"reservation_id"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"IGuestListResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"data": {
-						"items": {
-							"$ref": "#/components/schemas/IGuestListItem"
-						},
-						"type": "array"
 					},
 					"message": {
 						"type": "string"
@@ -814,13 +797,27 @@
 				"tags": [
 					"Reservations"
 				],
-				"security": [],
-				"parameters": []
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IReservationCreateRequest"
+							}
+						}
+					}
+				}
 			}
 		},
-		"/api/reservations": {
+		"/api/reservations/current-guests": {
 			"get": {
-				"operationId": "ListAll",
+				"operationId": "List",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -836,11 +833,15 @@
 				"tags": [
 					"Reservations"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": []
 			}
 		},
-		"/api/reservations/{id}": {
+		"/api/reservations/{reservationId}": {
 			"get": {
 				"operationId": "FindById",
 				"responses": {
@@ -858,11 +859,15 @@
 				"tags": [
 					"Reservations"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
-						"name": "id",
+						"name": "reservationId",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -871,7 +876,7 @@
 				]
 			}
 		},
-		"/api/reservations/{id}/update": {
+		"/api/reservations/{reservationId}/update": {
 			"put": {
 				"operationId": "Update",
 				"responses": {
@@ -889,11 +894,15 @@
 				"tags": [
 					"Reservations"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
-						"name": "id",
+						"name": "reservationId",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -912,7 +921,7 @@
 				}
 			}
 		},
-		"/api/reservations/{id}/delete": {
+		"/api/reservations/{reservationId}/delete": {
 			"delete": {
 				"operationId": "Delete",
 				"responses": {
@@ -930,11 +939,15 @@
 				"tags": [
 					"Reservations"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
-						"name": "id",
+						"name": "reservationId",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -943,7 +956,7 @@
 				]
 			}
 		},
-		"/api/reservations/{id}/checkout": {
+		"/api/reservations/{reservationId}/checkout": {
 			"put": {
 				"operationId": "Checkout",
 				"responses": {
@@ -965,7 +978,7 @@
 				"parameters": [
 					{
 						"in": "path",
-						"name": "id",
+						"name": "reservationId",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -974,7 +987,7 @@
 				]
 			}
 		},
-		"/api/reservations/guest/current": {
+		"/api/reservations/guest/current-stay": {
 			"get": {
 				"operationId": "GetCurrentReservation",
 				"responses": {
@@ -992,7 +1005,11 @@
 				"tags": [
 					"Reservations Guest"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": []
 			}
 		},
@@ -1014,11 +1031,50 @@
 				"tags": [
 					"Reservations Guest"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": []
 			}
 		},
-		"/notifications/user": {
+		"/api/reservations/guest/{hostelId}/reservations": {
+			"get": {
+				"operationId": "List",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IOthersGuestsListResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Reservations Guest"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "hostelId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/notifications/list": {
 			"get": {
 				"operationId": "GetUserNotifications",
 				"responses": {
@@ -1044,77 +1100,7 @@
 				"parameters": []
 			}
 		},
-		"/notifications/hostel/{hostelId}": {
-			"get": {
-				"operationId": "GetHostelNotifications",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/INotificationListItemResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Notifications"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "hostelId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/notifications/{notificationId}/read": {
-			"put": {
-				"operationId": "MarkAsRead",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/INotificationByIdResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Notifications"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "notificationId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/notifications/user/mark-all-read": {
+		"/api/notifications/mark-all-read": {
 			"put": {
 				"operationId": "MarkAllAsReadForUser",
 				"responses": {
@@ -1140,77 +1126,7 @@
 				"parameters": []
 			}
 		},
-		"/notifications/hostel/{hostelId}/mark-all-read": {
-			"put": {
-				"operationId": "MarkAllAsReadForHostel",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BackendResponse_null_"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Notifications"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "hostelId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/notifications/{notificationId}": {
-			"delete": {
-				"operationId": "DeleteNotification",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BackendResponse_null_"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Notifications"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "notificationId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/notifications/unread-count": {
+		"/api/notifications/unread-count": {
 			"get": {
 				"operationId": "GetUnreadCount",
 				"responses": {
@@ -1227,41 +1143,6 @@
 				},
 				"tags": [
 					"Notifications"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "hostelId",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/api/hostels/{id}": {
-			"get": {
-				"operationId": "GetHostel",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/IHostelByIdResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Hostels"
 				],
 				"security": [
 					{
@@ -1297,16 +1178,16 @@
 				"parameters": []
 			}
 		},
-		"/api/hostels/guests/current": {
+		"/api/hostels/{id}": {
 			"get": {
-				"operationId": "GetCurrentGuests",
+				"operationId": "GetHostel",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IGuestListResponse"
+									"$ref": "#/components/schemas/IHostelByIdResponse"
 								}
 							}
 						}

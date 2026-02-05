@@ -10,14 +10,7 @@ export class NotificationRepository {
   }
 
   findByUserId(userId: Types.ObjectId): Promise<INotificationDocument[]> {
-    return Notification.find({ 'recipient.user': userId })
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .exec() as Promise<INotificationDocument[]>;
-  }
-
-  findByHostelId(hostelId: Types.ObjectId): Promise<INotificationDocument[]> {
-    return Notification.find({ 'recipient.hostel': hostelId })
+    return Notification.find({ recipients: { $elemMatch: { user: userId } } })
       .sort({ createdAt: -1 })
       .limit(50)
       .exec() as Promise<INotificationDocument[]>;
@@ -35,33 +28,17 @@ export class NotificationRepository {
     ).exec() as Promise<INotificationDocument | null>;
   }
 
-  markAllAsReadForUser(userId: string): Promise<any> {
-    return Notification.updateMany({ 'recipient.user': userId, read: false }, { read: true });
+  markAllAsReadForUser(userId: Types.ObjectId): Promise<any> {
+    return Notification.updateMany({ recipient: { user: userId }, read: false }, { read: true });
   }
 
-  markAllAsReadForHostel(hostelId: string): Promise<any> {
-    return Notification.updateMany({ 'recipient.hostel': hostelId, read: false }, { read: true });
-  }
-
-  delete(id: string): Promise<INotificationDocument | null> {
-    return Notification.findByIdAndDelete(id).exec() as Promise<INotificationDocument | null>;
-  }
-
-  getUnreadCountForUser(userId: string): Promise<number> {
+  getUnreadCountForUser(userId: Types.ObjectId): Promise<number> {
     return Notification.countDocuments({
-      'recipient.user': userId,
+      recipient: { user: userId },
       read: false,
     });
   }
 
-  getUnreadCountForHostel(hostelId: string): Promise<number> {
-    return Notification.countDocuments({
-      'recipient.hostel': hostelId,
-      read: false,
-    });
-  }
-
-  // Clean up old notifications (older than 30 days)
   deleteOldNotifications(): Promise<any> {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

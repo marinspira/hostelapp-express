@@ -59,6 +59,18 @@ const models: TsoaRoute.Models = {
         "additionalProperties": true,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IReservationCreateRequest": {
+        "dataType": "refObject",
+        "properties": {
+            "user_id_guest": {"dataType":"string","required":true},
+            "room": {"dataType":"string","required":true},
+            "bed": {"dataType":"string","required":true},
+            "checkin_date": {"dataType":"datetime","required":true},
+            "checkout_date": {"dataType":"datetime","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IReservationListItemResponse": {
         "dataType": "refObject",
         "properties": {
@@ -86,7 +98,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_IReservation_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"status":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["walking in"]},{"dataType":"enum","enums":["in house"]},{"dataType":"enum","enums":["checked out"]}]},"hostel_id":{"ref":"mongoose.Types.ObjectId"},"user_id_guest":{"ref":"mongoose.Types.ObjectId"},"room":{"dataType":"string"},"bed":{"dataType":"string"},"checkin_date":{"dataType":"datetime"},"checkout_date":{"dataType":"datetime"},"created_at":{"dataType":"datetime"},"checkout_processed_at":{"dataType":"datetime"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"status":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["walking in"]},{"dataType":"enum","enums":["in house"]},{"dataType":"enum","enums":["checked out"]}]},"hostel_id":{"ref":"mongoose.Types.ObjectId"},"user_id_guest":{"ref":"mongoose.Types.ObjectId"},"room":{"dataType":"string"},"bed":{"dataType":"string"},"checkin_date":{"dataType":"datetime"},"checkout_date":{"dataType":"datetime"},"checkout_processed_at":{"dataType":"datetime"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "BackendResponse_null_": {
@@ -94,6 +106,26 @@ const models: TsoaRoute.Models = {
         "properties": {
             "success": {"dataType":"boolean","required":true},
             "data": {"dataType":"enum","enums":[null]},
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IOtherGuest": {
+        "dataType": "refObject",
+        "properties": {
+            "guestId": {"ref":"mongoose.Types.ObjectId","required":true},
+            "name": {"dataType":"string","required":true},
+            "photo": {"dataType":"string","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IOthersGuestsListResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "success": {"dataType":"boolean","required":true},
+            "data": {"dataType":"array","array":{"dataType":"refObject","ref":"IOtherGuest"}},
             "message": {"dataType":"string","required":true},
         },
         "additionalProperties": true,
@@ -109,16 +141,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "success": {"dataType":"boolean","required":true},
             "data": {"dataType":"array","array":{"dataType":"refAlias","ref":"INotificationDocument"}},
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "INotificationByIdResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "success": {"dataType":"boolean","required":true},
-            "data": {"ref":"INotificationDocument"},
             "message": {"dataType":"string","required":true},
         },
         "additionalProperties": true,
@@ -144,32 +166,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "success": {"dataType":"boolean","required":true},
             "data": {"ref":"IHostelDocument"},
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IGuestListItem": {
-        "dataType": "refObject",
-        "properties": {
-            "user_id": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "email": {"dataType":"string","required":true},
-            "first_photo": {"dataType":"string","required":true},
-            "room": {"dataType":"string","required":true},
-            "bed": {"dataType":"string","required":true},
-            "checkin_date": {"dataType":"string","required":true},
-            "checkout_date": {"dataType":"string","required":true},
-            "reservation_id": {"dataType":"string","required":true},
-        },
-        "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IGuestListResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "success": {"dataType":"boolean","required":true},
-            "data": {"dataType":"array","array":{"dataType":"refObject","ref":"IGuestListItem"}},
             "message": {"dataType":"string","required":true},
         },
         "additionalProperties": true,
@@ -376,8 +372,10 @@ export function RegisterRoutes(app: Router) {
     
         const argsReservationController_create: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                reservationData: {"in":"body","name":"reservationData","required":true,"ref":"IReservationCreateRequest"},
         };
         app.post('/api/reservations/create',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(ReservationController)),
             ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.create)),
 
@@ -404,25 +402,26 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsReservationController_listAll: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsReservationController_list: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.get('/api/reservations',
+        app.get('/api/reservations/current-guests',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(ReservationController)),
-            ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.listAll)),
+            ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.list)),
 
-            async function ReservationController_listAll(request: ExRequest, response: ExResponse, next: any) {
+            async function ReservationController_list(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsReservationController_listAll, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsReservationController_list, request, response });
 
                 const controller = new ReservationController();
 
               await templateService.apiHandler({
-                methodName: 'listAll',
+                methodName: 'list',
                 controller,
                 response,
                 next,
@@ -436,9 +435,10 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsReservationController_findById: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                reservationId: {"in":"path","name":"reservationId","required":true,"dataType":"string"},
         };
-        app.get('/api/reservations/:id',
+        app.get('/api/reservations/:reservationId',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(ReservationController)),
             ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.findById)),
 
@@ -467,10 +467,11 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsReservationController_update: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                reservationId: {"in":"path","name":"reservationId","required":true,"dataType":"string"},
                 reservationData: {"in":"body","name":"reservationData","required":true,"ref":"Partial_IReservation_"},
         };
-        app.put('/api/reservations/:id/update',
+        app.put('/api/reservations/:reservationId/update',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(ReservationController)),
             ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.update)),
 
@@ -499,9 +500,10 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsReservationController_delete: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                reservationId: {"in":"path","name":"reservationId","required":true,"dataType":"string"},
         };
-        app.delete('/api/reservations/:id/delete',
+        app.delete('/api/reservations/:reservationId/delete',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(ReservationController)),
             ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.delete)),
 
@@ -530,9 +532,9 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsReservationController_checkout: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                reservationId: {"in":"path","name":"reservationId","required":true,"dataType":"string"},
         };
-        app.put('/api/reservations/:id/checkout',
+        app.put('/api/reservations/:reservationId/checkout',
             ...(fetchMiddlewares<RequestHandler>(ReservationController)),
             ...(fetchMiddlewares<RequestHandler>(ReservationController.prototype.checkout)),
 
@@ -562,7 +564,8 @@ export function RegisterRoutes(app: Router) {
         const argsGuestReservationController_getCurrentReservation: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.get('/api/reservations/guest/current',
+        app.get('/api/reservations/guest/current-stay',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(GuestReservationController)),
             ...(fetchMiddlewares<RequestHandler>(GuestReservationController.prototype.getCurrentReservation)),
 
@@ -593,6 +596,7 @@ export function RegisterRoutes(app: Router) {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.get('/api/reservations/guest/history',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(GuestReservationController)),
             ...(fetchMiddlewares<RequestHandler>(GuestReservationController.prototype.getReservationHistory)),
 
@@ -619,10 +623,42 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsGuestReservationController_list: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                hostelId: {"in":"path","name":"hostelId","required":true,"dataType":"string"},
+        };
+        app.get('/api/reservations/guest/:hostelId/reservations',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GuestReservationController)),
+            ...(fetchMiddlewares<RequestHandler>(GuestReservationController.prototype.list)),
+
+            async function GuestReservationController_list(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsGuestReservationController_list, request, response });
+
+                const controller = new GuestReservationController();
+
+              await templateService.apiHandler({
+                methodName: 'list',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotificationController_getUserNotifications: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
-        app.get('/notifications/user',
+        app.get('/api/notifications/list',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(NotificationController)),
             ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.getUserNotifications)),
@@ -650,74 +686,10 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsNotificationController_getHostelNotifications: Record<string, TsoaRoute.ParameterSchema> = {
-                hostelId: {"in":"path","name":"hostelId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
-        };
-        app.get('/notifications/hostel/:hostelId',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController)),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.getHostelNotifications)),
-
-            async function NotificationController_getHostelNotifications(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsNotificationController_getHostelNotifications, request, response });
-
-                const controller = new NotificationController();
-
-              await templateService.apiHandler({
-                methodName: 'getHostelNotifications',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsNotificationController_markAsRead: Record<string, TsoaRoute.ParameterSchema> = {
-                notificationId: {"in":"path","name":"notificationId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
-        };
-        app.put('/notifications/:notificationId/read',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController)),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.markAsRead)),
-
-            async function NotificationController_markAsRead(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsNotificationController_markAsRead, request, response });
-
-                const controller = new NotificationController();
-
-              await templateService.apiHandler({
-                methodName: 'markAsRead',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotificationController_markAllAsReadForUser: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
-        app.put('/notifications/user/mark-all-read',
+        app.put('/api/notifications/mark-all-read',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(NotificationController)),
             ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.markAllAsReadForUser)),
@@ -745,75 +717,10 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsNotificationController_markAllAsReadForHostel: Record<string, TsoaRoute.ParameterSchema> = {
-                hostelId: {"in":"path","name":"hostelId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
-        };
-        app.put('/notifications/hostel/:hostelId/mark-all-read',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController)),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.markAllAsReadForHostel)),
-
-            async function NotificationController_markAllAsReadForHostel(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsNotificationController_markAllAsReadForHostel, request, response });
-
-                const controller = new NotificationController();
-
-              await templateService.apiHandler({
-                methodName: 'markAllAsReadForHostel',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsNotificationController_deleteNotification: Record<string, TsoaRoute.ParameterSchema> = {
-                notificationId: {"in":"path","name":"notificationId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
-        };
-        app.delete('/notifications/:notificationId',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController)),
-            ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.deleteNotification)),
-
-            async function NotificationController_deleteNotification(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsNotificationController_deleteNotification, request, response });
-
-                const controller = new NotificationController();
-
-              await templateService.apiHandler({
-                methodName: 'deleteNotification',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotificationController_getUnreadCount: Record<string, TsoaRoute.ParameterSchema> = {
-                hostelId: {"in":"query","name":"hostelId","dataType":"string"},
                 request: {"in":"request","name":"request","dataType":"object"},
         };
-        app.get('/notifications/unread-count',
+        app.get('/api/notifications/unread-count',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(NotificationController)),
             ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.getUnreadCount)),
@@ -830,37 +737,6 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getUnreadCount',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsHostelController_getHostel: Record<string, TsoaRoute.ParameterSchema> = {
-                req: {"in":"request","name":"req","required":true,"dataType":"object"},
-        };
-        app.get('/api/hostels/:id',
-            authenticateMiddleware([{"jwt":[]}]),
-            ...(fetchMiddlewares<RequestHandler>(HostelController)),
-            ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.getHostel)),
-
-            async function HostelController_getHostel(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsHostelController_getHostel, request, response });
-
-                const controller = new HostelController();
-
-              await templateService.apiHandler({
-                methodName: 'getHostel',
                 controller,
                 response,
                 next,
@@ -903,26 +779,26 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsHostelController_getCurrentGuests: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsHostelController_getHostel: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.get('/api/hostels/guests/current',
+        app.get('/api/hostels/:id',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(HostelController)),
-            ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.getCurrentGuests)),
+            ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.getHostel)),
 
-            async function HostelController_getCurrentGuests(request: ExRequest, response: ExResponse, next: any) {
+            async function HostelController_getHostel(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsHostelController_getCurrentGuests, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsHostelController_getHostel, request, response });
 
                 const controller = new HostelController();
 
               await templateService.apiHandler({
-                methodName: 'getCurrentGuests',
+                methodName: 'getHostel',
                 controller,
                 response,
                 next,
