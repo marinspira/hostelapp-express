@@ -10,7 +10,7 @@ import { GuestReservationController } from './../controllers/reservation.control
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { NotificationController } from './../controllers/notification.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { HostelController } from './../controllers/hostel.controller.new';
+import { HostelController } from './../controllers/hostel.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { GuestController } from './../controllers/guest.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -139,16 +139,6 @@ const models: TsoaRoute.Models = {
         "type": {"ref":"mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ICreateHostelResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "success": {"dataType":"boolean","required":true},
-            "data": {"ref":"IHostelDocument"},
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IHostelByIdResponse": {
         "dataType": "refObject",
         "properties": {
@@ -157,16 +147,6 @@ const models: TsoaRoute.Models = {
             "message": {"dataType":"string","required":true},
         },
         "additionalProperties": true,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "HostelStatus": {
-        "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["approved"]},{"dataType":"enum","enums":["rejected"]},{"dataType":"enum","enums":["suspended"]}],"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Partial_IHostel_": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"status":{"ref":"HostelStatus"},"stripeAccountId":{"dataType":"string"},"logo":{"dataType":"string"},"name":{"dataType":"string"},"username":{"dataType":"string"},"address":{"dataType":"nestedObjectLiteral","nestedProperties":{"zip":{"dataType":"string"},"country":{"dataType":"string","required":true},"city":{"dataType":"string","required":true},"street":{"dataType":"string","required":true}}},"phone":{"dataType":"string"},"email":{"dataType":"string"},"website":{"dataType":"string"},"experience_with_volunteers":{"dataType":"boolean"},"currency":{"dataType":"string"},"rooms":{"dataType":"array","array":{"dataType":"refAlias","ref":"mongoose.Types.ObjectId"}},"user_id_owners":{"dataType":"array","array":{"dataType":"refAlias","ref":"mongoose.Types.ObjectId"}},"user_id_guests":{"dataType":"array","array":{"dataType":"refAlias","ref":"mongoose.Types.ObjectId"}},"user_id_staffs":{"dataType":"array","array":{"dataType":"refAlias","ref":"mongoose.Types.ObjectId"}},"events":{"dataType":"array","array":{"dataType":"refAlias","ref":"mongoose.Types.ObjectId"}},"volunteer_opportunities":{"dataType":"array","array":{"dataType":"refAlias","ref":"mongoose.Types.ObjectId"}},"policies":{"dataType":"boolean"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IGuestListItem": {
@@ -861,40 +841,11 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsHostelController_create: Record<string, TsoaRoute.ParameterSchema> = {
-                req: {"in":"request","name":"req","required":true,"dataType":"object"},
-        };
-        app.post('/api/hostels/create',
-            ...(fetchMiddlewares<RequestHandler>(HostelController)),
-            ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.create)),
-
-            async function HostelController_create(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsHostelController_create, request, response });
-
-                const controller = new HostelController();
-
-              await templateService.apiHandler({
-                methodName: 'create',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsHostelController_getHostel: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.get('/api/hostels/:id',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(HostelController)),
             ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.getHostel)),
 
@@ -921,41 +872,11 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsHostelController_update: Record<string, TsoaRoute.ParameterSchema> = {
-                req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                hostelData: {"in":"body","name":"hostelData","required":true,"ref":"Partial_IHostel_"},
-        };
-        app.put('/api/hostels/update',
-            ...(fetchMiddlewares<RequestHandler>(HostelController)),
-            ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.update)),
-
-            async function HostelController_update(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsHostelController_update, request, response });
-
-                const controller = new HostelController();
-
-              await templateService.apiHandler({
-                methodName: 'update',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsHostelController_delete: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.delete('/api/hostels/delete',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(HostelController)),
             ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.delete)),
 
@@ -986,6 +907,7 @@ export function RegisterRoutes(app: Router) {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.get('/api/hostels/guests/current',
+            authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(HostelController)),
             ...(fetchMiddlewares<RequestHandler>(HostelController.prototype.getCurrentGuests)),
 

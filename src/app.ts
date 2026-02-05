@@ -14,6 +14,7 @@ import eventRoutes from './routes/event.routes.ts';
 import errorHandler from './middleware/errorHandler.js';
 import { RegisterRoutes } from './routes/routes.ts';
 import guestRoutes from './routes/guest.routes.ts';
+import hostelRoutes from './routes/hostel.routes.ts';
 
 const app = express();
 dotenv.config();
@@ -39,7 +40,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 // Routes
 app.use('/api/events', eventRoutes);
 app.use('/api/guests', guestRoutes);
-// app.use('/api/hostels', hostelRoutes);
+app.use('/api/hostels', hostelRoutes);
 // app.use('/api/reservations', reservationRoutes);
 // app.use('/api/notifications', notificationRoutes);
 

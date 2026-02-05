@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 
 import Hostel from '../models/hostel.model.ts';
 import { IHostel, IHostelDocument } from '../interfaces/hostel.interface.ts';
+import User from '../models/user.model.ts';
 
 export class HostelRepository {
   async findByOwner(ownerId: Types.ObjectId | string): Promise<IHostelDocument | null> {
@@ -32,8 +33,12 @@ export class HostelRepository {
     });
   }
 
-  async delete(hostelId: string): Promise<IHostelDocument | null> {
+  async delete(hostelId: Types.ObjectId): Promise<IHostelDocument | null> {
     return await Hostel.findByIdAndDelete(hostelId);
+  }
+
+  async deleteUser(userId: Types.ObjectId): Promise<void> {
+    await User.deleteOne({ _id: userId });
   }
 
   async removeGuestFromHostel(
@@ -48,5 +53,20 @@ export class HostelRepository {
     guestUserId: string | Types.ObjectId
   ): Promise<void> {
     await Hostel.updateOne({ _id: hostelId }, { $addToSet: { user_id_guests: guestUserId } });
+  }
+
+  async checkUserAccessToHostel(
+    hostelId: Types.ObjectId,
+    userId: string | Types.ObjectId
+  ): Promise<boolean> {
+    const hostel = await Hostel.findOne({
+      _id: hostelId,
+      $or: [
+        { user_id_owners: userId },
+        { user_id_guests: userId },
+        { user_id_staffs: userId }
+      ]
+    });
+    return !!hostel;
   }
 }

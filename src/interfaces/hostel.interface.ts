@@ -6,7 +6,6 @@ export type HostelStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
 export interface IHostel {
   status?: HostelStatus;
-  stripeAccountId?: string;
   logo?: string;
   name: string;
   username: string;
@@ -44,7 +43,6 @@ export interface IGuestListItem {
 
 export interface IHostelDocument extends IHostel, Document {
   _id: Types.ObjectId;
-  created_at: Date;
 }
 
 export interface ICreateHostelResponse extends BackendResponse<IHostelDocument> {}

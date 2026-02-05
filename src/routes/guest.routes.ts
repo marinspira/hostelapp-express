@@ -20,9 +20,9 @@ router.post('/create', protectRoute, upload.array('image', 1), async (req, res, 
   }
 });
 
-router.put('/:id/update', protectRoute, upload.array('images', 4), async (req, res, next) => {
+router.put('/update', protectRoute, upload.array('images', 4), async (req, res, next) => {
   try {
-    const result = await guestController.update(req as any, req.params.id);
+    const result = await guestController.update(req as any);
     res.status(200).json(result);
   } catch (error) {
     next(error);

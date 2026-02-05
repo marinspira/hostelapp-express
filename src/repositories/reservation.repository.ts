@@ -1,6 +1,7 @@
 import Reservation from '../models/reservation.model';
 import type IReservation from '../interfaces/reservation.interface.ts';
 import type { IReservationDocument } from '../interfaces/reservation.interface.ts';
+import { Types } from 'mongoose';
 
 export class ReservationRepository {
   async create(data: IReservation): Promise<IReservationDocument> {
@@ -56,7 +57,7 @@ export class ReservationRepository {
     return reservations as IReservationDocument[];
   }
 
-  async findCurrentGuestsByHostelId(hostelId: string): Promise<IReservationDocument[]> {
+  async findCurrentGuestsByHostelId(hostelId: Types.ObjectId): Promise<IReservationDocument[]> {
     const reservations = await Reservation.find({
       hostel_id: hostelId,
       status: { $in: ['in house', 'walking in'] },

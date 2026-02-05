@@ -55,10 +55,7 @@ export class GuestController {
     return this.guestService.create(guestData, user._id, imagePaths);
   }
 
-  async update(
-    @Request() req: ICreateGuestRequest,
-    @Path() guestId: string
-  ): Promise<IGuestResponse> {
+  async update(@Request() req: ICreateGuestRequest): Promise<IGuestResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
@@ -137,9 +134,14 @@ export class GuestController {
   @Get('{guestId}')
   @Security('jwt')
   async getProfile(
-    @Request() _req: AuthenticatedRequest,
+    @Request() req: AuthenticatedRequest,
     @Path() guestId: string
   ): Promise<IGuestByIdResponse> {
+    const user = req.user;
+    if (!user?._id) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
     return this.guestService.getByGuestId(guestId);
   }
 

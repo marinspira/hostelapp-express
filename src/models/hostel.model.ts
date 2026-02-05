@@ -11,9 +11,6 @@ const HostelSchema = new Schema<IHostelDocument>(
       enum: ['pending', 'approved', 'rejected', 'suspended'],
       default: 'pending',
     },
-    stripeAccountId: {
-      type: String,
-    },
     logo: {
       type: String,
     },
@@ -86,7 +83,6 @@ const HostelSchema = new Schema<IHostelDocument>(
       },
     ],
     volunteer_opportunities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'VolunteerPosition' }],
-    created_at: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );

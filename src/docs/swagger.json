@@ -236,25 +236,6 @@
 			"IHostelDocument": {
 				"$ref": "#/components/schemas/mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___"
 			},
-			"ICreateHostelResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"data": {
-						"$ref": "#/components/schemas/IHostelDocument"
-					},
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
 			"IHostelByIdResponse": {
 				"properties": {
 					"success": {
@@ -273,112 +254,6 @@
 				],
 				"type": "object",
 				"additionalProperties": true
-			},
-			"HostelStatus": {
-				"type": "string",
-				"enum": [
-					"pending",
-					"approved",
-					"rejected",
-					"suspended"
-				]
-			},
-			"Partial_IHostel_": {
-				"properties": {
-					"status": {
-						"$ref": "#/components/schemas/HostelStatus"
-					},
-					"stripeAccountId": {
-						"type": "string"
-					},
-					"logo": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					},
-					"username": {
-						"type": "string"
-					},
-					"address": {
-						"properties": {
-							"zip": {
-								"type": "string"
-							},
-							"country": {
-								"type": "string"
-							},
-							"city": {
-								"type": "string"
-							},
-							"street": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"country",
-							"city",
-							"street"
-						],
-						"type": "object"
-					},
-					"phone": {
-						"type": "string"
-					},
-					"email": {
-						"type": "string"
-					},
-					"website": {
-						"type": "string"
-					},
-					"experience_with_volunteers": {
-						"type": "boolean"
-					},
-					"currency": {
-						"type": "string"
-					},
-					"rooms": {
-						"items": {
-							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-						},
-						"type": "array"
-					},
-					"user_id_owners": {
-						"items": {
-							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-						},
-						"type": "array"
-					},
-					"user_id_guests": {
-						"items": {
-							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-						},
-						"type": "array"
-					},
-					"user_id_staffs": {
-						"items": {
-							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-						},
-						"type": "array"
-					},
-					"events": {
-						"items": {
-							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-						},
-						"type": "array"
-					},
-					"volunteer_opportunities": {
-						"items": {
-							"$ref": "#/components/schemas/mongoose.Types.ObjectId"
-						},
-						"type": "array"
-					},
-					"policies": {
-						"type": "boolean"
-					}
-				},
-				"type": "object",
-				"description": "Make all properties in T optional"
 			},
 			"IGuestListItem": {
 				"properties": {
@@ -1370,28 +1245,6 @@
 				]
 			}
 		},
-		"/api/hostels/create": {
-			"post": {
-				"operationId": "Create",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ICreateHostelResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Hostels"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
 		"/api/hostels/{id}": {
 			"get": {
 				"operationId": "GetHostel",
@@ -1410,40 +1263,12 @@
 				"tags": [
 					"Hostels"
 				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/api/hostels/update": {
-			"put": {
-				"operationId": "Update",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/IHostelByIdResponse"
-								}
-							}
-						}
+				"security": [
+					{
+						"jwt": []
 					}
-				},
-				"tags": [
-					"Hostels"
 				],
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/Partial_IHostel_"
-							}
-						}
-					}
-				}
+				"parameters": []
 			}
 		},
 		"/api/hostels/delete": {
@@ -1464,7 +1289,11 @@
 				"tags": [
 					"Hostels"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": []
 			}
 		},
@@ -1486,7 +1315,11 @@
 				"tags": [
 					"Hostels"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
 				"parameters": []
 			}
 		},

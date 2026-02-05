@@ -101,7 +101,7 @@ export class GuestService {
 
     if (imagePaths && imagePaths.length > 0) {
       const existingPhotos = guest.guest_photos || [];
-      const updated = guestData.guest_photos = [...existingPhotos, ...imagePaths];
+      guestData.guest_photos = [...existingPhotos, ...imagePaths];
     }
 
     const allowedFields: (keyof IGuest)[] = [
