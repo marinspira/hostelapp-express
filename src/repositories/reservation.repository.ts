@@ -32,7 +32,7 @@ export class ReservationRepository {
       user_id_guest: guestId,
       checkin_date: { $lte: new Date() },
       checkout_date: { $gte: new Date() },
-      status: 'in house',
+      status: { $in: ['in house', 'walking in'] },
     });
   }
 

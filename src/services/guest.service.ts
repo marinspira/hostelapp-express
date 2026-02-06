@@ -12,6 +12,7 @@ import { BackendResponse } from '../interfaces/index.interface.ts';
 import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 // @ts-ignore
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
+import User from '../models/user.model.ts';
 
 export class GuestService {
   private guestRepo: GuestRepository;
@@ -57,6 +58,12 @@ export class GuestService {
     };
 
     const guest = await this.guestRepo.create(newGuestData);
+
+    if (!guest) {
+      throw new BadRequestError('Failed to create guest profile');
+    } else {
+      await User.updateOne({ _id: userId }, { isNewUser: false });
+    }
 
     return {
       success: true,

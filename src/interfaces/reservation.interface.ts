@@ -42,6 +42,29 @@ export interface IOtherGuest {
   photo: string;
 }
 
+export interface ICurrentStayReservation {
+  reservationId: string;
+  hostel: {
+    id: string;
+    name: string;
+    logo: string;
+    address: {
+      street: string;
+      city: string;
+      country: string;
+      zip: string;
+    };
+    phone: string;
+    email: string;
+  };
+  room: string;
+  bed: string;
+  checkinDate: Date;
+  checkoutDate: Date;
+  status: string;
+  daysRemaining: number;
+}
+
 export interface IOthersGuestsListResponse extends BackendResponse<IOtherGuest[]> {}
 
 export interface ICreateReservationResponse extends BackendResponse<IReservationDocument> {}
@@ -49,3 +72,5 @@ export interface ICreateReservationResponse extends BackendResponse<IReservation
 export interface IReservationListItemResponse extends BackendResponse<IReservationDocument[]> {}
 
 export interface IReservationByIdResponse extends BackendResponse<IReservationDocument | null> {}
+
+export interface ICurrentStayResponse extends BackendResponse<ICurrentStayReservation | null> {}

@@ -8,6 +8,7 @@ import type {
   IReservation,
   IOthersGuestsListResponse,
   IOtherGuest,
+  ICurrentStayResponse,
 } from '../interfaces/reservation.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
@@ -415,8 +416,9 @@ export class ReservationService {
     }
   }
 
-  async getCurrentGuestReservation(guestUserId: Types.ObjectId): Promise<IReservationByIdResponse> {
+  async getCurrentGuestReservation(guestUserId: Types.ObjectId): Promise<ICurrentStayResponse> {
     const reservation = await this.reservationRepo.findCurrentStayByGuestId(guestUserId);
+    
     if (!reservation) {
       return {
         success: true,
@@ -424,10 +426,40 @@ export class ReservationService {
         data: null,
       };
     }
+
+    const hostel = await this.hostelRepo.findById(reservation.hostel_id);
+    
+    const checkoutDate = new Date(reservation.checkout_date);
+    const currentDate = new Date();
+    const daysRemaining = Math.ceil((checkoutDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24));
+
+    const transformedData = {
+      reservationId: reservation._id.toString(),
+      hostel: {
+        id: reservation.hostel_id.toString(),
+        name: hostel?.name || '',
+        logo: hostel?.logo || '',
+        address: {
+          street: hostel?.address?.street || '',
+          city: hostel?.address?.city || '',
+          country: hostel?.address?.country || '',
+          zip: hostel?.address?.zip || '',
+        },
+        phone: hostel?.phone || '',
+        email: hostel?.email || '',
+      },
+      room: reservation.room,
+      bed: reservation.bed,
+      checkinDate: reservation.checkin_date,
+      checkoutDate: reservation.checkout_date,
+      status: reservation.status,
+      daysRemaining: daysRemaining,
+    };
+
     return {
       success: true,
       message: 'Current reservation retrieved successfully',
-      data: reservation,
+      data: transformedData,
     };
   }
 

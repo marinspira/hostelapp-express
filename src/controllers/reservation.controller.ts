@@ -14,6 +14,7 @@ import type {
   IReservationCreateRequest,
   IReservation,
   IOthersGuestsListResponse,
+  ICurrentStayResponse,
 } from '../interfaces/reservation.interface.ts';
 
 @Route('/api/reservations')
@@ -159,7 +160,7 @@ export class GuestReservationController {
   @Security('jwt')
   async getCurrentReservation(
     @Request() req: AuthenticatedRequest
-  ): Promise<IReservationByIdResponse> {
+  ): Promise<ICurrentStayResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
