@@ -418,7 +418,11 @@ export class ReservationService {
   async getCurrentGuestReservation(guestUserId: Types.ObjectId): Promise<IReservationByIdResponse> {
     const reservation = await this.reservationRepo.findCurrentStayByGuestId(guestUserId);
     if (!reservation) {
-      throw new NotFoundError('No active reservation found');
+      return {
+        success: true,
+        message: 'No current reservation found for this guest',
+        data: null,
+      };
     }
     return {
       success: true,

@@ -178,8 +178,7 @@ export class EventService {
 
   async joinEvent(userId: Types.ObjectId, eventId: string): Promise<BackendResponse<null>> {
     const event = await this.eventRepo.findById(eventId);
-    console.log('userId:', userId, 'eventId:', eventId);
-    const guest = await this.guestRepo.findById(userId);
+    const guest = await this.guestRepo.findByUserId(userId);
 
     if (!guest) {
       throw new NotFoundError('Guest not found');
@@ -214,7 +213,7 @@ export class EventService {
 
   async leaveEvent(userId: Types.ObjectId, eventId: string): Promise<BackendResponse<null>> {
     const event = await this.eventRepo.findById(eventId);
-    const guest = await this.guestRepo.findById(userId);
+    const guest = await this.guestRepo.findByUserId(userId);
 
     if (!guest) {
       throw new NotFoundError('Guest not found');

@@ -48,4 +48,4 @@ export interface ICreateReservationResponse extends BackendResponse<IReservation
 
 export interface IReservationListItemResponse extends BackendResponse<IReservationDocument[]> {}
 
-export interface IReservationByIdResponse extends BackendResponse<IReservationDocument> {}
+export interface IReservationByIdResponse extends BackendResponse<IReservationDocument | null> {}
