@@ -135,6 +135,7 @@ export class GuestEventsController {
     @Path() city: string,
     @Path() country: string
   ): Promise<IEventListItemResponse> {
+    console.log(`Received request to list public events for city: ${city}, country: ${country}`);
     return this.eventService.listPublicEvents(city, country);
   }
 

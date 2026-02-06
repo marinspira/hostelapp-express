@@ -167,10 +167,12 @@ export class EventService {
     }
 
     const hostelsInLocation = await this.hostelRepo.findByLocation(city, country);
+    console.log(`Found ${hostelsInLocation.length} hostels in ${city}, ${country}`);
     const hostelIds = hostelsInLocation.map(hostel => hostel._id.toString());
 
     const events = await this.eventRepo.findPublicUpcomingEvents(city, country, hostelIds);
 
+    console.log(`Found ${events.length} public events in ${city}, ${country}`);
     return { success: true, message: 'Public events retrieved successfully', data: events };
   }
 

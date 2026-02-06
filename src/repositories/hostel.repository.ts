@@ -21,8 +21,8 @@ export class HostelRepository {
 
   async findByLocation(city: string, country: string): Promise<IHostelDocument[]> {
     return Hostel.find({
-      'address.city': { $regex: new RegExp(city, 'i') },
-      'address.country': { $regex: new RegExp(country, 'i') },
+      'address.city': { $regex: new RegExp(city.trim(), 'i') },
+      'address.country': { $regex: new RegExp(country.trim(), 'i') },
     }).select('_id');
   }
 

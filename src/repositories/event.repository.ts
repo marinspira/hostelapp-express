@@ -27,13 +27,17 @@ export class EventRepository {
   async findByIdWithAttendeeProfiles(eventId: string): Promise<IEventDocument | null> {
     const event = await Event.findById(eventId)
       .populate('attendees', 'profile_image')
-      .populate({ path: 'hostel_id', select: 'currency' })
+      .populate({ path: 'hostel_id', select: '_id currency' })
       .lean();
 
     if (!event) return null;
 
+    const hostelCurrency = (event.hostel_id as any)?.currency;
+
     return {
       ...event,
+      currency: hostelCurrency || event.currency,
+      hostel_id: (event.hostel_id as any)?._id || event.hostel_id,
       attendees: (event.attendees as IEventAttendee[]).map((guest: any) => ({
         _id: guest._id?.toString(),
         profile_image: guest.profile_image,
@@ -45,7 +49,7 @@ export class EventRepository {
     const events = await Event.find({ hostel_id: hostelId, end_date: { $gte: new Date() } })
       .sort({ start_date: 1 })
       .populate({ path: 'attendees', select: 'profile_image' })
-      .populate({ path: 'hostel_id', select: 'currency' })
+      .populate({ path: 'hostel_id', select: '_id currency' })
       .lean();
     return events.map(event => ({
       _id: event._id.toString(),
@@ -58,7 +62,7 @@ export class EventRepository {
           _id: guest._id.toString(),
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
-      currency: event.currency,
+      currency: (event.hostel_id as any)?.currency || event.currency,
       free_entry: event.free_entry,
     }));
   }
@@ -110,7 +114,7 @@ export class EventRepository {
       })
       .sort({ start_date: 1 })
       .populate({ path: 'attendees', select: 'profile_image' })
-      .populate({ path: 'hostel_id', select: 'currency' })
+      .populate({ path: 'hostel_id', select: '_id currency' })
       .lean();
     return events.map(event => ({
       _id: event._id.toString(),
@@ -123,7 +127,7 @@ export class EventRepository {
           profile_image: guest.profile_image,
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
-      currency: event.currency,
+      currency: (event.hostel_id as any)?.currency || event.currency,
       free_entry: event.free_entry,
     }));
   }
