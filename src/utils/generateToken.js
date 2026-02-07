@@ -1,11 +1,16 @@
 import jwt from 'jsonwebtoken';
 
+// Function to generate a JWT token only
+export function generateToken(userId) {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: '15d', // Set the token's validity to 15 days
+  });
+}
+
 // Function to generate a JWT token and set it in a cookie in the HTTP response
 function generateTokenAndSetCookie(userId, res) {
   // Generate a JWT token using the user's ID and a secret key
-  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: '15d', // Set the token's validity to 15 days
-  });
+  const token = generateToken(userId);
 
   // Set a cookie named "jwt" in the HTTP response with the generated token
   res.cookie('jwt', token, {

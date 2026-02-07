@@ -1,14 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 
-const HostelSchema = new mongoose.Schema(
+import { IHostelDocument } from '../interfaces/hostel.interface';
+
+export type IHostelModel = Model<IHostelDocument>;
+
+const HostelSchema = new Schema<IHostelDocument>(
   {
     status: {
       type: String,
       enum: ['pending', 'approved', 'rejected', 'suspended'],
       default: 'pending',
-    },
-    stripeAccountId: {
-      type: String,
     },
     logo: {
       type: String,
@@ -82,11 +83,10 @@ const HostelSchema = new mongoose.Schema(
       },
     ],
     volunteer_opportunities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'VolunteerPosition' }],
-    created_at: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-const Hostel = mongoose.model('Hostel', HostelSchema);
+const Hostel = mongoose.model<IHostelDocument>('Hostel', HostelSchema);
 
 export default Hostel;

@@ -2,19 +2,19 @@ import mongoose from 'mongoose';
 
 const NotificationSchema = new mongoose.Schema(
   {
-    recipient: {
-      type: {
-        user: {
+    recipients: [
+      {
+        userId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
+          required: true,
         },
-        hostel: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Hostel',
+        read: {
+          type: Boolean,
+          default: false,
         },
       },
-      required: true,
-    },
+    ],
     type: {
       type: String,
       required: true,
@@ -38,18 +38,13 @@ const NotificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
-    read: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true }
 );
 
 // Index for efficient querying
-NotificationSchema.index({ 'recipient.user': 1, createdAt: -1 });
-NotificationSchema.index({ 'recipient.hostel': 1, createdAt: -1 });
-NotificationSchema.index({ read: 1 });
+NotificationSchema.index({ 'recipients.userId': 1, createdAt: -1 });
+NotificationSchema.index({ 'recipients.read': 1 });
 
 const Notification = mongoose.model('Notification', NotificationSchema);
 

@@ -1,0 +1,37 @@
+{
+  "entryFile": "src/server.ts",
+  "controllerPathGlobs": ["src/controllers/*.ts"],
+  "spec": {
+    "outputDirectory": "src/docs",
+    "specVersion": 3,
+    "specFileBaseName": "swagger",
+    "name": "HostelApp API",
+    "version": "1.0.0",
+    "description": "API for HostelApp - A platform for hostel management and guest reservations",
+    "license": "MIT",
+    "contact": {
+      "name": "API Support",
+      "email": "support@hostelapp.io"
+    },
+    "servers": ["localhost:8000", "api.hostelapp.io"],
+    "noImplicitAdditionalProperties": "silently-remove-extras",
+    "additionalPropertiesMode": "silently-remove-extras",
+    "hideSchemas": true,
+    "generateComponents": false,
+    "securityDefinitions": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT authentication with role-based access. Available roles: host, guest"
+      }
+    }
+  },
+  "routes": {
+    "routesDir": "src/routes",
+    "noImplicitAdditionalProperties": "silently-remove-extras",
+    "additionalPropertiesMode": "silently-remove-extras",
+    "authenticationModule": "src/docs/authentication.ts"
+  },
+  "ignore": ["**/node_modules/**", "**/*.spec.ts", "**/*.test.ts"]
+}

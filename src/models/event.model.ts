@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
-import type { IEventDocument } from '../interfaces/event';
+import type { IEventDocument } from '../interfaces/event.interface';
 
 export type IEventModel = Model<IEventDocument>;
 
@@ -101,14 +101,14 @@ const EventSchema = new Schema<IEventDocument>({
     enum: ['card', 'cash'],
     required: true,
   },
+  created_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },
   hostel_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Hostel',
-    required: true,
-  },
-  suggested_by: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
   },
   status: {
     type: String,

@@ -1,5 +1,11 @@
+import { Types } from 'mongoose';
+
 import Event from '../models/event.model.ts';
-import type { EventAttendee, IEventDocument, IEventListItemDTO } from '../interfaces/event.ts';
+import type {
+  IEventAttendee,
+  IEventDocument,
+  IEventListItem,
+} from '../interfaces/event.interface.ts';
 
 export class EventRepository {
   async create(event: Partial<IEventDocument>): Promise<IEventDocument> {
@@ -11,51 +17,52 @@ export class EventRepository {
     return Event.findById(eventId);
   }
 
-  async findByIdWithAttendeeProfiles(
-    eventId: string
-  ): Promise<
-    | (Omit<IEventDocument, 'attendees'> & { attendees: { id: string; profileImage?: string }[] })
-    | null
-  > {
+  async findByNameAndHostel(
+    name: string,
+    created_by: Types.ObjectId
+  ): Promise<IEventDocument | null> {
+    return Event.findOne({ name, created_by });
+  }
+
+  async findByIdWithAttendeeProfiles(eventId: string): Promise<IEventDocument | null> {
     const event = await Event.findById(eventId)
-      .populate('attendees', 'profileImage')
-      .populate({ path: 'hostel_id', select: 'currency' })
+      .populate('attendees', 'profile_image')
+      .populate({ path: 'hostel_id', select: '_id currency' })
       .lean();
 
     if (!event) return null;
 
+    const hostelCurrency = (event.hostel_id as any)?.currency;
+
     return {
       ...event,
-      attendees: (event.attendees as any[]).map((guest: any) => ({
-        id: guest._id?.toString(),
-        profileImage: guest.profile,
+      currency: hostelCurrency || event.currency,
+      hostel_id: (event.hostel_id as any)?._id || event.hostel_id,
+      attendees: (event.attendees as IEventAttendee[]).map((guest: any) => ({
+        _id: guest._id?.toString(),
+        profile_image: guest.profile_image,
       })),
-      currency: (event.hostel_id as any)?.currency,
-    };
+    } as IEventDocument;
   }
 
-  async findByHostelId(hostelId: string): Promise<IEventDocument[]> {
-    return Event.find({ hostel_id: hostelId }).populate('attendees', 'name email profileImage');
-  }
-
-  async findUpcomingByHostelId(hostelId: string): Promise<IEventListItemDTO[]> {
+  async findUpcomingByHostelId(hostelId: Types.ObjectId): Promise<IEventListItem[]> {
     const events = await Event.find({ hostel_id: hostelId, end_date: { $gte: new Date() } })
       .sort({ start_date: 1 })
       .populate({ path: 'attendees', select: 'profile_image' })
-      .populate({ path: 'hostel_id', select: 'currency' })
+      .populate({ path: 'hostel_id', select: '_id currency' })
       .lean();
     return events.map(event => ({
-      id: event._id.toString(),
+      _id: event._id.toString(),
       name: event.name,
       photos_last_event: event.photos_last_event,
       start_date: event.start_date,
       attendees:
-        (event.attendees as any[])?.map(a => ({
-          profile_image: a.profile_image ?? null,
-          id: a._id.toString(),
+        (event.attendees as IEventAttendee[])?.map(guest => ({
+          profile_image: guest.profile_image,
+          _id: guest._id.toString(),
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
-      currency: (event.hostel_id as any)?.currency ?? null,
+      currency: (event.hostel_id as any)?.currency || event.currency,
       free_entry: event.free_entry,
     }));
   }
@@ -71,10 +78,10 @@ export class EventRepository {
     return Event.findByIdAndDelete(id);
   }
 
-  async deleteByIdAndHostel(eventId: string, hostelId: string): Promise<IEventDocument | null> {
+  async deleteByIdAndCreatedBy(eventId: string, userId: string): Promise<IEventDocument | null> {
     return Event.findOneAndDelete({
       _id: eventId,
-      hostel_id: hostelId,
+      created_by: userId,
     });
   }
 
@@ -82,7 +89,7 @@ export class EventRepository {
     city: string,
     country: string,
     hostelIds: string[]
-  ): Promise<IEventListItemDTO[]> {
+  ): Promise<IEventListItem[]> {
     const query = {
       open_to_public: true,
       end_date: { $gte: new Date() },
@@ -107,20 +114,20 @@ export class EventRepository {
       })
       .sort({ start_date: 1 })
       .populate({ path: 'attendees', select: 'profile_image' })
-      .populate({ path: 'hostel_id', select: 'currency' })
+      .populate({ path: 'hostel_id', select: '_id currency' })
       .lean();
     return events.map(event => ({
-      id: event._id.toString(),
+      _id: event._id.toString(),
       name: event.name,
       photos_last_event: event.photos_last_event,
       start_date: event.start_date,
       attendees:
-        (event.attendees as any[])?.map(a => ({
-          profile_image: a.profile_image ?? null,
-          id: a._id.toString(),
+        (event.attendees as IEventAttendee[])?.map(guest => ({
+          _id: guest._id.toString(),
+          profile_image: guest.profile_image,
         })) ?? [],
       price: event.free_entry ? undefined : event.price,
-      currency: (event.hostel_id as any)?.currency ?? null,
+      currency: (event.hostel_id as any)?.currency || event.currency,
       free_entry: event.free_entry,
     }));
   }

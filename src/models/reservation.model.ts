@@ -1,6 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 
-const ReservationSchema = new mongoose.Schema(
+import { IReservationDocument } from '../interfaces/reservation.interface';
+
+export type IReservationModel = Model<IReservationDocument>;
+
+const ReservationSchema = new Schema<IReservationDocument>(
   {
     status: {
       type: String,
@@ -25,13 +29,6 @@ const ReservationSchema = new mongoose.Schema(
     checkout_date: {
       type: Date,
       required: true,
-      validate: {
-        validator: function (value: Date): boolean {
-          // @ts-ignore
-          return value > this.checkin_date;
-        },
-        message: 'Checkout date must be after checkin date',
-      },
     },
     room: {
       type: String,
@@ -41,10 +38,6 @@ const ReservationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    created_at: {
-      type: Date,
-      default: Date.now,
-    },
     checkout_processed_at: {
       type: Date,
       required: false,
@@ -53,6 +46,6 @@ const ReservationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Reservation = mongoose.model('Reservation', ReservationSchema);
+const Reservation = mongoose.model<IReservationDocument>('Reservation', ReservationSchema);
 
 export default Reservation;

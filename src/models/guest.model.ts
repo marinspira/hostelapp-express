@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
-import type { IGuestDocument } from '../interfaces/guest';
+import type { IGuestDocument } from '../interfaces/guest.interface';
 
 export type IGuestModel = Model<IGuestDocument>;
 
@@ -12,11 +12,7 @@ const GuestSchema = new Schema<IGuestDocument>({
   username: {
     type: String,
   },
-  profile: {
-    type: String,
-    required: true,
-  },
-  guestPhotos: {
+  guest_photos: {
     type: [String],
   },
   phone: {
