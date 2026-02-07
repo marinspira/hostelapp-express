@@ -3,8 +3,6 @@ import { Types } from 'mongoose';
 
 import { HostelService } from '../services/hostel.service.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
 import { UnauthorizedError } from '../utils/errors.ts';
 import type { ICreateHostelResponse, IHostelByIdResponse } from '../interfaces/hostel.interface.ts';
 import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
@@ -18,13 +16,7 @@ export class HostelController {
 
   constructor() {
     const hostelRepository = new HostelRepository();
-    const reservationRepository = new ReservationRepository();
-    const guestRepository = new GuestRepository();
-    this.hostelService = new HostelService(
-      hostelRepository,
-      reservationRepository,
-      guestRepository
-    );
+    this.hostelService = new HostelService(hostelRepository);
   }
 
   async create(req: AuthenticatedRequest): Promise<ICreateHostelResponse> {

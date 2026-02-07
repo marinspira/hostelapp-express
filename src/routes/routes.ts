@@ -97,11 +97,45 @@ const models: TsoaRoute.Models = {
     additionalProperties: true,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IReservationListItemResponse: {
+  ReservationForHost: {
+    dataType: 'refObject',
+    properties: {
+      reservationId: { dataType: 'string', required: true },
+      status: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'enum', enums: ['walking in'] },
+          { dataType: 'enum', enums: ['in house'] },
+          { dataType: 'enum', enums: ['checked out'] },
+        ],
+        required: true,
+      },
+      hostel_id: { dataType: 'string', required: true },
+      guest: {
+        dataType: 'nestedObjectLiteral',
+        nestedProperties: {
+          photo: { dataType: 'string', required: true },
+          phone: { dataType: 'string', required: true },
+          email: { dataType: 'string', required: true },
+          username: { dataType: 'string', required: true },
+          _id: { dataType: 'string', required: true },
+        },
+        required: true,
+      },
+      room: { dataType: 'string', required: true },
+      bed: { dataType: 'string', required: true },
+      checkin_date: { dataType: 'datetime', required: true },
+      checkout_date: { dataType: 'datetime', required: true },
+      checkout_processed_at: { dataType: 'datetime' },
+    },
+    additionalProperties: true,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IReservationsForHostResponse: {
     dataType: 'refObject',
     properties: {
       success: { dataType: 'boolean', required: true },
-      data: { dataType: 'array', array: { dataType: 'refAlias', ref: 'IReservationDocument' } },
+      data: { dataType: 'array', array: { dataType: 'refObject', ref: 'ReservationForHost' } },
       message: { dataType: 'string', required: true },
     },
     additionalProperties: true,
@@ -203,6 +237,16 @@ const models: TsoaRoute.Models = {
         dataType: 'union',
         subSchemas: [{ ref: 'ICurrentStayReservation' }, { dataType: 'enum', enums: [null] }],
       },
+      message: { dataType: 'string', required: true },
+    },
+    additionalProperties: true,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IReservationListItemResponse: {
+    dataType: 'refObject',
+    properties: {
+      success: { dataType: 'boolean', required: true },
+      data: { dataType: 'array', array: { dataType: 'refAlias', ref: 'IReservationDocument' } },
       message: { dataType: 'string', required: true },
     },
     additionalProperties: true,
@@ -386,8 +430,11 @@ const models: TsoaRoute.Models = {
     properties: {
       success: { dataType: 'boolean', required: true },
       data: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'IEventListItem' },
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'array', array: { dataType: 'refObject', ref: 'IEventListItem' } },
+          { dataType: 'enum', enums: [null] },
+        ],
         required: true,
       },
       message: { dataType: 'string', required: true },
@@ -439,41 +486,6 @@ const models: TsoaRoute.Models = {
     additionalProperties: true,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IUserDocument: {
-    dataType: 'refAlias',
-    type: {
-      ref: 'mongoose.FlattenMaps_mongoose.Default__v_mongoose.Require_id_DocType___',
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IVerifyCodeResponse: {
-    dataType: 'refObject',
-    properties: {
-      success: { dataType: 'enum', enums: [true], required: true },
-      data: { ref: 'IUserDocument', required: true },
-      message: { dataType: 'string', required: true },
-    },
-    additionalProperties: true,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IVerifyEmailCodeDTO: {
-    dataType: 'refObject',
-    properties: {
-      email: { dataType: 'string', required: true },
-      code: { dataType: 'string', required: true },
-      role: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'enum', enums: ['guest'] },
-          { dataType: 'enum', enums: ['host'] },
-        ],
-        required: true,
-      },
-    },
-    additionalProperties: true,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IUserDTO: {
     dataType: 'refObject',
     properties: {
@@ -492,6 +504,33 @@ const models: TsoaRoute.Models = {
       },
       subscriptionActive: { dataType: 'boolean' },
       _id: { dataType: 'string', required: true },
+    },
+    additionalProperties: true,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IVerifyCodeResponse: {
+    dataType: 'refObject',
+    properties: {
+      success: { dataType: 'enum', enums: [true], required: true },
+      data: { ref: 'IUserDTO', required: true },
+      message: { dataType: 'string', required: true },
+    },
+    additionalProperties: true,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IVerifyEmailCodeDTO: {
+    dataType: 'refObject',
+    properties: {
+      email: { dataType: 'string', required: true },
+      code: { dataType: 'string', required: true },
+      role: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'enum', enums: ['guest'] },
+          { dataType: 'enum', enums: ['host'] },
+        ],
+        required: true,
+      },
     },
     additionalProperties: true,
   },
