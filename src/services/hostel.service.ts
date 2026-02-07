@@ -16,9 +16,7 @@ import countries from '../utils/coutries.js';
 export class HostelService {
   private hostelRepo: HostelRepository;
 
-  constructor(
-    hostelRepository: HostelRepository,
-  ) {
+  constructor(hostelRepository: HostelRepository) {
     this.hostelRepo = hostelRepository;
   }
 
