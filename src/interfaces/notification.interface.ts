@@ -3,8 +3,13 @@ import { Types } from 'mongoose';
 
 import { BackendResponse } from './index.interface.ts';
 
+export interface IRecipient {
+  userId: Types.ObjectId;
+  read: boolean;
+}
+
 export default interface INotification {
-  recipients: Types.ObjectId[];
+  recipients: IRecipient[];
   type:
     | 'reservation_created'
     | 'reservation_cancelled'
@@ -14,7 +19,20 @@ export default interface INotification {
   title: string;
   message: string;
   data?: Record<string, unknown>;
-  read?: boolean;
+}
+
+export interface INotificationDTO {
+  recipient: Types.ObjectId;
+  read: boolean;
+  type:
+    | 'reservation_created'
+    | 'reservation_cancelled'
+    | 'guest_checkedout'
+    | 'event_created'
+    | 'message_received';
+  title: string;
+  message: string;
+  data?: Record<string, unknown>;
 }
 
 export interface INotificationDocument extends INotification, Document {
@@ -24,7 +42,7 @@ export interface INotificationDocument extends INotification, Document {
 
 export interface ICreateNotificationResponse extends BackendResponse<INotificationDocument> {}
 
-export interface INotificationListItemResponse extends BackendResponse<INotificationDocument[]> {}
+export interface INotificationListItemResponse extends BackendResponse<INotificationDTO[]> {}
 
 export interface INotificationByIdResponse extends BackendResponse<INotificationDocument> {}
 
@@ -36,6 +54,8 @@ export interface INotificationCreateReservationData {
   bed?: string;
   guestId?: string;
   hostelId?: string;
+  guest_name?: string;
+  hostel_name?: string;
   checkin_date?: Date;
   checkout_date?: Date;
 }

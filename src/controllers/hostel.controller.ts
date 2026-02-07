@@ -1,4 +1,6 @@
 import { Route, Request, Get, Delete, Tags, Security, Path } from 'tsoa';
+import { Types } from 'mongoose';
+
 import { HostelService } from '../services/hostel.service.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
@@ -12,7 +14,6 @@ import type {
 import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import { Types } from 'mongoose';
 
 @Route('/api/hostels')
 @Tags('Hostels')

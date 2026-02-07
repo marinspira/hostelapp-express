@@ -1,4 +1,5 @@
 import { Controller, Route, Get, Put, Delete, Path, Query, Request, Security, Tags } from 'tsoa';
+
 import { NotificationService } from '../services/notification.service.ts';
 import { NotificationRepository } from '../repositories/notification.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';

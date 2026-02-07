@@ -1,4 +1,5 @@
 import { Delete, Get, Post, Route, Request, Path, Put, Body, Tags, Security } from 'tsoa';
+
 import { ReservationService } from '../services/reservation.service.ts';
 import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
@@ -158,9 +159,7 @@ export class GuestReservationController {
 
   @Get('current-stay')
   @Security('jwt')
-  async getCurrentReservation(
-    @Request() req: AuthenticatedRequest
-  ): Promise<ICurrentStayResponse> {
+  async getCurrentReservation(@Request() req: AuthenticatedRequest): Promise<ICurrentStayResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');
@@ -180,7 +179,9 @@ export class GuestReservationController {
     }
 
     if (user.role !== 'guest') {
-      throw new UnauthorizedError('Only users signed up with guest role can view reservation history');
+      throw new UnauthorizedError(
+        'Only users signed up with guest role can view reservation history'
+      );
     }
 
     return this.reservationService.getGuestReservationHistory(user._id);

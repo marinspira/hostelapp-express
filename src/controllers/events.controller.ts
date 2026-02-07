@@ -1,5 +1,6 @@
 import { Post, Route, Request, Path, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
+
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { EventService } from '../services/event.service.ts';
@@ -114,7 +115,6 @@ export class GuestEventsController {
     const hostelRepository = new HostelRepository();
     const guestRepository = new GuestRepository();
     this.eventService = new EventService(eventRepository, guestRepository, hostelRepository);
-
   }
 
   @Get('current-stay')
@@ -135,7 +135,6 @@ export class GuestEventsController {
     @Path() city: string,
     @Path() country: string
   ): Promise<IEventListItemResponse> {
-    console.log(`Received request to list public events for city: ${city}, country: ${country}`);
     return this.eventService.listPublicEvents(city, country);
   }
 

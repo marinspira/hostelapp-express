@@ -66,11 +66,7 @@ export class HostelRepository {
   ): Promise<boolean> {
     const hostel = await Hostel.findOne({
       _id: hostelId,
-      $or: [
-        { user_id_owners: userId },
-        { user_id_guests: userId },
-        { user_id_staffs: userId }
-      ]
+      $or: [{ user_id_owners: userId }, { user_id_guests: userId }, { user_id_staffs: userId }],
     });
     return !!hostel;
   }

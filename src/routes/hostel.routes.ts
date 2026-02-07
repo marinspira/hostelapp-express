@@ -1,4 +1,5 @@
 import express from 'express';
+
 // @ts-ignore
 import protectRoute from '../middleware/protectRoute.js';
 // @ts-ignore

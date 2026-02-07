@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+
 import type {
   ICreateHostelResponse,
   IHostelByIdResponse,

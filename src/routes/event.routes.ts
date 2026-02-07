@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { EventsController } from '../controllers/events.controller.ts';
 // @ts-ignore
 import protectRoute from '../middleware/protectRoute.js';

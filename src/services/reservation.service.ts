@@ -1,4 +1,5 @@
 import mongoose, { Types } from 'mongoose';
+
 import type {
   IReservationDocument,
   ICreateReservationResponse,
@@ -15,6 +16,7 @@ import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { BackendResponse } from '../interfaces/index.interface.ts';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../utils/errors.ts';
+
 import { NotificationService } from './notification.service.ts';
 
 export class ReservationService {
@@ -132,7 +134,7 @@ export class ReservationService {
       const recipients = [userIdGuest, ...ownerIds];
 
       await this.notificationService.createNotification({
-        recipients: recipients,
+        recipients: recipients.map(userId => ({ userId, read: false })),
         type: 'reservation_created',
         title: 'New Reservation Created',
         message: `A new reservation has been created at ${hostel.name} for room ${data.room}, bed ${data.bed} from ${new Date(
@@ -142,6 +144,8 @@ export class ReservationService {
           reservationId: reservation._id,
           hostelId: hostel._id,
           guestId: userIdGuest,
+          guest_name: guest.name,
+          hostel_name: hostel.name,
           room: data.room,
           bed: data.bed,
           checkin_date: data.checkin_date,
@@ -381,7 +385,7 @@ export class ReservationService {
         const recipients = [guestUserId, ...ownerIds];
 
         await this.notificationService.createNotification({
-          recipients: recipients,
+          recipients: recipients.map(userId => ({ userId, read: false })),
           type: 'guest_checkedout',
           title: 'Guest Checked Out',
           message: `Guest has checked out from room ${reservation.room}, bed ${reservation.bed}.`,
@@ -418,7 +422,7 @@ export class ReservationService {
 
   async getCurrentGuestReservation(guestUserId: Types.ObjectId): Promise<ICurrentStayResponse> {
     const reservation = await this.reservationRepo.findCurrentStayByGuestId(guestUserId);
-    
+
     if (!reservation) {
       return {
         success: true,
@@ -428,10 +432,12 @@ export class ReservationService {
     }
 
     const hostel = await this.hostelRepo.findById(reservation.hostel_id);
-    
+
     const checkoutDate = new Date(reservation.checkout_date);
     const currentDate = new Date();
-    const daysRemaining = Math.ceil((checkoutDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24));
+    const daysRemaining = Math.ceil(
+      (checkoutDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24)
+    );
 
     const transformedData = {
       reservationId: reservation._id.toString(),

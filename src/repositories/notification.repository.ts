@@ -2,18 +2,35 @@ import { Types } from 'mongoose';
 
 import Notification from '../models/notification.model';
 import type INotification from '../interfaces/notification.interface.ts';
-import type { INotificationDocument } from '../interfaces/notification.interface.ts';
+import type {
+  INotificationDocument,
+  INotificationDTO,
+} from '../interfaces/notification.interface.ts';
 
 export class NotificationRepository {
   create(data: INotification): Promise<INotificationDocument> {
     return Notification.create(data);
   }
 
-  findByUserId(userId: Types.ObjectId): Promise<INotificationDocument[]> {
-    return Notification.find({ recipients: { $elemMatch: { user: userId } } })
+  async findByUserId(userId: Types.ObjectId): Promise<INotificationDTO[]> {
+    const notifications = await Notification.find({ 'recipients.userId': userId })
       .sort({ createdAt: -1 })
       .limit(50)
-      .exec() as Promise<INotificationDocument[]>;
+      .exec();
+
+    return notifications.map((notification: INotificationDocument) => {
+      const recipient = notification.recipients.find((r: any) => r.userId.equals(userId));
+      return {
+        _id: notification._id,
+        message: notification.message,
+        data: notification.data,
+        type: notification.type,
+        title: notification.title,
+        createdAt: notification.createdAt,
+        recipient: recipient?.userId,
+        read: recipient?.read,
+      } as INotificationDTO;
+    });
   }
 
   findById(id: string): Promise<INotificationDocument | null> {
@@ -23,29 +40,48 @@ export class NotificationRepository {
   markAsRead(id: string): Promise<INotificationDocument | null> {
     return Notification.findByIdAndUpdate(
       id,
-      { read: true },
+      { $set: { 'recipients.$.read': true } },
+      { new: true }
+    ).exec() as Promise<INotificationDocument | null>;
+  }
+
+  markAsReadForUser(
+    notificationId: string,
+    userId: Types.ObjectId
+  ): Promise<INotificationDocument | null> {
+    return Notification.findOneAndUpdate(
+      { _id: notificationId, 'recipients.userId': userId },
+      { $set: { 'recipients.$.read': true } },
       { new: true }
     ).exec() as Promise<INotificationDocument | null>;
   }
 
   markAllAsReadForUser(userId: Types.ObjectId): Promise<any> {
-    return Notification.updateMany({ recipient: { user: userId }, read: false }, { read: true });
+    return Notification.updateMany(
+      { 'recipients.userId': userId },
+      { $set: { 'recipients.$.read': true } }
+    );
   }
 
-  getUnreadCountForUser(userId: Types.ObjectId): Promise<number> {
-    return Notification.countDocuments({
-      recipient: { user: userId },
-      read: false,
-    });
+  async getUnreadCountForUser(userId: Types.ObjectId): Promise<number> {
+    const result = await Notification.aggregate([
+      { $match: { 'recipients.userId': userId } },
+      { $unwind: '$recipients' },
+      { $match: { 'recipients.userId': userId, 'recipients.read': false } },
+      { $count: 'unreadCount' },
+    ]);
+
+    return result.length > 0 ? result[0].unreadCount : 0;
   }
 
   deleteOldNotifications(): Promise<any> {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+    // Delete notifications that are old and ALL recipients have read them
     return Notification.deleteMany({
       createdAt: { $lt: thirtyDaysAgo },
-      read: true,
+      'recipients.read': { $not: { $elemMatch: { $eq: false } } },
     });
   }
 }

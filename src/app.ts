@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { URL } from 'url';
+
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -9,6 +10,7 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+
 import eventRoutes from './routes/event.routes.ts';
 // @ts-ignore
 import errorHandler from './middleware/errorHandler.js';
