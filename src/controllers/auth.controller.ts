@@ -1,9 +1,6 @@
 import { Route, Post, Body, Request, SuccessResponse, Security, Tags } from 'tsoa';
-
 import { AuthService } from '../services/auth.service.ts';
 import { AuthRepository } from '../repositories/auth.repository.ts';
-// @ts-ignore
-import generateTokenAndSetCookie from '../utils/generateToken.js';
 import type { AuthenticatedRequest } from '../interfaces/index.interface.ts';
 import type {
   IsAuthenticatedResponse,

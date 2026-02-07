@@ -10,6 +10,7 @@ import type {
   IOthersGuestsListResponse,
   IOtherGuest,
   ICurrentStayResponse,
+  IReservationsForHostResponse,
 } from '../interfaces/reservation.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
@@ -163,17 +164,49 @@ export class ReservationService {
     };
   }
 
-  async getHostelReservations(ownerId: string): Promise<IReservationListItemResponse> {
+  async getHostelReservations(ownerId: string): Promise<IReservationsForHostResponse> {
     const hostel = await this.hostelRepo.findByOwner(ownerId);
     if (!hostel) {
       throw new NotFoundError('Hostel not found for this user');
     }
 
     const reservations = await this.reservationRepo.findByHostelId(hostel._id.toString());
+
+    const reservationsWithGuestInfo = await Promise.all(
+      reservations.map(async reservation => {
+        const guest = await this.guestRepo.findByUserId(reservation.user_id_guest);
+        const user = guest ? await this.guestRepo.findUserByGuestId(guest._id) : null;
+
+        if (!guest || !user) {
+          console.warn(
+            `Warning: Guest or user information missing for reservation ${reservation._id.toString()}`
+          );
+        }
+
+        return {
+          reservationId: reservation._id.toString(),
+          status: reservation.status,
+          hostel_id: reservation.hostel_id.toString(),
+          guest: {
+            _id: guest ? guest._id.toString() : '',
+            username: guest ? guest.name : '',
+            email: user && user.email ? user.email : '',
+            phone: guest && guest.phone ? guest.phone : '',
+            photo: guest && guest.guest_photos && guest.guest_photos[0] ? guest.guest_photos[0] : '',
+          },
+          room: reservation.room,
+          bed: reservation.bed,
+          checkin_date: reservation.checkin_date,
+          checkout_date: reservation.checkout_date,
+          checkout_processed_at: reservation.checkout_processed_at,
+        };
+      })
+    );
+
     return {
       success: true,
       message: 'Reservations retrieved successfully',
-      data: reservations,
+      data: reservationsWithGuestInfo,
     };
   }
 

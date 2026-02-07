@@ -13,6 +13,24 @@ export interface IReservation {
   checkout_processed_at?: Date;
 }
 
+export interface ReservationForHost {
+  reservationId: string;
+  status: 'walking in' | 'in house' | 'checked out';
+  hostel_id: string;
+  guest: {
+    _id: string;
+    username: string;
+    email: string;
+    phone: string;
+    photo: string;
+  };
+  room: string;
+  bed: string;
+  checkin_date: Date;
+  checkout_date: Date;
+  checkout_processed_at?: Date;
+}
+
 export interface IReservationCreateRequest {
   user_id_guest: string;
   room: string;
@@ -68,6 +86,8 @@ export interface ICurrentStayReservation {
 export interface IOthersGuestsListResponse extends BackendResponse<IOtherGuest[]> {}
 
 export interface ICreateReservationResponse extends BackendResponse<IReservationDocument> {}
+
+export interface IReservationsForHostResponse extends BackendResponse<ReservationForHost[]> {}
 
 export interface IReservationListItemResponse extends BackendResponse<IReservationDocument[]> {}
 

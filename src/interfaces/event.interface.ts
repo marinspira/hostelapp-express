@@ -10,8 +10,8 @@ export interface IEventResponse extends BackendResponse<IEventDocument> {
   data: IEventDocument;
 }
 
-export interface IEventListItemResponse extends BackendResponse<IEventListItem[]> {
-  data: IEventListItem[];
+export interface IEventListItemResponse extends BackendResponse<IEventListItem[] | null> {
+  data: IEventListItem[] | null;
 }
 
 export interface ICreateEventRequest extends AuthenticatedRequest {

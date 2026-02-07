@@ -1,5 +1,4 @@
 import { Delete, Get, Post, Route, Request, Path, Put, Body, Tags, Security } from 'tsoa';
-
 import { ReservationService } from '../services/reservation.service.ts';
 import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
 import { ReservationRepository } from '../repositories/reservation.repository.ts';
@@ -16,6 +15,7 @@ import type {
   IReservation,
   IOthersGuestsListResponse,
   ICurrentStayResponse,
+  IReservationsForHostResponse,
 } from '../interfaces/reservation.interface.ts';
 
 @Route('/api/reservations')
@@ -61,7 +61,7 @@ export class ReservationController {
 
   @Get('/current-guests')
   @Security('jwt')
-  async list(@Request() req: AuthenticatedRequest): Promise<IReservationListItemResponse> {
+  async list(@Request() req: AuthenticatedRequest): Promise<IReservationsForHostResponse> {
     const user = req.user;
     if (!user?._id) {
       throw new UnauthorizedError('User not authenticated');

@@ -110,7 +110,7 @@ export class EventService {
     const events = await this.eventRepo.findUpcomingByHostelId(hostelId);
 
     if (!events || events.length === 0) {
-      throw new NotFoundError('No upcoming events found for the hostel');
+      return { success: true, message: 'No upcoming events found for this hostel', data: [] };
     }
     return { success: true, message: 'Events retrieved successfully', data: events };
   }

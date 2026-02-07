@@ -4,6 +4,7 @@ import { IGuestDocument, IGuest } from '../interfaces/guest.interface';
 import Guest from '../models/guest.model';
 import User from '../models/user.model';
 import Reservation from '../models/reservation.model';
+import { Type } from 'typescript';
 
 export class GuestRepository {
   async findById(guestId: Types.ObjectId | string): Promise<IGuestDocument | null> {
@@ -24,6 +25,14 @@ export class GuestRepository {
       new: true,
       runValidators: true,
     });
+  }
+
+  async findUserByGuestId(guestId: Types.ObjectId): Promise<any> {
+    const guest = await Guest.findById(guestId).populate('user');
+    if (guest && typeof guest.user === 'object' && 'email' in guest.user) {
+      return guest.user;
+    }
+    return null;
   }
 
   async removeReservation(guestId: string | Types.ObjectId, reservationId: string): Promise<void> {

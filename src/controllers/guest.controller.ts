@@ -1,17 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-
-import { Post, Route, Request, Get, Delete, Path, Consumes, Tags, Security } from 'tsoa';
-
+import { Route, Request, Get, Delete, Path, Tags, Security } from 'tsoa';
 import { GuestService } from '../services/guest.service.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { UnauthorizedError } from '../utils/errors.ts';
 import type {
   IGuestByIdResponse,
-  IGuest,
-  IGuestCurrentStayResponse,
   IGuestDocument,
   ICreateGuestRequest,
   IGuestResponse,

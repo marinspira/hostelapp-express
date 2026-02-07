@@ -1,6 +1,5 @@
 import { Post, Route, Request, Path, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
-
 import { EventRepository } from '../repositories/event.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { EventService } from '../services/event.service.ts';

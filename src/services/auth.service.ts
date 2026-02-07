@@ -19,6 +19,7 @@ import {
   IsAuthenticatedResponse,
   ISendCodeResponse,
   IUserDocument,
+  IUserDTO,
   IVerifyCodeResponse,
 } from '../interfaces/auth.interface.ts';
 
@@ -111,8 +112,16 @@ export class AuthService {
     user.sessionToken = sessionToken;
     await user.save();
 
+    const responseData: IUserDTO = {
+      _id: (user._id as Types.ObjectId).toString() as string,
+      name: user.name,
+      role: user.role,
+      email: user.email,
+      isNewUser,
+    };
+
     return {
-      data: user,
+      data: responseData,
       message: isNewUser ? 'New user created' : 'User logged in',
       success: true,
     };

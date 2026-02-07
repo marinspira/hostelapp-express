@@ -18,10 +18,10 @@ export interface IVerifyEmailCodeDTO {
   role: 'guest' | 'host';
 }
 
-export interface IVerifyCodeResponse extends BackendResponse<IUserDocument> {
+export interface IVerifyCodeResponse extends BackendResponse<IUserDTO> {
   success: true;
   message: string;
-  data: IUserDocument;
+  data: IUserDTO;
 }
 
 export interface IsAuthenticatedResponse extends BackendResponse<IUserDTO> {

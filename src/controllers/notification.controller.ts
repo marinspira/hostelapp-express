@@ -1,12 +1,10 @@
-import { Controller, Route, Get, Put, Delete, Path, Query, Request, Security, Tags } from 'tsoa';
-
+import { Controller, Route, Get, Put, Request, Security, Tags } from 'tsoa';
 import { NotificationService } from '../services/notification.service.ts';
 import { NotificationRepository } from '../repositories/notification.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import type {
   INotificationListItemResponse,
-  INotificationByIdResponse,
   IUnreadCountResponse,
 } from '../interfaces/notification.interface.ts';
 import type { BackendResponse, AuthenticatedRequest } from '../interfaces/index.interface.ts';
