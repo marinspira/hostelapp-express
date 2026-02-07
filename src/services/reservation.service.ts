@@ -104,7 +104,11 @@ export class ReservationService {
       throw new BadRequestError('Check-out date must be after check-in date');
     }
 
-    if (new Date(data.checkin_date) < new Date()) {
+    // Compare only the date part (not time) to avoid issues with same-day bookings
+    const checkinDateOnly = new Date(data.checkin_date).toDateString();
+    const currentDateOnly = new Date().toDateString();
+    
+    if (new Date(checkinDateOnly) < new Date(currentDateOnly)) {
       throw new BadRequestError('Check-in date cannot be in the past');
     }
 
@@ -304,8 +308,14 @@ export class ReservationService {
       throw new BadRequestError('Check-out date must be after check-in date');
     }
 
-    if (updateData.checkin_date && checkinDate < new Date()) {
-      throw new BadRequestError('Check-in date cannot be in the past');
+    // Compare only the date part (not time) to avoid issues with same-day bookings
+    if (updateData.checkin_date) {
+      const checkinDateOnly = new Date(updateData.checkin_date).toDateString();
+      const currentDateOnly = new Date().toDateString();
+      
+      if (new Date(checkinDateOnly) < new Date(currentDateOnly)) {
+        throw new BadRequestError('Check-in date cannot be in the past');
+      }
     }
 
     // Check if the specific room/bed combination is already reserved for overlapping dates

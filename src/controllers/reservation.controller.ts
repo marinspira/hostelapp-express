@@ -56,6 +56,8 @@ export class ReservationController {
       throw new UnauthorizedError('Only users signed up with host role can create reservations');
     }
 
+    console.log('Creating reservation with data:', reservationData, 'for user:', user._id);
+
     return this.reservationService.create(reservationData, user._id);
   }
 
