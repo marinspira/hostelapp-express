@@ -107,7 +107,7 @@ export class ReservationService {
     // Compare only the date part (not time) to avoid issues with same-day bookings
     const checkinDateOnly = new Date(data.checkin_date).toDateString();
     const currentDateOnly = new Date().toDateString();
-    
+
     if (new Date(checkinDateOnly) < new Date(currentDateOnly)) {
       throw new BadRequestError('Check-in date cannot be in the past');
     }
@@ -196,7 +196,8 @@ export class ReservationService {
             username: guest ? guest.name : '',
             email: user && user.email ? user.email : '',
             phone: guest && guest.phone ? guest.phone : '',
-            photo: guest && guest.guest_photos && guest.guest_photos[0] ? guest.guest_photos[0] : '',
+            photo:
+              guest && guest.guest_photos && guest.guest_photos[0] ? guest.guest_photos[0] : '',
           },
           room: reservation.room,
           bed: reservation.bed,
@@ -312,7 +313,7 @@ export class ReservationService {
     if (updateData.checkin_date) {
       const checkinDateOnly = new Date(updateData.checkin_date).toDateString();
       const currentDateOnly = new Date().toDateString();
-      
+
       if (new Date(checkinDateOnly) < new Date(currentDateOnly)) {
         throw new BadRequestError('Check-in date cannot be in the past');
       }

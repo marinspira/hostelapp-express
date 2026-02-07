@@ -1,4 +1,5 @@
 import { Route, Post, Body, Request, SuccessResponse, Security, Tags } from 'tsoa';
+
 import { AuthService } from '../services/auth.service.ts';
 import { AuthRepository } from '../repositories/auth.repository.ts';
 import type { AuthenticatedRequest } from '../interfaces/index.interface.ts';

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import nodemailer from 'nodemailer';
 
 import User from '../models/user.model.ts';

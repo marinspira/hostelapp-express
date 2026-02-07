@@ -4,7 +4,6 @@ import { IGuestDocument, IGuest } from '../interfaces/guest.interface';
 import Guest from '../models/guest.model';
 import User from '../models/user.model';
 import Reservation from '../models/reservation.model';
-import { Type } from 'typescript';
 
 export class GuestRepository {
   async findById(guestId: Types.ObjectId | string): Promise<IGuestDocument | null> {

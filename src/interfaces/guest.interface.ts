@@ -34,7 +34,7 @@ export interface ICreateGuestRequest extends AuthenticatedRequest {
   body: {
     guest: string;
   };
-  files: Express.Multer.File[];
+  files: Express.Multer.File[]; // eslint-disable-line no-undef
   user: IUserDocument;
 }
 

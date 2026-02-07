@@ -3,34 +3,23 @@ import { Types } from 'mongoose';
 import type {
   ICreateHostelResponse,
   IHostelByIdResponse,
-  IGuestListResponse,
   IHostel,
 } from '../interfaces/hostel.interface.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
 import { BackendResponse } from '../interfaces/index.interface.ts';
 import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 // @ts-ignore
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 // @ts-ignore
 import countries from '../utils/coutries.js';
-import { IReservationDocument } from '../interfaces/reservation.interface.ts';
-import { IGuest } from '../interfaces/guest.interface.ts';
 
 export class HostelService {
   private hostelRepo: HostelRepository;
-  private reservationRepo: ReservationRepository;
-  private guestRepo: GuestRepository;
 
   constructor(
     hostelRepository: HostelRepository,
-    reservationRepository: ReservationRepository,
-    guestRepository: GuestRepository
   ) {
     this.hostelRepo = hostelRepository;
-    this.reservationRepo = reservationRepository;
-    this.guestRepo = guestRepository;
   }
 
   async getById(hostelId: Types.ObjectId, userId: Types.ObjectId): Promise<IHostelByIdResponse> {

@@ -7,7 +7,6 @@ import protectRoute from '../middleware/protectRoute.js';
 // @ts-ignore
 import { upload } from '../middleware/saveUploads.js';
 // @ts-ignore
-import catchAsync from '../utils/catchAsync.js';
 
 const router = express.Router();
 const guestController = new GuestController();

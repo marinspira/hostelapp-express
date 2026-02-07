@@ -8,7 +8,6 @@ import type {
 } from '../interfaces/guest.interface.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
 import { BackendResponse } from '../interfaces/index.interface.ts';
 import { BadRequestError, NotFoundError } from '../utils/errors.ts';
 // @ts-ignore

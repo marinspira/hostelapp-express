@@ -3,7 +3,6 @@ import { Types } from 'mongoose';
 import type {
   ICreateNotificationResponse,
   INotificationListItemResponse,
-  INotificationByIdResponse,
   IUnreadCountResponse,
 } from '../interfaces/notification.interface.ts';
 import INotification from '../interfaces/notification.interface.ts';
@@ -11,7 +10,6 @@ import { NotificationRepository } from '../repositories/notification.repository.
 import { HostelRepository } from '../repositories/hostel.repository.ts';
 import { GuestRepository } from '../repositories/guest.repository.ts';
 import { BackendResponse } from '../interfaces/index.interface.ts';
-import { NotFoundError } from '../utils/errors.ts';
 
 export class NotificationService {
   private notificationRepo: NotificationRepository;
