@@ -3,21 +3,21 @@ import path from 'path';
 
 import { Route, Request, Get, Delete, Path, Tags, Security } from 'tsoa';
 
-import { GuestService } from '../services/guest.service.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { UnauthorizedError } from '../utils/errors.ts';
+import { GuestService } from '../services/guest.service';
+import { GuestRepository } from '../repositories/guest.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { UnauthorizedError } from '../utils/errors';
 import type {
   IGuestByIdResponse,
   IGuestDocument,
   ICreateGuestRequest,
   IGuestResponse,
-} from '../interfaces/guest.interface.ts';
+} from '../interfaces/guest.interface';
 import type {
   AuthenticatedRequest,
   BackendResponse,
   UploadedFile,
-} from '../interfaces/index.interface.ts';
+} from '../interfaces/index.interface';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 

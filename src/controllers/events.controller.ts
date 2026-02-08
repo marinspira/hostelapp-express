@@ -1,25 +1,25 @@
 import { Post, Route, Request, Path, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
 
-import { EventRepository } from '../repositories/event.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { EventService } from '../services/event.service.ts';
+import { EventRepository } from '../repositories/event.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { EventService } from '../services/event.service';
 import type {
   ICreateEventRequest,
   IEventResponse,
   IEvent,
   IEventListItemResponse,
   GetEventByIdResponse,
-} from '../interfaces/event.interface.ts';
-import { UnauthorizedError } from '../utils/errors.ts';
+} from '../interfaces/event.interface';
+import { UnauthorizedError } from '../utils/errors';
 import type {
   AuthenticatedRequest,
   BackendResponse,
   UploadedFile,
-} from '../interfaces/index.interface.ts';
+} from '../interfaces/index.interface';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
-import { GuestRepository } from '../repositories/guest.repository.ts';
+import { GuestRepository } from '../repositories/guest.repository';
 
 @Route('/api/events')
 @Tags('Events')

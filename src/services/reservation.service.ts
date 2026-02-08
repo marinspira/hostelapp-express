@@ -11,14 +11,14 @@ import type {
   IOtherGuest,
   ICurrentStayResponse,
   IReservationsForHostResponse,
-} from '../interfaces/reservation.interface.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
-import { BackendResponse } from '../interfaces/index.interface.ts';
-import { BadRequestError, NotFoundError, UnauthorizedError } from '../utils/errors.ts';
+} from '../interfaces/reservation.interface';
+import { ReservationRepository } from '../repositories/reservation.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { GuestRepository } from '../repositories/guest.repository';
+import { BackendResponse } from '../interfaces/index.interface';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../utils/errors';
 
-import { NotificationService } from './notification.service.ts';
+import { NotificationService } from './notification.service';
 
 export class ReservationService {
   private notificationService: NotificationService;

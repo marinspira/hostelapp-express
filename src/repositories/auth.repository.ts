@@ -1,4 +1,4 @@
-import EmailCode from '../models/auth.model.ts';
+import EmailCode from '../models/auth.model';
 
 export class AuthRepository {
   async upsertCode(email: string, codeHash: string, expiresAt: Date) {

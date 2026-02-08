@@ -1,7 +1,7 @@
 import mongoose, { Document, Types } from 'mongoose';
 
-import { AuthenticatedRequest, BackendResponse } from './index.interface.ts';
-import { IUserDocument } from './auth.interface.ts';
+import { AuthenticatedRequest, BackendResponse } from './index.interface';
+import { IUserDocument } from './auth.interface';
 
 export interface IGuest {
   name: string;

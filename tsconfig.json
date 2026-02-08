@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
     "outDir": "./dist",
     "rootDir": "./",
     "strict": true,
@@ -36,12 +37,10 @@
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "jest.config.mjs"],
   "exclude": ["node_modules", "dist", "logs", "uploads"],
   "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node",
     "transpileOnly": true,
     "files": true,
     "compilerOptions": {
-      "module": "ESNext",
+      "module": "CommonJS",
       "target": "ES2020"
     }
   }

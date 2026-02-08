@@ -1,6 +1,6 @@
 import { Document, Types } from 'mongoose';
 
-import { BackendResponse } from './index.interface.ts';
+import { BackendResponse } from './index.interface';
 
 export type HostelStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 

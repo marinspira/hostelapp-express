@@ -1,8 +1,8 @@
 import { Route, Post, Body, Request, SuccessResponse, Security, Tags } from 'tsoa';
 
-import { AuthService } from '../services/auth.service.ts';
-import { AuthRepository } from '../repositories/auth.repository.ts';
-import type { AuthenticatedRequest } from '../interfaces/index.interface.ts';
+import { AuthService } from '../services/auth.service';
+import { AuthRepository } from '../repositories/auth.repository';
+import type { AuthenticatedRequest } from '../interfaces/index.interface';
 import type {
   IsAuthenticatedResponse,
   ILogoutResponse,
@@ -10,7 +10,7 @@ import type {
   ISendEmailCodeDTO,
   IVerifyCodeResponse,
   IVerifyEmailCodeDTO,
-} from '../interfaces/auth.interface.ts';
+} from '../interfaces/auth.interface';
 
 interface IAuthController {
   sendEmailCode(_body: ISendEmailCodeDTO): Promise<ISendCodeResponse>;

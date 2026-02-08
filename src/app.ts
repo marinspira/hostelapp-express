@@ -1,7 +1,8 @@
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { URL } from 'url';
+// __dirname is available in CommonJS, removing imports not needed for CommonJS
+// import { fileURLToPath } from 'url';
+// import { URL } from 'url';
 
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
@@ -11,20 +12,18 @@ import swaggerUi from 'swagger-ui-express';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
-import eventRoutes from './routes/event.routes.ts';
+import eventRoutes from './routes/event.routes';
 // @ts-ignore
 import errorHandler from './middleware/errorHandler.js';
-import { RegisterRoutes } from './routes/routes.ts';
-import guestRoutes from './routes/guest.routes.ts';
-import hostelRoutes from './routes/hostel.routes.ts';
+import { RegisterRoutes } from './routes/routes';
+import guestRoutes from './routes/guest.routes';
+import hostelRoutes from './routes/hostel.routes';
 
 const app = express();
 dotenv.config();
 
-// Define __dirname manualmente
-const __filename = fileURLToPath(import.meta.url);
-const srcDir = path.dirname(__filename);
-export const __dirname = path.dirname(srcDir);
+// __dirname is available globally in CommonJS
+export { __dirname };
 
 // Middlewares
 app.use(cors());
@@ -33,11 +32,20 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
-// Swagger route
-const openApiSpec = JSON.parse(
-  fs.readFileSync(new URL('./docs/swagger.json', import.meta.url), 'utf-8')
-);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+// Swagger route - only in development
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    const openApiSpec = JSON.parse(
+      fs.readFileSync(path.join(__dirname, './docs/swagger.json'), 'utf-8')
+    );
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+  } catch (error) {
+    console.warn(
+      'Swagger documentation not available:',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
+  }
+}
 
 // Routes
 app.use('/api/events', eventRoutes);

@@ -1,15 +1,15 @@
 import { Controller, Route, Get, Put, Request, Security, Tags } from 'tsoa';
 
-import { NotificationService } from '../services/notification.service.ts';
-import { NotificationRepository } from '../repositories/notification.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
+import { NotificationService } from '../services/notification.service';
+import { NotificationRepository } from '../repositories/notification.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { GuestRepository } from '../repositories/guest.repository';
 import type {
   INotificationListItemResponse,
   IUnreadCountResponse,
-} from '../interfaces/notification.interface.ts';
-import type { BackendResponse, AuthenticatedRequest } from '../interfaces/index.interface.ts';
-import { UnauthorizedError } from '../utils/errors.ts';
+} from '../interfaces/notification.interface';
+import type { BackendResponse, AuthenticatedRequest } from '../interfaces/index.interface';
+import { UnauthorizedError } from '../utils/errors';
 
 @Route('/api/notifications')
 @Tags('Notifications')

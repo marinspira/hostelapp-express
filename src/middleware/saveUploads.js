@@ -3,13 +3,13 @@ import fs from 'fs';
 
 import multer from 'multer';
 
-import { __dirname } from '../app.ts';
+const projectRoot = process.cwd();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const userId = req.user._id;
     const user = userId.toString();
-    const uploadDir = path.join(__dirname, 'uploads', 'users', user);
+    const uploadDir = path.join(projectRoot, 'uploads', 'users', user);
 
     fs.mkdirSync(uploadDir, { recursive: true });
 

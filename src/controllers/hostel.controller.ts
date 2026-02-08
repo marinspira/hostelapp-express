@@ -1,11 +1,11 @@
 import { Route, Request, Get, Delete, Tags, Security } from 'tsoa';
 import { Types } from 'mongoose';
 
-import { HostelService } from '../services/hostel.service.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { UnauthorizedError } from '../utils/errors.ts';
-import type { ICreateHostelResponse, IHostelByIdResponse } from '../interfaces/hostel.interface.ts';
-import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
+import { HostelService } from '../services/hostel.service';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { UnauthorizedError } from '../utils/errors';
+import type { ICreateHostelResponse, IHostelByIdResponse } from '../interfaces/hostel.interface';
+import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface';
 // @ts-ignore
 import { getRelativeFilePath } from '../middleware/saveUploads.js';
 

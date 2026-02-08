@@ -4,10 +4,10 @@ import type {
   ICreateHostelResponse,
   IHostelByIdResponse,
   IHostel,
-} from '../interfaces/hostel.interface.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { BackendResponse } from '../interfaces/index.interface.ts';
-import { BadRequestError, NotFoundError } from '../utils/errors.ts';
+} from '../interfaces/hostel.interface';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { BackendResponse } from '../interfaces/index.interface';
+import { BadRequestError, NotFoundError } from '../utils/errors';
 // @ts-ignore
 import generateUniqueUsername from '../utils/generateUniqueUsername.js';
 // @ts-ignore

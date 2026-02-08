@@ -1,18 +1,18 @@
 import { Types } from 'mongoose';
 
-import { EventRepository } from '../repositories/event.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
+import { EventRepository } from '../repositories/event.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
 import type {
   GetEventByIdResponse,
   IEventResponse,
   IEvent,
   IEventDocument,
   IEventListItemResponse,
-} from '../interfaces/event.interface.ts';
-import { BadRequestError, NotFoundError } from '../utils/errors.ts';
-import { BackendResponse } from '../interfaces/index.interface.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
+} from '../interfaces/event.interface';
+import { BadRequestError, NotFoundError } from '../utils/errors';
+import { BackendResponse } from '../interfaces/index.interface';
+import { GuestRepository } from '../repositories/guest.repository';
+import { ReservationRepository } from '../repositories/reservation.repository';
 
 export class EventService {
   private readonly eventRepo: EventRepository;

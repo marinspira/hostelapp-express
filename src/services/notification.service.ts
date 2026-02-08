@@ -4,12 +4,12 @@ import type {
   ICreateNotificationResponse,
   INotificationListItemResponse,
   IUnreadCountResponse,
-} from '../interfaces/notification.interface.ts';
-import INotification from '../interfaces/notification.interface.ts';
-import { NotificationRepository } from '../repositories/notification.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
-import { BackendResponse } from '../interfaces/index.interface.ts';
+} from '../interfaces/notification.interface';
+import INotification from '../interfaces/notification.interface';
+import { NotificationRepository } from '../repositories/notification.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { GuestRepository } from '../repositories/guest.repository';
+import { BackendResponse } from '../interfaces/index.interface';
 
 export class NotificationService {
   private notificationRepo: NotificationRepository;

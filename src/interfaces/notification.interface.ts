@@ -1,7 +1,7 @@
 import type { Document } from 'mongoose';
 import { Types } from 'mongoose';
 
-import { BackendResponse } from './index.interface.ts';
+import { BackendResponse } from './index.interface';
 
 export interface IRecipient {
   userId: Types.ObjectId;

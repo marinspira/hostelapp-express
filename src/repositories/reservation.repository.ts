@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 
 import Reservation from '../models/reservation.model';
-import type { IReservation, IReservationDocument } from '../interfaces/reservation.interface.ts';
+import type { IReservation, IReservationDocument } from '../interfaces/reservation.interface';
 
 export class ReservationRepository {
   async create(data: IReservation): Promise<IReservationDocument> {

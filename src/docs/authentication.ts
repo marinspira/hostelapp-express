@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import type { Request } from 'express';
 
-import User from '../models/user.model.ts';
+import User from '../models/user.model';
 
 interface JWTPayload {
   userId: string;

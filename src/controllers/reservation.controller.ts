@@ -1,13 +1,13 @@
 import { Delete, Get, Post, Route, Request, Path, Put, Body, Tags, Security } from 'tsoa';
 
-import { ReservationService } from '../services/reservation.service.ts';
-import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface.ts';
-import { ReservationRepository } from '../repositories/reservation.repository.ts';
-import { HostelRepository } from '../repositories/hostel.repository.ts';
-import { GuestRepository } from '../repositories/guest.repository.ts';
-import { NotificationService } from '../services/notification.service.ts';
-import { NotificationRepository } from '../repositories/notification.repository.ts';
-import { UnauthorizedError } from '../utils/errors.ts';
+import { ReservationService } from '../services/reservation.service';
+import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface';
+import { ReservationRepository } from '../repositories/reservation.repository';
+import { HostelRepository } from '../repositories/hostel.repository';
+import { GuestRepository } from '../repositories/guest.repository';
+import { NotificationService } from '../services/notification.service';
+import { NotificationRepository } from '../repositories/notification.repository';
+import { UnauthorizedError } from '../utils/errors';
 import type {
   ICreateReservationResponse,
   IReservationListItemResponse,
@@ -17,7 +17,7 @@ import type {
   IOthersGuestsListResponse,
   ICurrentStayResponse,
   IReservationsForHostResponse,
-} from '../interfaces/reservation.interface.ts';
+} from '../interfaces/reservation.interface';
 
 @Route('/api/reservations')
 @Tags('Reservations')

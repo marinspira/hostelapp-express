@@ -2,10 +2,10 @@ import cron from 'node-cron';
 import mongoose from 'mongoose';
 import type { ClientSession } from 'mongoose';
 
-import connectToMongoDB from '../db/connect.ts';
-import Reservation from '../models/reservation.model.ts';
-import Guest from '../models/guest.model.ts';
-import Hostel from '../models/hostel.model.ts';
+import connectToMongoDB from '../db/connect';
+import Reservation from '../models/reservation.model';
+import Guest from '../models/guest.model';
+import Hostel from '../models/hostel.model';
 
 interface IReservation {
   _id: mongoose.Types.ObjectId;
@@ -147,7 +147,8 @@ export function stopAutomaticCheckoutJob() {
 }
 
 // if manual run, run once and close connection
-if (import.meta.url === `file://${process.argv[1]}`) {
+// In CommonJS, check if this file is being run directly
+if (require.main === module) {
   console.log('🔄 Running automatic checkout job manually...');
   runAutomaticCheckout()
     .then(() => {

@@ -1,11 +1,8 @@
 import { Types } from 'mongoose';
 
 import Notification from '../models/notification.model';
-import type INotification from '../interfaces/notification.interface.ts';
-import type {
-  INotificationDocument,
-  INotificationDTO,
-} from '../interfaces/notification.interface.ts';
+import type INotification from '../interfaces/notification.interface';
+import type { INotificationDocument, INotificationDTO } from '../interfaces/notification.interface';
 
 export class NotificationRepository {
   create(data: INotification): Promise<INotificationDocument> {

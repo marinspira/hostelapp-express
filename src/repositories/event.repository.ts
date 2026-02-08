@@ -1,11 +1,7 @@
 import { Types } from 'mongoose';
 
-import Event from '../models/event.model.ts';
-import type {
-  IEventAttendee,
-  IEventDocument,
-  IEventListItem,
-} from '../interfaces/event.interface.ts';
+import Event from '../models/event.model';
+import type { IEventAttendee, IEventDocument, IEventListItem } from '../interfaces/event.interface';
 
 export class EventRepository {
   async create(event: Partial<IEventDocument>): Promise<IEventDocument> {

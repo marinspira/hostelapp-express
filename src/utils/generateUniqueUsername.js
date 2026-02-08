@@ -1,5 +1,5 @@
-import Hostel from '../models/hostel.model.ts';
-import Guest from '../models/guest.model.ts';
+import Hostel from '../models/hostel.model';
+import Guest from '../models/guest.model';
 
 const generateUniqueUsername = async name => {
   let baseUsername = name.replace(/\s+/g, '').toLowerCase();

@@ -1,8 +1,8 @@
 import http from 'http';
 
-import connectToMongoDB from './db/connect.ts';
-import { startAutomaticCheckoutJob } from './jobs/checkout.job.ts';
-import app from './app.ts';
+import connectToMongoDB from './db/connect';
+import { startAutomaticCheckoutJob } from './jobs/checkout.job';
+import app from './app';
 
 const PORT = process.env.PORT || 8000;
 

@@ -2,26 +2,21 @@ import bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 import nodemailer from 'nodemailer';
 
-import User from '../models/user.model.ts';
-import Hostel from '../models/hostel.model.ts';
-import Guest from '../models/guest.model.ts';
+import User from '../models/user.model';
+import Hostel from '../models/hostel.model';
+import Guest from '../models/guest.model';
 // @ts-ignore
 import generateTokenAndSetCookie from '../utils/generateToken.js';
-import { AuthRepository } from '../repositories/auth.repository.ts';
-import {
-  BadRequestError,
-  ConflictError,
-  UnauthorizedError,
-  NotFoundError,
-} from '../utils/errors.ts';
-import { BackendResponse } from '../interfaces/index.interface.ts';
+import { AuthRepository } from '../repositories/auth.repository';
+import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from '../utils/errors';
+import { BackendResponse } from '../interfaces/index.interface';
 import {
   IsAuthenticatedResponse,
   ISendCodeResponse,
   IUserDocument,
   IUserDTO,
   IVerifyCodeResponse,
-} from '../interfaces/auth.interface.ts';
+} from '../interfaces/auth.interface';
 
 interface SendEmailParams {
   to: string;

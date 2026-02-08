@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
-import { IUserDocument } from '../interfaces/auth.interface.ts';
+import { IUserDocument } from '../interfaces/auth.interface';
 
 export type IUserModel = Model<IUserDocument>;
 

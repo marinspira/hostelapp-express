@@ -1,7 +1,7 @@
 import express from 'express';
 
 // @ts-ignore
-import { GuestController } from '../controllers/guest.controller.ts';
+import { GuestController } from '../controllers/guest.controller';
 // @ts-ignore
 import protectRoute from '../middleware/protectRoute.js';
 // @ts-ignore

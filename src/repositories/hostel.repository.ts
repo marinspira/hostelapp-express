@@ -1,9 +1,9 @@
 // @ts-ignore
 import { Types } from 'mongoose';
 
-import Hostel from '../models/hostel.model.ts';
-import { IHostel, IHostelDocument } from '../interfaces/hostel.interface.ts';
-import User from '../models/user.model.ts';
+import Hostel from '../models/hostel.model';
+import { IHostel, IHostelDocument } from '../interfaces/hostel.interface';
+import User from '../models/user.model';
 
 export class HostelRepository {
   async findByOwner(ownerId: Types.ObjectId | string): Promise<IHostelDocument | null> {
