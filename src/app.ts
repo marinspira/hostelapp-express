@@ -64,14 +64,9 @@ app.use(json());
 RegisterRoutes(app);
 
 // Static files
-if (process.env.NODE_ENV === 'production') {
-  const uploadsPath = path.join(process.cwd(), 'wwwroot', 'uploads');
-  console.log('Serving static files from:', uploadsPath);
-  app.use('/uploads', express.static(uploadsPath));
-} else {
-  const uploadsPath = path.join(__dirname, 'uploads');
-  app.use('/uploads', express.static(uploadsPath));
-}
+const uploadsPath = path.join(process.cwd(), 'uploads');
+console.log('Serving static files from:', uploadsPath);
+app.use('/uploads', express.static(uploadsPath));
 
 // Middleware HTTP logs morgan + winston
 const logDir = path.join(__dirname, 'logs');
