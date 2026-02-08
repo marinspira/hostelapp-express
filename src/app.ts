@@ -64,8 +64,13 @@ app.use(json());
 RegisterRoutes(app);
 
 // Static files
-const uploadsPath = path.join(__dirname, 'uploads');
-app.use('/uploads', express.static(uploadsPath));
+if (process.env.NODE_ENV === 'production') {
+  const uploadsPath = path.join(process.cwd(), 'wwwroot', 'uploads');
+  app.use('/uploads', express.static(uploadsPath));
+} else {
+  const uploadsPath = path.join(__dirname, 'uploads');
+  app.use('/uploads', express.static(uploadsPath));
+}
 
 // Middleware HTTP logs morgan + winston
 const logDir = path.join(__dirname, 'logs');
