@@ -66,6 +66,7 @@ RegisterRoutes(app);
 // Static files
 if (process.env.NODE_ENV === 'production') {
   const uploadsPath = path.join(process.cwd(), 'wwwroot', 'uploads');
+  console.log('Serving static files from:', uploadsPath);
   app.use('/uploads', express.static(uploadsPath));
 } else {
   const uploadsPath = path.join(__dirname, 'uploads');
