@@ -1,10 +1,10 @@
-import js from '@eslint/js';
-import typescript from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
-import nodePlugin from 'eslint-plugin-node';
-import importPlugin from 'eslint-plugin-import';
+const js = require('@eslint/js');
+const typescript = require('@typescript-eslint/eslint-plugin');
+const typescriptParser = require('@typescript-eslint/parser');
+const nodePlugin = require('eslint-plugin-node');
+const importPlugin = require('eslint-plugin-import');
 
-export default [
+module.exports = [
   js.configs.recommended,
   {
     files: ['**/*.js', '**/*.ts'],
