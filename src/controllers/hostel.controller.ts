@@ -7,7 +7,7 @@ import { UnauthorizedError } from '../utils/errors';
 import type { ICreateHostelResponse, IHostelByIdResponse } from '../interfaces/hostel.interface';
 import type { AuthenticatedRequest, BackendResponse } from '../interfaces/index.interface';
 // @ts-ignore
-import { getRelativeFilePath } from '../middleware/saveUploads.js';
+import { getRelativeFilePath } from '../middleware/saveUploads';
 
 @Route('/api/hostels')
 @Tags('Hostels')

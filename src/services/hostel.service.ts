@@ -8,10 +8,8 @@ import type {
 import { HostelRepository } from '../repositories/hostel.repository';
 import { BackendResponse } from '../interfaces/index.interface';
 import { BadRequestError, NotFoundError } from '../utils/errors';
-// @ts-ignore
-import generateUniqueUsername from '../utils/generateUniqueUsername.js';
-// @ts-ignore
-import countries from '../utils/coutries.js';
+import generateUniqueUsername from '../utils/generateUniqueUsername';
+import countries from '../utils/coutries';
 
 export class HostelService {
   private hostelRepo: HostelRepository;

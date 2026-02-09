@@ -1,8 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-// __dirname is available in CommonJS, removing imports not needed for CommonJS
-// import { fileURLToPath } from 'url';
-// import { URL } from 'url';
 
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
@@ -13,17 +10,13 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
 import eventRoutes from './routes/event.routes';
-// @ts-ignore
-import errorHandler from './middleware/errorHandler.js';
+import errorHandler from './middleware/errorHandler';
 import { RegisterRoutes } from './routes/routes';
 import guestRoutes from './routes/guest.routes';
 import hostelRoutes from './routes/hostel.routes';
 
 const app = express();
 dotenv.config();
-
-// __dirname is available globally in CommonJS
-export { __dirname };
 
 // Middlewares
 app.use(cors());
@@ -64,9 +57,9 @@ app.use(json());
 RegisterRoutes(app);
 
 // Static files
-const uploadsPath = path.join(process.cwd(), 'uploads');
-console.log('Serving static files from:', uploadsPath);
-app.use('/uploads', express.static(uploadsPath));
+// const uploadsPath = path.join(process.cwd(), 'uploads');
+// console.log('Serving static files from:', uploadsPath);
+// app.use('/uploads', express.static(uploadsPath));
 
 // Middleware HTTP logs morgan + winston
 const logDir = path.join(__dirname, 'logs');

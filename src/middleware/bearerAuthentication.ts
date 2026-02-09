@@ -1,4 +1,10 @@
-export const authenticateToken = (req, res, next) => {
+import { Request, Response, NextFunction } from 'express';
+
+export const authenticateToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   const authHeader = req.headers['authorization']; // Get the auth header
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 

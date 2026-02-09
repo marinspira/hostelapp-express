@@ -1,12 +1,8 @@
 import express from 'express';
 
-// @ts-ignore
 import { GuestController } from '../controllers/guest.controller';
-// @ts-ignore
-import protectRoute from '../middleware/protectRoute.js';
-// @ts-ignore
-import { upload } from '../middleware/saveUploads.js';
-// @ts-ignore
+import protectRoute from '../middleware/protectRoute';
+import { upload } from '../middleware/saveUploads';
 
 const router = express.Router();
 const guestController = new GuestController();

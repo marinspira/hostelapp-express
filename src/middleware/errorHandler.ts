@@ -1,6 +1,18 @@
+import { Request, Response, NextFunction } from 'express';
 import { ValidateError } from 'tsoa';
 
-const errorHandler = async (err, req, res, next) => {
+interface ErrorWithStatus extends Error {
+  status?: number;
+  statusCode?: number;
+  details?: any;
+}
+
+const errorHandler = async (
+  err: ErrorWithStatus,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
   const errorDetails = {
     message: err.message,
     stack: err.stack,
@@ -38,7 +50,7 @@ const errorHandler = async (err, req, res, next) => {
   const statusCode = err.status || err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
 
-  res.status(statusCode).json({ success: false, message });
+  return res.status(statusCode).json({ success: false, message });
 };
 
 export default errorHandler;

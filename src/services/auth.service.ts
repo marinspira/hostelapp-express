@@ -5,8 +5,7 @@ import nodemailer from 'nodemailer';
 import User from '../models/user.model';
 import Hostel from '../models/hostel.model';
 import Guest from '../models/guest.model';
-// @ts-ignore
-import generateTokenAndSetCookie from '../utils/generateToken.js';
+import generateTokenAndSetCookie from '../utils/generateToken';
 import { AuthRepository } from '../repositories/auth.repository';
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from '../utils/errors';
 import { BackendResponse } from '../interfaces/index.interface';

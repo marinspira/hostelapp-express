@@ -18,7 +18,7 @@ import type {
   UploadedFile,
 } from '../interfaces/index.interface';
 // @ts-ignore
-import { getRelativeFilePath } from '../middleware/saveUploads.js';
+import { getRelativeFilePath } from '../middleware/saveUploads';
 import { GuestRepository } from '../repositories/guest.repository';
 
 @Route('/api/events')

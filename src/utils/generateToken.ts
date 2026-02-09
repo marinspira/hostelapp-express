@@ -1,14 +1,16 @@
 import jwt from 'jsonwebtoken';
+import { Response } from 'express';
+import { Types } from 'mongoose';
 
 // Function to generate a JWT token only
-export function generateToken(userId) {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+export function generateToken(userId: Types.ObjectId): string {
+  return jwt.sign({ userId }, process.env.JWT_SECRET!, {
     expiresIn: '15d', // Set the token's validity to 15 days
   });
 }
 
 // Function to generate a JWT token and set it in a cookie in the HTTP response
-function generateTokenAndSetCookie(userId, res) {
+function generateTokenAndSetCookie(userId: Types.ObjectId, res: Response): string {
   // Generate a JWT token using the user's ID and a secret key
   const token = generateToken(userId);
 

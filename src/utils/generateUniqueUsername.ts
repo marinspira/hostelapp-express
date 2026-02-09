@@ -1,7 +1,7 @@
 import Hostel from '../models/hostel.model';
 import Guest from '../models/guest.model';
 
-const generateUniqueUsername = async name => {
+const generateUniqueUsername = async (name: string): Promise<string> => {
   let baseUsername = name.replace(/\s+/g, '').toLowerCase();
 
   let username = baseUsername;

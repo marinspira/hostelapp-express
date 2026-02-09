@@ -1,10 +1,8 @@
 import express from 'express';
 
-// @ts-ignore
-import protectRoute from '../middleware/protectRoute.js';
-// @ts-ignore
-import { upload } from '../middleware/saveUploads.js';
-import { HostelController } from '../controllers/hostel.controller.js';
+import protectRoute from '../middleware/protectRoute';
+import { upload } from '../middleware/saveUploads';
+import { HostelController } from '../controllers/hostel.controller';
 
 const router = express.Router();
 const hostelController = new HostelController();

@@ -1,10 +1,8 @@
 import express from 'express';
 
 import { EventsController } from '../controllers/events.controller';
-// @ts-ignore
-import protectRoute from '../middleware/protectRoute.js';
-// @ts-ignore
-import { upload } from '../middleware/saveUploads.js';
+import protectRoute from '../middleware/protectRoute';
+import { upload } from '../middleware/saveUploads';
 
 const router = express.Router();
 const eventsController = new EventsController();

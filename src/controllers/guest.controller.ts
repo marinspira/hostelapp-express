@@ -19,7 +19,7 @@ import type {
   UploadedFile,
 } from '../interfaces/index.interface';
 // @ts-ignore
-import { getRelativeFilePath } from '../middleware/saveUploads.js';
+import { getRelativeFilePath } from '../middleware/saveUploads';
 
 @Route('/api/guests')
 @Tags('Guests')

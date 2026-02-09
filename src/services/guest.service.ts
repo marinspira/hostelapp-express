@@ -10,8 +10,7 @@ import { GuestRepository } from '../repositories/guest.repository';
 import { HostelRepository } from '../repositories/hostel.repository';
 import { BackendResponse } from '../interfaces/index.interface';
 import { BadRequestError, NotFoundError } from '../utils/errors';
-// @ts-ignore
-import generateUniqueUsername from '../utils/generateUniqueUsername.js';
+import generateUniqueUsername from '../utils/generateUniqueUsername';
 import User from '../models/user.model';
 
 export class GuestService {
