@@ -125,17 +125,16 @@ export class AuthService {
     const user = await User.findById(userId);
     if (!user) throw new NotFoundError('User not found');
 
-    const guest = await Guest.findOne({ user: user._id });
-    const hostel = await Hostel.findOne({ user_id_owners: user._id });
+    const userDTO: IUserDTO = {
+      _id: (user._id as Types.ObjectId).toString(),
+      name: user.name,
+      role: user.role,
+      email: user.email,
+      isNewUser: user.isNewUser,
+    };
 
     return {
-      data: {
-        _id: (user._id as Types.ObjectId).toString() as string,
-        name: user.name,
-        role: user.role,
-        email: user.email,
-        isNewUser: !(guest?.birthday || hostel),
-      },
+      data: userDTO,
       message: 'User is authenticated',
       success: true,
     };

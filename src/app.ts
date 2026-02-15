@@ -57,9 +57,9 @@ app.use(json());
 RegisterRoutes(app);
 
 // Static files
-// const uploadsPath = path.join(process.cwd(), 'uploads');
-// console.log('Serving static files from:', uploadsPath);
-// app.use('/uploads', express.static(uploadsPath));
+const uploadsPath = path.join(process.cwd(), 'uploads');
+console.log('Serving static files from:', uploadsPath);
+app.use('/uploads', express.static(uploadsPath));
 
 // Middleware HTTP logs morgan + winston
 const logDir = path.join(__dirname, 'logs');

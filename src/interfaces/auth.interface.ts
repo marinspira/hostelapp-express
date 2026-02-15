@@ -49,7 +49,7 @@ export interface IUser {
 }
 
 export interface IUserDTO extends IUser {
-  _id: string;
+  _id: Types.ObjectId | string;
 }
 
 export interface IUserDocument extends IUser, Document {
