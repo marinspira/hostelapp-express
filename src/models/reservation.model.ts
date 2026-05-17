@@ -42,6 +42,22 @@ const ReservationSchema = new Schema<IReservationDocument>(
       type: Date,
       required: false,
     },
+    is_staff: {
+      type: Boolean,
+      default: false,
+    },
+    staff_role: {
+      type: String,
+      enum: [
+        'cleaning',
+        'reception',
+        'maintenance',
+        'event',
+        'breakfast',
+        null,
+      ],
+      default: null,
+    },
   },
   { timestamps: true }
 );

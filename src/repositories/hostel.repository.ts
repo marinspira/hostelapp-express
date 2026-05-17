@@ -60,6 +60,13 @@ export class HostelRepository {
     await Hostel.updateOne({ _id: hostelId }, { $addToSet: { user_id_guests: guestUserId } });
   }
 
+  async addStaffToHostel(
+    hostelId: string | Types.ObjectId,
+    staffUserId: string | Types.ObjectId
+  ): Promise<void> {
+    await Hostel.updateOne({ _id: hostelId }, { $addToSet: { user_id_staffs: staffUserId } });
+  }
+
   async checkUserAccessToHostel(
     hostelId: Types.ObjectId,
     userId: string | Types.ObjectId

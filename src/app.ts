@@ -14,6 +14,8 @@ import errorHandler from './middleware/errorHandler';
 import { RegisterRoutes } from './routes/routes';
 import guestRoutes from './routes/guest.routes';
 import hostelRoutes from './routes/hostel.routes';
+import roleScheduleRoutes from './routes/role-schedule.routes';
+import taskRoutes from './routes/task.routes';
 
 const app = express();
 dotenv.config();
@@ -44,6 +46,8 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/api/events', eventRoutes);
 app.use('/api/guests', guestRoutes);
 app.use('/api/hostels', hostelRoutes);
+app.use('/api', taskRoutes);
+app.use('/api', roleScheduleRoutes);
 // app.use('/api/reservations', reservationRoutes);
 // app.use('/api/notifications', notificationRoutes);
 

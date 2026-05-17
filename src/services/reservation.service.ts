@@ -124,14 +124,43 @@ export class ReservationService {
       status = 'checked out';
     }
 
+    const allowedStaffRoles = [
+      'cleaning',
+      'reception',
+      'maintenance',
+      'event',
+      'breakfast',
+    ];
+
+    if (data.is_staff) {
+      if (!data.staff_role) {
+        throw new BadRequestError('Staff role is required when reservation is marked as staff');
+      }
+      if (!allowedStaffRoles.includes(data.staff_role)) {
+        throw new BadRequestError(`Invalid staff role: ${data.staff_role}`);
+      }
+    }
+
     const reservationData: IReservation = {
       ...data,
       hostel_id: hostel._id,
       user_id_guest: userIdGuest,
       status: status,
+      is_staff: !!data.is_staff,
+      staff_role: data.is_staff ? data.staff_role : null,
     };
 
     const reservation = await this.reservationRepo.create(reservationData);
+
+    try {
+      if (data.is_staff) {
+        await this.hostelRepo.addStaffToHostel(hostel._id, userIdGuest);
+      } else {
+        await this.hostelRepo.addGuestToHostel(hostel._id, userIdGuest);
+      }
+    } catch (error) {
+      console.error('Error adding user to hostel access list:', error);
+    }
 
     // Create notification for new reservation
     try {
@@ -192,7 +221,7 @@ export class ReservationService {
           status: reservation.status,
           hostel_id: reservation.hostel_id.toString(),
           guest: {
-            _id: guest ? guest._id.toString() : '',
+            _id: reservation.user_id_guest.toString(),
             username: guest ? guest.name : '',
             email: user && user.email ? user.email : '',
             phone: guest && guest.phone ? guest.phone : '',
@@ -204,6 +233,8 @@ export class ReservationService {
           checkin_date: reservation.checkin_date,
           checkout_date: reservation.checkout_date,
           checkout_processed_at: reservation.checkout_processed_at,
+          is_staff: !!reservation.is_staff,
+          staff_role: reservation.staff_role ?? null,
         };
       })
     );

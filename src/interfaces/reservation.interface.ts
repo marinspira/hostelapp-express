@@ -2,6 +2,13 @@ import { Document, Types } from 'mongoose';
 
 import { BackendResponse } from './index.interface';
 
+export type StaffRole =
+  | 'cleaning'
+  | 'reception'
+  | 'maintenance'
+  | 'event'
+  | 'breakfast'
+
 export interface IReservation {
   status: 'walking in' | 'in house' | 'checked out';
   hostel_id: Types.ObjectId;
@@ -11,6 +18,8 @@ export interface IReservation {
   checkin_date: Date;
   checkout_date: Date;
   checkout_processed_at?: Date;
+  is_staff?: boolean;
+  staff_role?: StaffRole | null;
 }
 
 export interface ReservationForHost {
@@ -29,6 +38,8 @@ export interface ReservationForHost {
   checkin_date: Date;
   checkout_date: Date;
   checkout_processed_at?: Date;
+  is_staff?: boolean;
+  staff_role?: StaffRole | null;
 }
 
 export interface IReservationCreateRequest {
@@ -37,6 +48,8 @@ export interface IReservationCreateRequest {
   bed: string;
   checkin_date: Date;
   checkout_date: Date;
+  is_staff?: boolean;
+  staff_role?: StaffRole | null;
 }
 
 export interface IReservationDocument extends IReservation, Document {
