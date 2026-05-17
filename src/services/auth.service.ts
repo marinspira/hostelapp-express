@@ -63,6 +63,18 @@ export class AuthService {
 
     await this._authRepository.upsertCode(emailLowercase, codeHash, expiresAt);
 
+    // In development mode, just log the code instead of sending email
+    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+      console.log('='.repeat(50));
+      console.log('🚀 DEVELOPMENT MODE - EMAIL NOT SENT');
+      console.log('='.repeat(50));
+      console.log(`To: ${emailLowercase}`);
+      console.log(`Code: ${code}`);
+      console.log(`Expires at: ${expiresAt}`);
+      console.log('='.repeat(50));
+      return { message: 'Code sent (development mode - check console)', success: true };
+    }
+
     await this.sendEmail({
       to: emailLowercase,
       subject: 'Your login code',
@@ -168,16 +180,39 @@ export class AuthService {
     }
 
     try {
-      await transporter.sendMail({
+      const mailOptions = {
         from: process.env.SMTP_FROM || 'no-reply@example.com',
         to,
         subject,
         text,
         html,
+      };
+      
+      console.log('[sendEmail] Sending email with options:', { 
+        from: mailOptions.from, 
+        to: mailOptions.to, 
+        subject: mailOptions.subject 
       });
-    } catch (error) {
-      console.error('[sendEmail] Error sending email:', error);
-      throw new BadRequestError('Error sending email');
+      
+      const result = await transporter.sendMail(mailOptions);
+      console.log('[sendEmail] Email sent successfully:', result.messageId);
+    } catch (error: any) {
+      console.error('[sendEmail] Error sending email:', {
+        error: error.message,
+        code: error.code,
+        response: error.response,
+        responseCode: error.responseCode,
+        command: error.command
+      });
+      
+      // Provide more specific error messages
+      if (error.code === 'EENVELOPE') {
+        throw new BadRequestError(`SMTP Authentication Error: ${error.response || 'Sender address rejected'}`);
+      } else if (error.code === 'EAUTH') {
+        throw new BadRequestError('SMTP Authentication failed. Check your email credentials.');
+      } else {
+        throw new BadRequestError(`Email sending failed: ${error.message}`);
+      }
     }
 
     return { success: true, message: 'Email sent' };
